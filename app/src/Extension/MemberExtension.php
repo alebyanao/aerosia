@@ -10,5 +10,19 @@ class MemberExtension extends DataExtension
         'IsVerified' => 'Boolean',
         'ResetPasswordToken' => 'Varchar(255)',
         'ResetPasswordExpiry' => 'Datetime',
+        'GoogleID' => 'Varchar(255)',
     ];
+
+    private static $indexes = [
+        'GoogleID' => true,
+        'VerificationToken' => true,
+        'ResetPasswordToken' => true,
+    ];
+
+    public function updateSummaryFields(&$fields)
+    {
+        $fields['GoogleID'] = 'GoogleID';
+        $fields['IsVerified'] = 'Terverifikasi';
+    }
+
 }

@@ -59,9 +59,14 @@
                             <div class="mt-4 border-top pt-3">
                                 <h5 class="fw-bold mb-2">Total:</h5>
                                 <h3 class="fw-bold text-success" id="total-amount">Rp 0</h3>
-                                <button class="btn btn-success w-100 mt-3" id="buy-btn" disabled>
+
+                                <!-- Tombol beli pakai BaseHref -->
+                                <a href="$BaseHref/checkout" 
+                                   id="buy-btn"
+                                   class="btn btn-success w-100 mt-3 disabled"
+                                   aria-disabled="true">
                                     <i class="bi bi-cart-check"></i> Beli Sekarang
-                                </button>
+                                </a>
                             </div>
                         <% else %>
                             <div class="alert alert-warning" role="alert">
@@ -84,7 +89,6 @@
     </div>
 </div>
 
-<!-- ===== SCRIPT ===== -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const ticketItems = document.querySelectorAll('.ticket-type-item');
@@ -127,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (val > maxLimit) {
                 alertMsg.classList.remove('d-none');
                 qtyInput.classList.add('is-invalid');
-                buyBtn.disabled = true;
+                disableBuy();
             } else {
                 alertMsg.classList.add('d-none');
                 qtyInput.classList.remove('is-invalid');
@@ -139,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateTotal() {
         if (!selectedTicket) {
             totalAmountEl.textContent = 'Rp 0';
-            buyBtn.disabled = true;
+            disableBuy();
             return;
         }
 
@@ -147,7 +151,21 @@ document.addEventListener('DOMContentLoaded', function() {
         const total = qty * selectedTicket.price;
 
         totalAmountEl.textContent = 'Rp ' + total.toLocaleString('id-ID');
-        buyBtn.disabled = qty < 1 || qty > selectedTicket.maxLimit;
+        if (qty >= 1 && qty <= selectedTicket.maxLimit) {
+            enableBuy();
+        } else {
+            disableBuy();
+        }
+    }
+
+    function enableBuy() {
+        buyBtn.classList.remove('disabled');
+        buyBtn.removeAttribute('aria-disabled');
+    }
+
+    function disableBuy() {
+        buyBtn.classList.add('disabled');
+        buyBtn.setAttribute('aria-disabled', 'true');
     }
 });
 </script>
