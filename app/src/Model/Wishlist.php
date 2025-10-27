@@ -1,6 +1,5 @@
 <?php
 
-use SebastianBergmann\Type\StaticType;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Security\Member;
 

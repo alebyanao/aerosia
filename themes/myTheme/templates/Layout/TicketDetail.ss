@@ -61,12 +61,14 @@
                                 <h3 class="fw-bold text-success" id="total-amount">Rp 0</h3>
 
                                 <!-- Tombol beli pakai BaseHref -->
-                                <a href="$BaseHref/checkout" 
-                                   id="buy-btn"
-                                   class="btn btn-success w-100 mt-3 disabled"
-                                   aria-disabled="true">
-                                    <i class="bi bi-cart-check"></i> Beli Sekarang
-                                </a>
+                               <form id="checkoutForm" action="$BaseHref/checkout" method="post">
+  <input type="hidden" name="ticket_type_id" id="ticketTypeId">
+  <input type="hidden" name="quantity" id="ticketQty">
+  <button type="submit" id="buy-btn" class="btn btn-success w-100 mt-3 disabled" aria-disabled="true">
+    <i class="bi bi-cart-check"></i> Beli Sekarang
+  </button>
+</form>
+
                             </div>
                         <% else %>
                             <div class="alert alert-warning" role="alert">
@@ -167,7 +169,18 @@ document.addEventListener('DOMContentLoaded', function() {
         buyBtn.classList.add('disabled');
         buyBtn.setAttribute('aria-disabled', 'true');
     }
+    buyBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (!selectedTicket) return;
+    
+      document.getElementById('ticketTypeId').value = selectedTicket.item.dataset.ticketId;
+      document.getElementById('ticketQty').value = selectedTicket.item.querySelector('.quantity-input').value;
+    
+      document.getElementById('checkoutForm').submit();
+    });
 });
+
+
 </script>
 
 <style>

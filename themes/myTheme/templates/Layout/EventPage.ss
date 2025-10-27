@@ -22,40 +22,36 @@
                             <div class="mt-auto">
                                 <p class="fw-bold text-primary fs-5 mb-3">
                                     $PriceLabel
-                                     <% if $Price == 0 %>
-                                                    <span class="badge bg-success ms-2">GRATIS</span>
-                                                <% end_if %>
+                                    <% if $Price == 0 %>
+                                        <span class="badge bg-success ms-2">GRATIS</span>
+                                    <% end_if %>
                                 </p>
-                                <%-- <a href="$Link" class="btn btn-primary w-100">
-                                    Lihat Detail & Pilih Tiket
-                                </a> --%>
                                 <div class="d-flex gap-2 mt-auto">
-    <a href="$Link" class="btn btn-primary flex-fill">
-        <i class="bi bi-ticket-perforated"></i> Detail
-    </a>
+                                    <a href="$Link" class="btn btn-primary flex-fill">
+                                        <i class="bi bi-ticket-perforated"></i> Detail
+                                    </a>
 
-    <% if $Top.CurrentUser %>
-        <% if $Top.CurrentUser.Wishlists.Filter('TicketID', $ID).Count > 0 %>
-            <!-- Jika tiket ini sudah ada di wishlist -->
-            <a href="$Top.Link(remove)/{$Top.CurrentUser.Wishlists.Filter('TicketID', $ID).First.ID}" 
-               class="btn btn-outline-danger flex-fill">
-                <i class="bi bi-heart-fill"></i> Hapus
-            </a>
-        <% else %>
-            <!-- Jika belum ada di wishlist -->
-            <a href="$BaseHref/wishlist/add/$ID" 
-               class="btn btn-outline-secondary flex-fill">
-                <i class="bi bi-heart"></i> Wishlist
-            </a>
-        <% end_if %>
-    <% else %>
-        <!-- Jika belum login -->
-        <a href="{$BaseURL}auth/login" class="btn btn-outline-secondary flex-fill">
-            <i class="bi bi-heart"></i> Wishlist
-        </a>
-    <% end_if %>
-</div>
-
+                                    <% if $Top.CurrentUser %>
+                                        <% if $Top.CurrentUser.Wishlists.Filter('TicketID', $ID).Count > 0 %>
+                                            <!-- Jika tiket ini sudah ada di wishlist -->
+                                            <a href="$Top.Link(remove)/{$Top.CurrentUser.Wishlists.Filter('TicketID', $ID).First.ID}" 
+                                            class="btn btn-outline-danger flex-fill">
+                                                <i class="bi bi-heart-fill"></i> Hapus
+                                            </a>
+                                        <% else %>
+                                            <!-- Jika belum ada di wishlist -->
+                                            <a href="$BaseHref/wishlist/add/$ID" 
+                                            class="btn btn-outline-secondary flex-fill">
+                                                <i class="bi bi-heart"></i> Wishlist
+                                            </a>
+                                        <% end_if %>
+                                    <% else %>
+                                        <!-- Jika belum login -->
+                                        <a href="{$BaseURL}auth/login" class="btn btn-outline-secondary flex-fill">
+                                            <i class="bi bi-heart"></i> Wishlist
+                                        </a>
+                                    <% end_if %>
+                                </div>
                             </div>
                         <% else %>
                             <div class="mt-auto">
