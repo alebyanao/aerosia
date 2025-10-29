@@ -24,8 +24,6 @@ namespace {
                 "IsLoggedIn" => $this->isLoggedIn(),
                 "CurrentUser" => $this->getCurrentUser(),
                 "WishlistCount" => $this->getWishlistCount(),
-                // "CartCount" => $this->getCartCount(),
-                // "PaymentMethod" => PaymentMethod::get(),
                 "CustomSiteConfig" => SiteConfig::current_site_config(),
             ];
         }
