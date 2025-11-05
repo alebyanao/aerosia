@@ -196,7 +196,7 @@ class InvoiceController extends PageController
             $emails = explode(',', $siteConfig->Email);
             $companyEmail = trim($emails[0]);
             
-            $pdfContent = $this->generatePDFContent($order);
+            $pdfContent = $this->generatePDFContent(order: $order);
             $emailData = $this->prepareInvoiceData($order);
             
             $tempFile = tempnam(sys_get_temp_dir(), 'invoice_');
@@ -266,7 +266,18 @@ class InvoiceController extends PageController
      */
     public static function sendInvoiceAfterPayment($order)
     {
+        if ($order->InvoiceSent) {
+            return false; // sudah pernah kirim
+        }
+
         $controller = new InvoiceController();
-        return $controller->sendInvoiceToMember($order);
+        $sent = $controller->sendInvoiceToMember($order);
+
+        if ($sent) {
+            $order->InvoiceSent = true;
+            $order->write();
+        }
+
+        return $sent;
     }
 }

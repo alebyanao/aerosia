@@ -11,7 +11,7 @@ class Order extends DataObject
     private static $db = [
         "OrderCode" => "Varchar(255)",
         "MerchantOrderID" => "Varchar(255)", // Untuk Duitku
-        "Status" => "Enum('pending,pending_payment,paid,processing,completed,cancelled', 'pending')",
+        "Status" => "Enum('pending,pending_payment,completed,cancelled', 'pending')", // Removed 'paid' and 'processing'
         "Quantity" => "Int",
         "TotalPrice" => "Double", // Harga tiket x quantity
         "PaymentFee" => "Double", // Fee dari payment gateway (Duitku)
@@ -27,9 +27,11 @@ class Order extends DataObject
         "CreatedAt" => "Datetime",
         "UpdatedAt" => "Datetime",
         "ExpiresAt" => "Datetime",
+        "CompletedAt" => "Datetime", // Timestamp ketika order completed
         
         // Flags
         "CapacityReduced" => "Boolean(0)", // Flag untuk track apakah kapasitas sudah dikurangi
+        "InvoiceSent" => "Boolean(0)",
     ];
     
     private static $has_one = [
@@ -54,6 +56,7 @@ class Order extends DataObject
         "Status" => "Status",
         "PaymentStatus" => "Status Bayar",
         "CreatedAt" => "Tanggal Order",
+        "CompletedAt" => "Tanggal Selesai",
     ];
 
     /**
@@ -174,7 +177,8 @@ class Order extends DataObject
     }
 
     /**
-     * Mark order as paid and reduce ticket capacity
+     * Mark order as paid, reduce capacity, and mark as completed
+     * UPDATED: Langsung mark sebagai completed setelah paid
      */
     public function markAsPaid()
     {
@@ -184,8 +188,9 @@ class Order extends DataObject
             return false;
         }
 
-        $this->Status = 'paid';
+        $this->Status = 'completed'; // Langsung completed, bukan 'paid'
         $this->PaymentStatus = 'paid';
+        $this->CompletedAt = date('Y-m-d H:i:s'); // Set waktu completed
         
         // Kurangi kapasitas tiket jika belum dikurangi
         if (!$this->CapacityReduced) {
@@ -200,6 +205,9 @@ class Order extends DataObject
         }
         
         $this->write();
+        
+        error_log('Order::markAsPaid - Order ' . $this->OrderCode . ' marked as completed automatically');
+        
         return true;
     }
 
@@ -279,28 +287,20 @@ class Order extends DataObject
     }
 
     /**
-     * Mark order as processing
+     * DEPRECATED: No longer needed - orders are completed automatically after payment
      */
     public function markAsProcessing()
     {
-        if ($this->Status == 'paid' && $this->PaymentStatus == 'paid') {
-            $this->Status = 'processing';
-            $this->write();
-            return true;
-        }
+        error_log('Order::markAsProcessing - This method is deprecated. Orders are completed automatically.');
         return false;
     }
 
     /**
-     * Mark order as completed
+     * DEPRECATED: No longer needed - orders are completed automatically after payment
      */
     public function markAsCompleted()
     {
-        if (in_array($this->Status, ['paid', 'processing'])) {
-            $this->Status = 'completed';
-            $this->write();
-            return true;
-        }
+        error_log('Order::markAsCompleted - This method is deprecated. Orders are completed automatically.');
         return false;
     }
 
@@ -314,10 +314,6 @@ class Order extends DataObject
                 return '<span class="badge bg-secondary">Menunggu Konfirmasi</span>';
             case 'pending_payment':
                 return '<span class="badge bg-warning">Menunggu Pembayaran</span>';
-            case 'paid':
-                return '<span class="badge bg-success">Dibayar</span>';
-            case 'processing':
-                return '<span class="badge bg-info">Diproses</span>';
             case 'completed':
                 return '<span class="badge bg-success">Selesai</span>';
             case 'cancelled':

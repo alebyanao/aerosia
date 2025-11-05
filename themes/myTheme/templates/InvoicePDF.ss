@@ -43,12 +43,7 @@
             max-height: 80px;
             margin-bottom: 10px;
         }
-        .company-name {
-            font-size: 20pt;
-            font-weight: bold;
-            color: #667eea;
-            margin-bottom: 5px;
-        }
+       
         .company-details {
             font-size: 9pt;
             color: #666;
@@ -264,7 +259,6 @@
                 <% if $SiteConfig.Logo %>
                 <img src="$SiteConfig.Logo.AbsoluteURL" alt="$SiteConfig.Title" class="company-logo">
                 <% end_if %>
-                <div class="company-name">$SiteConfig.Title</div>
                 <div class="company-details">
                     <% if $SiteConfig.Email %>Email: $SiteConfig.Email<br><% end_if %>
                     <% if $SiteConfig.Phone %>Telp: $SiteConfig.Phone<br><% end_if %>
@@ -395,7 +389,7 @@
         <div class="invoice-footer">
             <p><strong>Terima kasih atas pembelian Anda!</strong></p>
             <p>Dokumen ini digenerate secara otomatis dan sah tanpa tanda tangan</p>
-            <p>© $Now.Year $SiteConfig.Title. All Rights Reserved.</p>
+            <%-- <p>© $Now.Year $SiteConfig.Title. All Rights Reserved.</p> --%>
         </div>
     </div>
 </body>

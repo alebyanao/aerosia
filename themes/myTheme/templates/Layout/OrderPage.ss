@@ -26,13 +26,8 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link <% if $StatusFilter == 'paid' %>active<% end_if %>" href="$Link?status=paid">
-              <i class="bi bi-check-circle me-1"></i> Sudah Dibayar
-            </a>
-          </li>
-          <li class="nav-item">
             <a class="nav-link <% if $StatusFilter == 'completed' %>active<% end_if %>" href="$Link?status=completed">
-              <i class="bi bi-check-all me-1"></i> Selesai
+              <i class="bi bi-check-circle me-1"></i> Selesai
             </a>
           </li>
           <li class="nav-item">
@@ -62,13 +57,9 @@
                             <span class="badge bg-warning text-dark">
                               <i class="bi bi-clock me-1"></i> Menunggu Pembayaran
                             </span>
-                          <% else_if $Status == 'paid' %>
-                            <span class="badge bg-success">
-                              <i class="bi bi-check-circle me-1"></i> Sudah Dibayar
-                            </span>
                           <% else_if $Status == 'completed' %>
-                            <span class="badge bg-primary">
-                              <i class="bi bi-check-all me-1"></i> Selesai
+                            <span class="badge bg-success">
+                              <i class="bi bi-check-circle me-1"></i> Selesai
                             </span>
                           <% else_if $Status == 'cancelled' %>
                             <span class="badge bg-danger">
@@ -100,7 +91,12 @@
 
                     <div class="text-muted small">
                       <i class="bi bi-clock me-1"></i>
-                      Dipesan: $CreateAt.Nice
+                      Dipesan: $CreatedAt.Nice
+                      <% if $Status == 'completed' && $CompletedAt %>
+                        <br>
+                        <i class="bi bi-check-circle me-1 text-success"></i>
+                        Selesai: $CompletedAt.Nice
+                      <% end_if %>
                     </div>
                   </div>
 
@@ -119,6 +115,12 @@
                       <% if $Status == 'pending_payment' && $canBePaid %>
                         <a href="$BaseHref/payment/initiate/$ID" class="btn btn-success btn-sm">
                           <i class="bi bi-credit-card me-1"></i> Bayar Sekarang
+                        </a>
+                      <% end_if %>
+
+                      <% if $Status == 'completed' && $PaymentStatus == 'paid' %>
+                        <a href="$BaseHref/invoice/download/$ID" class="btn btn-outline-primary btn-sm" target="_blank">
+                          <i class="bi bi-download me-1"></i> Download Invoice
                         </a>
                       <% end_if %>
 
@@ -147,7 +149,7 @@
                   Anda belum memiliki pesanan tiket. Mulai jelajahi event menarik!
                 <% end_if %>
               </p>
-              <a href="$BaseHref/events" class="btn btn-primary">
+              <a href="$BaseHref/event" class="btn btn-primary">
                 <i class="bi bi-search me-2"></i> Jelajahi Event
               </a>
             </div>

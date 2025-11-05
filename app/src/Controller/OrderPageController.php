@@ -62,9 +62,6 @@ class OrderPageController extends PageController
                 case 'pending':
                     $orders = $orders->filter('Status', ['pending', 'pending_payment']);
                     break;
-                case 'paid':
-                    $orders = $orders->filter('Status', 'paid');
-                    break;
                 case 'completed':
                     $orders = $orders->filter('Status', 'completed');
                     break;
@@ -87,91 +84,91 @@ class OrderPageController extends PageController
     /**
      * Order detail page
      */
-    // public function detail(HTTPRequest $request)
-    // {
-    //     $orderID = $request->param('ID');
+    public function detail(HTTPRequest $request)
+    {
+        $orderID = $request->param('ID');
 
-    //     error_log('OrderPageController::detail - Order ID: ' . $orderID);
+        error_log('OrderPageController::detail - Order ID: ' . $orderID);
 
-    //     if (!$orderID) {
-    //         return $this->httpError(400, 'Order ID required');
-    //     }
+        if (!$orderID) {
+            return $this->httpError(400, 'Order ID required');
+        }
 
-    //     $order = Order::get()->byID($orderID);
+        $order = Order::get()->byID($orderID);
 
-    //     if (!$order || !$order->exists()) {
-    //         error_log('OrderPageController::detail - Order not found: ' . $orderID);
-    //         return $this->httpError(404, 'Order not found');
-    //     }
+        if (!$order || !$order->exists()) {
+            error_log('OrderPageController::detail - Order not found: ' . $orderID);
+            return $this->httpError(404, 'Order not found');
+        }
 
-    //     // Check ownership
-    //     $currentUser = $this->getCurrentUser();
-    //     if (!$currentUser || $order->MemberID != $currentUser->ID) {
-    //         error_log('OrderPageController::detail - Access denied for user: ' . ($currentUser ? $currentUser->ID : 'not logged in'));
-    //         return $this->httpError(403, 'Access denied');
-    //     }
+        // Check ownership
+        $currentUser = $this->getCurrentUser();
+        if (!$currentUser || $order->MemberID != $currentUser->ID) {
+            error_log('OrderPageController::detail - Access denied for user: ' . ($currentUser ? $currentUser->ID : 'not logged in'));
+            return $this->httpError(403, 'Access denied');
+        }
 
-    //     // Auto-cancel if expired
-    //     $wasCancelled = $order->checkAndCancelIfExpired();
-    //     if ($wasCancelled) {
-    //         error_log('OrderPageController::detail - Order auto-cancelled: ' . $orderID);
-    //         $request->getSession()->set('OrderWarning', 'Pesanan ini telah dibatalkan karena melewati batas waktu pembayaran.');
-    //     }
+        // Auto-cancel if expired
+        $wasCancelled = $order->checkAndCancelIfExpired();
+        if ($wasCancelled) {
+            error_log('OrderPageController::detail - Order auto-cancelled: ' . $orderID);
+            $request->getSession()->set('OrderWarning', 'Pesanan ini telah dibatalkan karena melewati batas waktu pembayaran.');
+        }
 
-    //     // Get ticket type and event info
-    //     $ticketType = $order->TicketType();
-    //     $ticket = $ticketType ? $ticketType->Ticket() : null;
+        // Get ticket type and event info
+        $ticketType = $order->TicketType();
+        $ticket = $ticketType ? $ticketType->Ticket() : null;
 
-    //     // Get payment transactions
-    //     $transactions = PaymentTransaction::get()
-    //         ->filter('OrderID', $order->ID)
-    //         ->sort('CreatedAt DESC')
-    //         ->limit(10); // Limit to last 10 transactions
+        // Get payment transactions
+        $transactions = PaymentTransaction::get()
+            ->filter('OrderID', $order->ID)
+            ->sort('CreatedAt DESC')
+            ->limit(10); // Limit to last 10 transactions
 
-    //     // Calculate time remaining for payment (if pending)
-    //     $timeRemaining = null;
-    //     if ($order->Status == 'pending_payment' && $order->ExpiresAt) {
-    //         $now = time();
-    //         $expiryTime = strtotime($order->ExpiresAt);
-    //         $diff = $expiryTime - $now;
+        // Calculate time remaining for payment (if pending)
+        $timeRemaining = null;
+        if (in_array($order->Status, ['pending', 'pending_payment']) && $order->ExpiresAt) {
+            $now = time();
+            $expiryTime = strtotime($order->ExpiresAt);
+            $diff = $expiryTime - $now;
             
-    //         if ($diff > 0) {
-    //             $hours = floor($diff / 3600);
-    //             $minutes = floor(($diff % 3600) / 60);
-    //             $timeRemaining = sprintf('%d jam %d menit', $hours, $minutes);
-    //         }
-    //     }
+            if ($diff > 0) {
+                $hours = floor($diff / 3600);
+                $minutes = floor(($diff % 3600) / 60);
+                $timeRemaining = sprintf('%d jam %d menit', $hours, $minutes);
+            }
+        }
 
-    //     $data = [
-    //         'Order' => $order,
-    //         'TicketType' => $ticketType,
-    //         'Ticket' => $ticket,
-    //         'Transactions' => $transactions,
-    //         'TimeRemaining' => $timeRemaining,
-    //         'Title' => 'Detail Pesanan ' . $order->OrderCode,
-    //         'CurrentUser' => $currentUser,
+        $data = [
+            'Order' => $order,
+            'TicketType' => $ticketType,
+            'Ticket' => $ticket,
+            'Transactions' => $transactions,
+            'TimeRemaining' => $timeRemaining,
+            'Title' => 'Detail Pesanan ' . $order->OrderCode,
+            'CurrentUser' => $currentUser,
             
-    //         // Session messages
-    //         'OrderSuccess' => $request->getSession()->get('OrderSuccess'),
-    //         'OrderError' => $request->getSession()->get('OrderError'),
-    //         'OrderWarning' => $request->getSession()->get('OrderWarning'),
-    //         'PaymentSuccess' => $request->getSession()->get('PaymentSuccess'),
-    //         'PaymentError' => $request->getSession()->get('PaymentError'),
-    //         'InvoiceSuccess' => $request->getSession()->get('InvoiceSuccess'),
-    //         'InvoiceError' => $request->getSession()->get('InvoiceError'),
-    //     ];
+            // Session messages
+            'OrderSuccess' => $request->getSession()->get('OrderSuccess'),
+            'OrderError' => $request->getSession()->get('OrderError'),
+            'OrderWarning' => $request->getSession()->get('OrderWarning'),
+            'PaymentSuccess' => $request->getSession()->get('PaymentSuccess'),
+            'PaymentError' => $request->getSession()->get('PaymentError'),
+            'InvoiceSuccess' => $request->getSession()->get('InvoiceSuccess'),
+            'InvoiceError' => $request->getSession()->get('InvoiceError'),
+        ];
 
-    //     // Clear session messages after retrieving
-    //     $request->getSession()->clear('OrderSuccess');
-    //     $request->getSession()->clear('OrderError');
-    //     $request->getSession()->clear('OrderWarning');
-    //     $request->getSession()->clear('PaymentSuccess');
-    //     $request->getSession()->clear('PaymentError');
-    //     $request->getSession()->clear('InvoiceSuccess');
-    //     $request->getSession()->clear('InvoiceError');
+        // Clear session messages after retrieving
+        $request->getSession()->clear('OrderSuccess');
+        $request->getSession()->clear('OrderError');
+        $request->getSession()->clear('OrderWarning');
+        $request->getSession()->clear('PaymentSuccess');
+        $request->getSession()->clear('PaymentError');
+        $request->getSession()->clear('InvoiceSuccess');
+        $request->getSession()->clear('InvoiceError');
 
-    //     return $this->customise($data)->renderWith(['OrderDetailPage', 'Page']);
-    // }
+        return $this->customise($data)->renderWith(['OrderDetailPage', 'Page']);
+    }
 
     /**
      * Cancel order
@@ -250,10 +247,10 @@ class OrderPageController extends PageController
             return $this->redirect(Director::absoluteBaseURL() . 'order');
         }
 
-        // Only allow resend for paid orders
-        if ($order->PaymentStatus != 'paid') {
-            error_log('OrderPageController::resendInvoice - Order not paid. Status: ' . $order->PaymentStatus);
-            $request->getSession()->set('InvoiceError', 'Invoice hanya dapat dikirim untuk pesanan yang sudah dibayar');
+        // Only allow resend for completed orders with paid status
+        if ($order->Status != 'completed' || $order->PaymentStatus != 'paid') {
+            error_log('OrderPageController::resendInvoice - Order not completed. Status: ' . $order->Status . ', Payment: ' . $order->PaymentStatus);
+            $request->getSession()->set('InvoiceError', 'Invoice hanya dapat dikirim untuk pesanan yang sudah selesai');
             return $this->redirect(Director::absoluteBaseURL() . 'order/detail/' . $orderID);
         }
 
@@ -295,10 +292,6 @@ class OrderPageController extends PageController
             'Pending' => Order::get()->filter([
                 'MemberID' => $user->ID,
                 'Status' => ['pending', 'pending_payment']
-            ])->count(),
-            'Paid' => Order::get()->filter([
-                'MemberID' => $user->ID,
-                'Status' => 'paid'
             ])->count(),
             'Completed' => Order::get()->filter([
                 'MemberID' => $user->ID,

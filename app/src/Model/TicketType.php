@@ -75,28 +75,4 @@ class TicketType extends DataObject
         return $this->TypeName;
     }
 
-    // public function canMemberPurchase($memberID, $requestedQuantity = 1)
-    // {
-    //     $purchased = Order::get()->filter([
-    //         'MemberID' => $memberID,
-    //         'TicketTypeID' => $this->ID,
-    //         'Status' => ['Completed', 'Paid'] 
-    //     ])->sum('Quantity');
-
-    //     $totalAfterPurchase = $purchased + $requestedQuantity;
-
-    //     return $totalAfterPurchase <= $this->MaxPerMember;
-    // }
-
-    // public function getRemainingQuotaForMember($memberID)
-    // {
-    //     $purchased = Order::get()->filter([
-    //         'MemberID' => $memberID,
-    //         'TicketTypeID' => $this->ID,
-    //         'Status' => ['Completed', 'Paid']
-    //     ])->sum('Quantity');
-
-    //     $remaining = $this->MaxPerMember - $purchased;
-    //     return max(0, $remaining);
-    // }
 }

@@ -1,4 +1,4 @@
-<%-- <main class="order-detail-page py-5">
+<main class="order-detail-page py-5">
   <div class="container my-5">
     <!-- Session Messages -->
     <% if $OrderSuccess %>
@@ -276,7 +276,7 @@
                   <a href="$BaseHref/invoice/download/$ID" class="btn btn-primary" target="_blank">
                     <i class="bi bi-download me-2"></i> Download Invoice
                   </a>
-                  <a href="$BaseHref/order/resend-invoice/$ID" class="btn btn-outline-primary">
+                  <a href="$BaseHref/invoice/send/$ID" class="btn btn-outline-primary">
                     <i class="bi bi-envelope me-2"></i> Kirim Ulang Invoice
                   </a>
                 <% end_if %>
@@ -337,4 +337,4 @@ setTimeout(function() {
     }, 5000);
   });
 }, 100);
-</script> --%>
+</script>
