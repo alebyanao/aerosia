@@ -16,6 +16,15 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
       </div>
     <% end_if %>
+
+    <!-- Alert untuk Tiket Gratis -->
+    <% if $IsFreeTicket %>
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-gift-fill me-2"></i>
+        <strong>Tiket Gratis!</strong> Anda akan langsung mendapatkan tiket setelah mengisi data pemesan. Tidak perlu melakukan pembayaran.
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    <% end_if %>
     
     <div class="row g-4">
       <!-- Ringkasan Pembelian (Sticky Sidebar) -->
@@ -84,24 +93,33 @@
                 <strong class="text-dark">$FormattedTotal</strong>
               </div>
 
+              <% if not $IsFreeTicket %>
               <div class="d-flex justify-content-between mb-2" id="payment-fee-row" style="display: none !important;">
                 <span class="text-muted small">Biaya Admin</span>
                 <span class="text-muted small" id="payment-fee-value">Rp 0</span>
               </div>
+              <% end_if %>
 
               <hr class="my-3">
 
               <div class="d-flex justify-content-between align-items-center">
-                <h5 class="mb-0 fw-bold">Total Bayar</h5>
-                <h4 class="mb-0 text-success fw-bold" id="grand-total-display">$FormattedTotal</h4>
+                <h5 class="mb-0 fw-bold">Total <% if not $IsFreeTicket %>Bayar<% end_if %></h5>
+                <h4 class="mb-0 <% if $IsFreeTicket %>text-success<% else %>text-success<% end_if %> fw-bold" id="grand-total-display">$FormattedTotal</h4>
               </div>
             </div>
 
             <!-- Security Info -->
+            <% if $IsFreeTicket %>
+            <div class="alert alert-success mt-4 mb-0 small">
+              <i class="bi bi-gift-fill me-2"></i>
+              <strong>Tiket Gratis</strong> - Langsung diproses tanpa pembayaran
+            </div>
+            <% else %>
             <div class="alert alert-info mt-4 mb-0 small">
               <i class="bi bi-shield-check me-2"></i>
               Transaksi Anda aman dan terenkripsi
             </div>
+            <% end_if %>
           </div>
         </div>
       </div>
@@ -112,6 +130,7 @@
           <!-- Hidden Fields -->
           <input type="hidden" name="ticket_type_id" value="$TicketType.ID">
           <input type="hidden" name="quantity" value="$Quantity">
+          <input type="hidden" id="is_free_ticket" value="<% if $IsFreeTicket %>1<% else %>0<% end_if %>">
 
           <!-- Step 1: Data Pemesan -->
           <div class="card border-0 shadow-sm mb-4">
@@ -174,7 +193,8 @@
             </div>
           </div>
 
-          <!-- Step 2: Metode Pembayaran -->
+          <!-- Step 2: Metode Pembayaran (Hanya untuk tiket berbayar) -->
+          <% if not $IsFreeTicket %>
           <div class="card border-0 shadow-sm mb-4">
             <div class="card-body p-4">
               <h5 class="fw-bold mb-4">
@@ -225,15 +245,23 @@
               <% end_if %>
             </div>
           </div>
+          <% end_if %>
 
           <!-- Submit Button -->
           <div class="card border-0 shadow-sm">
             <div class="card-body p-4">
               <div class="d-grid gap-2">
-                <button type="submit" class="btn btn-success btn-lg py-3" id="submitBtn" disabled>
-                  <i class="bi bi-lock-fill me-2"></i> 
-                  <span id="submitBtnText">Lanjutkan ke Pembayaran</span>
-                </button>
+                <% if $IsFreeTicket %>
+                  <button type="submit" class="btn btn-success btn-lg py-3" id="submitBtn">
+                    <i class="bi bi-gift-fill me-2"></i> 
+                    <span id="submitBtnText">Konfirmasi Pemesanan Gratis</span>
+                  </button>
+                <% else %>
+                  <button type="submit" class="btn btn-success btn-lg py-3" id="submitBtn" disabled>
+                    <i class="bi bi-lock-fill me-2"></i> 
+                    <span id="submitBtnText">Lanjutkan ke Pembayaran</span>
+                  </button>
+                <% end_if %>
                 <a href="<% if $Ticket %>$Ticket.Link<% else %>$BaseHref/events<% end_if %>" class="btn btn-outline-secondary btn-lg">
                   <i class="bi bi-arrow-left me-2"></i> Kembali
                 </a>
@@ -311,6 +339,10 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+  const isFreeTicket = document.getElementById('is_free_ticket').value === '1';
+  
+  console.log('Is Free Ticket:', isFreeTicket);
+
   // ========================================
   // 1. Data Pemesan Toggle (Use Profile)
   // ========================================
@@ -379,53 +411,60 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // ========================================
   // 2. Payment Method Selection & Fee Calculation
+  // (Hanya untuk tiket berbayar)
   // ========================================
-  const paymentMethodInputs = document.querySelectorAll('input[name="payment_method"]');
-  const paymentFeeRow = document.getElementById('payment-fee-row');
-  const paymentFeeValue = document.getElementById('payment-fee-value');
-  const grandTotalDisplay = document.getElementById('grand-total-display');
-  const submitBtn = document.getElementById('submitBtn');
-  const subtotal = parseFloat('$TotalPrice') || 0;
+  if (!isFreeTicket) {
+    const paymentMethodInputs = document.querySelectorAll('input[name="payment_method"]');
+    const paymentFeeRow = document.getElementById('payment-fee-row');
+    const paymentFeeValue = document.getElementById('payment-fee-value');
+    const grandTotalDisplay = document.getElementById('grand-total-display');
+    const submitBtn = document.getElementById('submitBtn');
+    const subtotal = parseFloat('$TotalPrice') || 0;
 
-  paymentMethodInputs.forEach(input => {
-    input.addEventListener('change', function() {
-      const fee = parseFloat(this.getAttribute('data-fee')) || 0;
-      const grandTotal = subtotal + fee;
+    paymentMethodInputs.forEach(input => {
+      input.addEventListener('change', function() {
+        const fee = parseFloat(this.getAttribute('data-fee')) || 0;
+        const grandTotal = subtotal + fee;
 
-      // Show payment fee
-      paymentFeeRow.style.display = 'flex';
-      paymentFeeRow.style.justifyContent = 'space-between';
-      paymentFeeValue.textContent = 'Rp ' + fee.toLocaleString('id-ID');
+        // Show payment fee
+        paymentFeeRow.style.display = 'flex';
+        paymentFeeRow.style.justifyContent = 'space-between';
+        paymentFeeValue.textContent = 'Rp ' + fee.toLocaleString('id-ID');
 
-      // Update grand total
-      grandTotalDisplay.textContent = 'Rp ' + grandTotal.toLocaleString('id-ID');
+        // Update grand total
+        grandTotalDisplay.textContent = 'Rp ' + grandTotal.toLocaleString('id-ID');
 
-      // Enable submit button
-      submitBtn.disabled = false;
+        // Enable submit button
+        submitBtn.disabled = false;
 
-      // Remove highlight from all payment methods
-      document.querySelectorAll('.payment-method-item').forEach(item => {
-        item.classList.remove('border-success', 'bg-light');
+        // Remove highlight from all payment methods
+        document.querySelectorAll('.payment-method-item').forEach(item => {
+          item.classList.remove('border-success', 'bg-light');
+        });
+
+        // Highlight selected payment method
+        this.closest('.payment-method-item').classList.add('border-success');
       });
-
-      // Highlight selected payment method
-      this.closest('.payment-method-item').classList.add('border-success');
     });
-  });
+  }
 
   // ========================================
   // 3. Form Validation & Submit
   // ========================================
   const form = document.getElementById('checkoutForm');
+  const submitBtn = document.getElementById('submitBtn');
   const submitBtnText = document.getElementById('submitBtnText');
 
   form.addEventListener('submit', function(e) {
-    const selectedPayment = document.querySelector('input[name="payment_method"]:checked');
-    
-    if (!selectedPayment) {
-      e.preventDefault();
-      alert('Silakan pilih metode pembayaran terlebih dahulu!');
-      return false;
+    // Untuk tiket berbayar, cek payment method
+    if (!isFreeTicket) {
+      const selectedPayment = document.querySelector('input[name="payment_method"]:checked');
+      
+      if (!selectedPayment) {
+        e.preventDefault();
+        alert('Silakan pilih metode pembayaran terlebih dahulu!');
+        return false;
+      }
     }
 
     // Validate phone number
@@ -440,9 +479,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Disable submit button & show loading
     submitBtn.disabled = true;
-    submitBtnText.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Memproses...';
     
-    // Form will submit normally and redirect via controller
+    if (isFreeTicket) {
+      submitBtnText.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Memproses Pemesanan Gratis...';
+    } else {
+      submitBtnText.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Memproses...';
+    }
+    
+    // Form will submit normally
   });
 
   // ========================================

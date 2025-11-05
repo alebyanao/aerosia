@@ -55,31 +55,36 @@ class CheckoutPageController extends PageController
 
         // Hitung total harga tiket
         $totalPrice = $ticketType->Price * $quantity;
+        $isFreeTicket = ($totalPrice <= 0);
 
-        // Ambil payment methods dari Duitku
+        error_log('CheckoutPageController::index - Total Price: ' . $totalPrice . ' | Is Free: ' . ($isFreeTicket ? 'yes' : 'no'));
+
+        // Ambil payment methods dari Duitku (hanya jika bukan tiket gratis)
         $paymentMethods = new ArrayList();
-        try {
-            $duitku = new DuitkuService();
-            $rawPaymentMethods = $duitku->getPaymentMethods($totalPrice);
-            
-            error_log('CheckoutPageController::index - Raw payment methods: ' . json_encode($rawPaymentMethods));
-            
-            // Convert array to ArrayList for template compatibility
-            if (is_array($rawPaymentMethods) && !empty($rawPaymentMethods)) {
-                foreach ($rawPaymentMethods as $method) {
-                    $paymentMethods->push(new ArrayData([
-                        'paymentMethod' => $method['paymentMethod'] ?? '',
-                        'paymentName' => $method['paymentName'] ?? '',
-                        'paymentImage' => $method['paymentImage'] ?? '',
-                        'totalFee' => $method['totalFee'] ?? 0,
-                    ]));
+        if (!$isFreeTicket) {
+            try {
+                $duitku = new DuitkuService();
+                $rawPaymentMethods = $duitku->getPaymentMethods($totalPrice);
+                
+                error_log('CheckoutPageController::index - Raw payment methods: ' . json_encode($rawPaymentMethods));
+                
+                // Convert array to ArrayList for template compatibility
+                if (is_array($rawPaymentMethods) && !empty($rawPaymentMethods)) {
+                    foreach ($rawPaymentMethods as $method) {
+                        $paymentMethods->push(new ArrayData([
+                            'paymentMethod' => $method['paymentMethod'] ?? '',
+                            'paymentName' => $method['paymentName'] ?? '',
+                            'paymentImage' => $method['paymentImage'] ?? '',
+                            'totalFee' => $method['totalFee'] ?? 0,
+                        ]));
+                    }
+                    error_log('CheckoutPageController::index - Payment methods count: ' . $paymentMethods->count());
+                } else {
+                    error_log('CheckoutPageController::index - No payment methods returned from Duitku');
                 }
-                error_log('CheckoutPageController::index - Payment methods count: ' . $paymentMethods->count());
-            } else {
-                error_log('CheckoutPageController::index - No payment methods returned from Duitku');
+            } catch (Exception $e) {
+                error_log('CheckoutPageController::index - Error getting payment methods: ' . $e->getMessage());
             }
-        } catch (Exception $e) {
-            error_log('CheckoutPageController::index - Error getting payment methods: ' . $e->getMessage());
         }
 
         return $this->customise([
@@ -90,6 +95,7 @@ class CheckoutPageController extends PageController
             'FormattedTotal' => 'Rp ' . number_format($totalPrice, 0, ',', '.'),
             'PaymentMethods' => $paymentMethods,
             'CurrentUser' => Security::getCurrentUser(),
+            'IsFreeTicket' => $isFreeTicket, // Flag untuk template
         ])->renderWith(['CheckoutPage', 'Page']);
     }
 
@@ -132,11 +138,17 @@ class CheckoutPageController extends PageController
             return $this->redirectBack();
         }
 
-        if (empty($paymentMethod)) {
+        // Hitung total harga
+        $totalPrice = $ticketType->Price * $quantity;
+        $isFreeTicket = ($totalPrice <= 0);
+
+        // Validasi payment method (hanya untuk tiket berbayar)
+        if (!$isFreeTicket && empty($paymentMethod)) {
             $this->getRequest()->getSession()->set('CheckoutError', 'Silakan pilih metode pembayaran.');
             return $this->redirectBack();
         }
 
+        // Ambil data pemesan
         if ($useProfile) {
             $fullName = trim($member->FirstName . ' ' . $member->Surname);
             $email = $member->Email;
@@ -153,17 +165,19 @@ class CheckoutPageController extends PageController
         }
 
         try {
-            $totalPrice = $ticketType->Price * $quantity;
-
+            // Hitung payment fee (hanya untuk tiket berbayar)
             $paymentFee = 0;
-            try {
-                $duitku = new DuitkuService();
-                $paymentFee = $duitku->calculatePaymentFee($totalPrice, $paymentMethod);
-                error_log('CheckoutPageController::processOrder - Payment fee calculated: ' . $paymentFee);
-            } catch (Exception $e) {
-                error_log('CheckoutPageController::processOrder - Error calculating payment fee: ' . $e->getMessage());
+            if (!$isFreeTicket) {
+                try {
+                    $duitku = new DuitkuService();
+                    $paymentFee = $duitku->calculatePaymentFee($totalPrice, $paymentMethod);
+                    error_log('CheckoutPageController::processOrder - Payment fee calculated: ' . $paymentFee);
+                } catch (Exception $e) {
+                    error_log('CheckoutPageController::processOrder - Error calculating payment fee: ' . $e->getMessage());
+                }
             }
 
+            // Buat order
             $order = Order::create();
             $order->MemberID = $member->ID;
             $order->OrderCode = 'EVT-' . date('Y') . '-' . str_pad(Order::get()->count() + 1, 6, '0', STR_PAD_LEFT);
@@ -171,20 +185,67 @@ class CheckoutPageController extends PageController
             $order->Quantity = $quantity;
             $order->TotalPrice = $totalPrice;
             $order->PaymentFee = $paymentFee;
-            $order->PaymentMethod = $paymentMethod;
-            $order->Status = 'pending_payment';
-            $order->PaymentStatus = 'unpaid';
+            $order->PaymentMethod = $isFreeTicket ? 'free' : $paymentMethod;
+            $order->Status = $isFreeTicket ? 'completed' : 'pending_payment';
+            $order->PaymentStatus = $isFreeTicket ? 'paid' : 'unpaid';
             $order->FullName = $fullName;
             $order->Email = $email;
             $order->Phone = $phone;
             $order->CreatedAt = date('Y-m-d H:i:s');
             $order->UpdatedAt = date('Y-m-d H:i:s');
+            
+            // Set CompletedAt untuk tiket gratis
+            if ($isFreeTicket) {
+                $order->CompletedAt = date('Y-m-d H:i:s');
+            }
+            
             $order->write();
 
             error_log('CheckoutPageController::processOrder - Order created: ' . $order->ID .
-                     ' | Total: ' . $totalPrice . ' | Fee: ' . $paymentFee . ' | Grand Total: ' . $order->getGrandTotal());
+                     ' | Total: ' . $totalPrice . ' | Fee: ' . $paymentFee . 
+                     ' | Grand Total: ' . $order->getGrandTotal() . 
+                     ' | Is Free: ' . ($isFreeTicket ? 'yes' : 'no'));
 
-            return $this->redirect(Director::absoluteBaseURL() . '/payment/initiate/' . $order->ID);
+            // HANDLE TIKET GRATIS
+            if ($isFreeTicket) {
+                error_log('CheckoutPageController::processOrder - Free ticket detected, processing automatically');
+                
+                // Mark as paid dan kurangi kapasitas
+                if ($order->markAsPaid()) {
+                    error_log('CheckoutPageController::processOrder - Free ticket marked as paid and capacity reduced');
+                    
+                    // Kirim invoice
+                    try {
+                        $invoiceSent = InvoiceController::sendInvoiceAfterPayment($order);
+                        
+                        if ($invoiceSent) {
+                            error_log('CheckoutPageController::processOrder - Invoice sent successfully');
+                            $this->getRequest()->getSession()->set('OrderSuccess', 
+                                'Selamat! Tiket gratis Anda berhasil dipesan. Invoice dan tiket telah dikirim ke email ' . $order->Email);
+                        } else {
+                            error_log('CheckoutPageController::processOrder - Invoice send failed');
+                            $this->getRequest()->getSession()->set('OrderSuccess', 
+                                'Selamat! Tiket gratis Anda berhasil dipesan. Silakan cek email ' . $order->Email . ' untuk invoice dan tiket Anda.');
+                        }
+                    } catch (Exception $e) {
+                        error_log('CheckoutPageController::processOrder - Failed to send invoice: ' . $e->getMessage());
+                        $this->getRequest()->getSession()->set('OrderSuccess', 
+                            'Selamat! Tiket gratis Anda berhasil dipesan.');
+                    }
+                    
+                    // Redirect ke halaman detail order
+                    return $this->redirect(Director::absoluteBaseURL() . '/order/detail/' . $order->ID);
+                    
+                } else {
+                    error_log('CheckoutPageController::processOrder - Failed to mark free ticket as paid');
+                    $this->getRequest()->getSession()->set('CheckoutError', 
+                        'Gagal memproses tiket gratis. Kapasitas mungkin tidak mencukupi. Silakan coba lagi.');
+                    return $this->redirectBack();
+                }
+            }
+
+            // HANDLE TIKET BERBAYAR - Lanjut ke payment gateway
+            return $this->redirect(Director::absoluteBaseURL() . 'payment/initiate/' . $order->ID);
 
         } catch (ValidationException $e) {
             $this->getRequest()->getSession()->set('CheckoutError', 'Validasi gagal: ' . $e->getMessage());

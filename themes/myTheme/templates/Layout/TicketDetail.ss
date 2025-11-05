@@ -61,13 +61,13 @@
                                 <h3 class="fw-bold text-success" id="total-amount">Rp 0</h3>
 
                                 <!-- Tombol beli pakai BaseHref -->
-                               <form id="checkoutForm" action="$BaseHref/checkout" method="post">
-  <input type="hidden" name="ticket_type_id" id="ticketTypeId">
-  <input type="hidden" name="quantity" id="ticketQty">
-  <button type="submit" id="buy-btn" class="btn btn-success w-100 mt-3 disabled" aria-disabled="true">
-    <i class="bi bi-cart-check"></i> Beli Sekarang
-  </button>
-</form>
+                            <form id="checkoutForm" action="$BaseHref/checkout" method="post">
+                                <input type="hidden" name="ticket_type_id" id="ticketTypeId">
+                                <input type="hidden" name="quantity" id="ticketQty">
+                                <button type="submit" id="buy-btn" class="btn btn-success w-100 mt-3 disabled" aria-disabled="true">
+                                    <i class="bi bi-cart-check"></i> Beli Sekarang
+                                </button>
+                            </form>
 
                             </div>
                         <% else %>

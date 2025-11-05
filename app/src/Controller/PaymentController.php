@@ -34,6 +34,12 @@ class PaymentController extends PageController
             return $this->httpError(403, 'Access denied');
         }
 
+        if ($order->getGrandTotal() <= 0) {
+            error_log('PaymentController::initiate - Free ticket, redirecting to order detail');
+            $request->getSession()->set('PaymentError', 'Tiket gratis tidak memerlukan pembayaran');
+            return $this->redirect('/order/detail/' . $orderID);
+        }
+
         // Cek kadaluarsa
         if (method_exists($order, 'isExpired') && $order->isExpired()) {
             $order->cancelOrder();
