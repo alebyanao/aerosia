@@ -382,4 +382,63 @@ class Order extends DataObject
         }
         return new ArrayList($result);
     }
+
+    // ========================================
+    // TAMBAHKAN METHOD INI DI BAGIAN AKHIR CLASS ORDER
+    // ========================================
+
+    /**
+     * Get total tickets purchased by member for specific ticket type
+     * Only count completed & paid orders
+     */
+    public static function getTotalPurchasedByMember($memberID, $ticketTypeID)
+    {
+        $orders = self::get()->filter([
+            'MemberID' => $memberID,
+            'TicketTypeID' => $ticketTypeID,
+            'Status' => 'completed',
+            'PaymentStatus' => 'paid'
+        ]);
+
+        $total = 0;
+        foreach ($orders as $order) {
+            $total += $order->Quantity;
+        }
+
+        return $total;
+    }
+
+    /**
+     * Check if member can purchase more tickets
+     */
+    public static function canMemberPurchaseMore($memberID, $ticketTypeID, $requestedQty)
+    {
+        $ticketType = TicketType::get()->byID($ticketTypeID);
+        
+        if (!$ticketType || !$ticketType->exists()) {
+            return false;
+        }
+
+        $totalPurchased = self::getTotalPurchasedByMember($memberID, $ticketTypeID);
+        $remainingQuota = $ticketType->MaxPerMember - $totalPurchased;
+        
+        return $requestedQty <= $remainingQuota;
+    }
+
+    /**
+     * Get remaining quota for member
+     */
+    public static function getRemainingQuota($memberID, $ticketTypeID)
+    {
+        $ticketType = TicketType::get()->byID($ticketTypeID);
+        
+        if (!$ticketType || !$ticketType->exists()) {
+            return 0;
+        }
+
+        $totalPurchased = self::getTotalPurchasedByMember($memberID, $ticketTypeID);
+        $remaining = $ticketType->MaxPerMember - $totalPurchased;
+        
+        return max(0, $remaining);
+    }
 }

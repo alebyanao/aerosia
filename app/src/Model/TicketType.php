@@ -12,8 +12,8 @@ class TicketType extends DataObject
         'TypeName'     => 'Varchar(100)',
         'Price'        => 'Int',
         'Description'  => 'Text',
-        'Capacity'     => 'Int', // kapasitas tiket tersedia
-        'MaxPerMember' => 'Int', // maksimal pembelian per member
+        'Capacity'     => 'Int',
+        'MaxPerMember' => 'Int',
         'SortOrder'    => 'Int'
     ];
 
@@ -30,7 +30,7 @@ class TicketType extends DataObject
     ];
 
     private static $defaults = [
-        'MaxPerMember' => 5 // default maksimal 5 tiket per member
+        'MaxPerMember' => 5
     ];
 
     private static $default_sort = 'SortOrder ASC, Price ASC';
@@ -75,4 +75,23 @@ class TicketType extends DataObject
         return $this->TypeName;
     }
 
+    // ========================================
+    // TAMBAHKAN METHOD INI DI BAWAH
+    // ========================================
+
+    /**
+     * Get purchase info for member
+     */
+    public function getPurchaseInfo($memberID)
+    {
+        $totalPurchased = Order::getTotalPurchasedByMember($memberID, $this->ID);
+        $remaining = $this->MaxPerMember - $totalPurchased;
+        
+        return [
+            'TotalPurchased' => $totalPurchased,
+            'MaxPerMember' => $this->MaxPerMember,
+            'Remaining' => max(0, $remaining),
+            'HasReachedLimit' => $remaining <= 0
+        ];
+    }
 }
