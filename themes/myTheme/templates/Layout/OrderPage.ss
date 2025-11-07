@@ -113,7 +113,7 @@
                       </a>
 
                       <% if $Status == 'pending_payment' && $canBePaid %>
-                        <a href="$BaseHref/payment/initiate/$ID" class="btn btn-success btn-sm">
+                        <a href="$BaseHref/payment/initiate/$ID" target="_blank" class="btn btn-success btn-sm">
                           <i class="bi bi-credit-card me-1"></i> Bayar Sekarang
                         </a>
                       <% end_if %>

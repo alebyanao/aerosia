@@ -262,7 +262,7 @@
                     <span id="submitBtnText">Lanjutkan ke Pembayaran</span>
                   </button>
                 <% end_if %>
-                <a href="<% if $Ticket %>$Ticket.Link<% else %>$BaseHref/events<% end_if %>" class="btn btn-outline-secondary btn-lg">
+                <a href="<% if $Ticket %>$Ticket.Link<% else %>$BaseHref/event<% end_if %>" class="btn btn-outline-secondary btn-lg">
                   <i class="bi bi-arrow-left me-2"></i> Kembali
                 </a>
               </div>

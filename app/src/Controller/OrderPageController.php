@@ -27,7 +27,7 @@ class OrderPageController extends PageController
     public function index(HTTPRequest $request)
     {
         if (!$this->isLoggedIn()) {
-            return $this->redirect(Director::absoluteBaseURL() . 'auth/login');
+            return $this->redirect(Director::absoluteBaseURL() . '/auth/login');
         }
 
         $user = $this->getCurrentUser();
@@ -176,7 +176,7 @@ class OrderPageController extends PageController
     public function cancelOrder(HTTPRequest $request)
     {
         if (!$this->isLoggedIn()) {
-            return $this->redirect(Director::absoluteBaseURL() . 'auth/login');
+            return $this->redirect(Director::absoluteBaseURL() . '/auth/login');
         }
 
         $orderID = $request->param('ID');
@@ -215,7 +215,7 @@ class OrderPageController extends PageController
             $request->getSession()->set('OrderError', 'Gagal membatalkan pesanan. Silakan coba lagi');
         }
 
-        return $this->redirect(Director::absoluteBaseURL() . 'order/detail/' . $orderID);
+        return $this->redirect(Director::absoluteBaseURL() . '/order/detail/' . $orderID);
     }
 
     /**
@@ -224,7 +224,7 @@ class OrderPageController extends PageController
     public function resendInvoice(HTTPRequest $request)
     {
         if (!$this->isLoggedIn()) {
-            return $this->redirect(Director::absoluteBaseURL() . 'auth/login');
+            return $this->redirect(Director::absoluteBaseURL() . '/auth/login');
         }
 
         $orderID = $request->param('ID');

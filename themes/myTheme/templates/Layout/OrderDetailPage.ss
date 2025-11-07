@@ -226,7 +226,7 @@
               <div class="price-row mb-2">
                 <div class="d-flex justify-content-between">
                   <span class="text-muted">Harga per Tiket</span>
-                  <strong>$FormattedTotalPrice.RAW / $Quantity</strong>
+                  <strong>$TicketType.FormattedPrice / $Quantity</strong>
                 </div>
               </div>
 
@@ -267,13 +267,13 @@
               <!-- Action Buttons -->
               <div class="d-grid gap-2">
                 <% if $canBePaid %>
-                  <a href="$BaseHref/payment/initiate/$ID" class="btn btn-success">
+                  <a href="$BaseHref/payment/initiate/$ID" target="_blank" class="btn btn-success">
                     <i class="bi bi-credit-card me-2"></i> Bayar Sekarang
                   </a>
                 <% end_if %>
 
                 <% if $PaymentStatus == 'paid' %>
-                  <a href="$BaseHref/invoice/download/$ID" class="btn btn-primary" target="_blank">
+                  <a href="$BaseHref/invoice/download/$ID" class="btn btn-primary">
                     <i class="bi bi-download me-2"></i> Download Invoice
                   </a>
                   <a href="$BaseHref/invoice/send/$ID" class="btn btn-outline-primary">

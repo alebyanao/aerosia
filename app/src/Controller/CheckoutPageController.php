@@ -274,7 +274,7 @@ class CheckoutPageController extends PageController
             }
 
             // HANDLE TIKET BERBAYAR - Lanjut ke payment gateway
-            return $this->redirect('/payment/initiate/' . $order->ID);
+            return $this->redirect(Director::absoluteBaseURL() . '/payment/initiate/' . $order->ID);
 
         } catch (ValidationException $e) {
             $this->getRequest()->getSession()->set('CheckoutError', 'Validasi gagal: ' . $e->getMessage());
