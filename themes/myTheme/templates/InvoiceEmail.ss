@@ -172,7 +172,7 @@
         <div class="event-section">
             <h2>🎫 Detail Event</h2>
             <div class="event-detail"><span class="event-icon">🎉</span> <strong>$EventName</strong></div>
-            <% if $EventDate %><div class="event-detail"><span class="event-icon">📅</span> $EventDate.Nice</div><% end_if %>
+            <% if $EventDate %><div class="event-detail"><span class="event-icon">📅</span> $Ticket.EventDate.Nice</div><% end_if %>
             <% if $EventLocation %><div class="event-detail"><span class="event-icon">📌</span> $EventLocation</div><% end_if %>
         </div>
 

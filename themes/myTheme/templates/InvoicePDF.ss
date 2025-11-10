@@ -316,7 +316,7 @@
             <% if $EventDate %>
             <div class="event-detail">
                 <span class="event-icon">📅</span>
-                $EventDate.Nice
+                $Ticket.EventDate.Nice
             </div>
             <% end_if %>
             <% if $EventLocation %>
