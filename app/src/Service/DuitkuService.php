@@ -16,10 +16,8 @@ class DuitkuService
         $this->apiKey = Environment::getEnv('DUITKU_API_KEY');
         $this->baseUrl = Environment::getEnv('DUITKU_BASE_URL');
 
-        // Fixed: Handle ngrok URL properly
         $ngrokUrl = Environment::getEnv('NGROK_URL') ?: 'https://549e904c09fc.ngrok-free.app';
         
-        // Construct proper callback URLs
         $this->callbackUrl = $ngrokUrl . '/payment/callback';
         $this->returnUrl = $ngrokUrl . '/payment/return';
 
@@ -33,7 +31,6 @@ class DuitkuService
 
     /**
      * Get available payment methods with fee
-     * Returns array structure compatible with SilverStripe templates
      */
     public function getPaymentMethods($amount)
     {
@@ -59,19 +56,16 @@ class DuitkuService
         error_log('DuitkuService::getPaymentMethods - Response type: ' . gettype($response));
 
         if (is_array($response)) {
-            // Duitku returns: {"paymentFee": [...array of payment methods...]}
             if (isset($response['paymentFee']) && is_array($response['paymentFee'])) {
                 error_log('DuitkuService::getPaymentMethods - Success: ' . count($response['paymentFee']) . ' methods found');
                 return $response['paymentFee'];
             }
             
-            // Handle direct array response
             if (isset($response[0]) && isset($response[0]['paymentMethod'])) {
                 error_log('DuitkuService::getPaymentMethods - Success: ' . count($response) . ' methods (direct array)');
                 return $response;
             }
             
-            // Handle error response
             if (isset($response['responseCode']) || isset($response['statusCode'])) {
                 error_log('DuitkuService::getPaymentMethods - API Error: ' . json_encode($response));
             }
@@ -105,6 +99,9 @@ class DuitkuService
     /**
      * Create payment transaction for event ticket
      * 
+     * PENTING: Kirim HANYA TotalPrice (harga tiket) ke Duitku
+     * Duitku akan otomatis menambahkan payment fee sesuai metode pembayaran
+     * 
      * @param Order $order - The order object containing ticket purchase details
      * @param string|null $merchantOrderId - Optional custom merchant order ID
      * @return array - Response from Duitku API
@@ -113,28 +110,29 @@ class DuitkuService
     {
         $merchantOrderId = $merchantOrderId ?: 'ORDER-' . $order->ID;
         
-        // Total yang harus dibayar = harga tiket + payment fee
-        $paymentAmount = $order->getGrandTotal();
+        // ✅ FIX: Kirim HANYA harga tiket, BUKAN grand total
+        // Duitku akan calculate fee-nya sendiri
+        $paymentAmount = $order->TotalPrice; // Hanya harga tiket
+        
+        error_log('DuitkuService::createTransaction - Payment breakdown:');
+        error_log('  Ticket Price (TotalPrice): Rp ' . number_format($order->TotalPrice, 0, ',', '.'));
+        error_log('  Payment Fee (stored): Rp ' . number_format($order->PaymentFee, 0, ',', '.'));
+        error_log('  Grand Total (for display): Rp ' . number_format($order->getGrandTotal(), 0, ',', '.'));
+        error_log('  Amount sent to Duitku: Rp ' . number_format($paymentAmount, 0, ',', '.'));
         
         $signature = md5($this->merchantCode . $merchantOrderId . $paymentAmount . $this->apiKey);
 
-        // Data pemesan dari order
         $customerName = $order->FullName;
         $email = $order->Email;
         $phoneNumber = $order->Phone ?: '08123456789';
 
-        // ✅ BUILD PRODUCT DETAILS dari TicketType dan Ticket
-        // Format: "Tiket: [Nama Event] - [Tipe Tiket] x[Jumlah]"
         $ticketType = $order->TicketType();
         $ticket = $ticketType ? $ticketType->Ticket() : null;
         
-        // Bangun deskripsi produk untuk Duitku
         $eventName = $ticket ? $ticket->Title : 'Event';
         $ticketTypeName = $ticketType ? $ticketType->TypeName : 'Tiket';
         $quantity = $order->Quantity;
         
-        // productDetails adalah string deskripsi yang dikirim ke Duitku API
-        // Contoh: "Tiket: Konser Musik Rock 2024 - VIP x2"
         $productDetails = sprintf(
             'Tiket: %s - %s x%d',
             $eventName,
@@ -142,13 +140,12 @@ class DuitkuService
             $quantity
         );
 
-        // Parameter untuk Duitku API
         $params = [
             'merchantCode' => $this->merchantCode,
-            'paymentAmount' => $paymentAmount,
+            'paymentAmount' => $paymentAmount, // ← HANYA harga tiket
             'paymentMethod' => $order->PaymentMethod,
             'merchantOrderId' => $merchantOrderId,
-            'productDetails' => $productDetails, // ← Ini hanya string deskripsi
+            'productDetails' => $productDetails,
             'customerVaName' => $customerName,
             'email' => $email,
             'phoneNumber' => $phoneNumber,
@@ -161,7 +158,7 @@ class DuitkuService
         error_log('DuitkuService::createTransaction - Request:');
         error_log('  Order ID: ' . $order->ID);
         error_log('  Merchant Order ID: ' . $merchantOrderId);
-        error_log('  Payment Amount: Rp ' . number_format($paymentAmount, 0, ',', '.'));
+        error_log('  Payment Amount to Duitku: Rp ' . number_format($paymentAmount, 0, ',', '.'));
         error_log('  Payment Method: ' . $order->PaymentMethod);
         error_log('  Product Details: ' . $productDetails);
         error_log('  Customer: ' . $customerName . ' (' . $email . ')');
@@ -170,7 +167,6 @@ class DuitkuService
         
         error_log('DuitkuService::createTransaction - Response: ' . json_encode($response));
 
-        // Duitku success response: {"statusCode": "00", "paymentUrl": "...", ...}
         if ($response && isset($response['statusCode']) && $response['statusCode'] == '00') {
             error_log('DuitkuService::createTransaction - SUCCESS');
             return [
@@ -184,7 +180,6 @@ class DuitkuService
             ];
         }
 
-        // Handle error
         $errorMessage = 'Failed to create transaction';
         if ($response) {
             error_log('DuitkuService::createTransaction - FAILED: ' . json_encode($response));
