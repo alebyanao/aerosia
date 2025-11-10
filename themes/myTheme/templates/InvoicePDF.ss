@@ -385,6 +385,20 @@
             </ul>
         </div>
 
+        <!-- QR Code Section -->
+        <div class="barcode-section">
+            <h3 style="color: #667eea; margin-bottom: 15px;">🎫 QR Code Tiket Anda</h3>
+            <% if $QRCodePath %>
+                <img src="$QRCodePath" alt="QR Code" style="width:200px; height:200px;">
+            <% end_if %>
+            <p style="margin-top: 10px; font-size: 9pt; color: #666;">
+                Tunjukkan QR Code ini saat memasuki venue
+            </p>
+            <p style="font-size: 8pt; color: #999; margin-top: 5px;">
+                Kode: $Order.QRCodeData
+            </p>
+        </div>
+
         <!-- Footer -->
         <div class="invoice-footer">
             <p><strong>Terima kasih atas pembelian Anda!</strong></p>

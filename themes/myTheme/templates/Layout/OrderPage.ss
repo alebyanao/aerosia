@@ -113,13 +113,13 @@
                       </a>
 
                       <% if $Status == 'pending_payment' && $canBePaid %>
-                        <a href="$BaseHref/payment/initiate/$ID" target="_blank" class="btn btn-success btn-sm">
+                        <a href="$BaseHref/payment/initiate/$ID" class="btn btn-success btn-sm" target="_blank" > 
                           <i class="bi bi-credit-card me-1"></i> Bayar Sekarang
                         </a>
                       <% end_if %>
 
                       <% if $Status == 'completed' && $PaymentStatus == 'paid' %>
-                        <a href="$BaseHref/invoice/download/$ID" class="btn btn-outline-primary btn-sm" target="_blank">
+                        <a href="$BaseHref/invoice/download/$ID" class="btn btn-outline-primary btn-sm">
                           <i class="bi bi-download me-1"></i> Download Invoice
                         </a>
                       <% end_if %>

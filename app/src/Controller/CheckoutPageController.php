@@ -243,6 +243,10 @@ class CheckoutPageController extends PageController
             
             $order->write();
 
+            // Generate unique QR code data
+            $order->QRCodeData = 'TICKET-' . $order->ID . '-' . md5($order->OrderCode . $order->CreatedAt);
+            $order->write();
+
             error_log('CheckoutPageController::processOrder - Order created: ' . $order->ID .
                      ' | Total: ' . $totalPrice . ' | Fee: ' . $paymentFee . ' | Grand Total: ' . $order->getGrandTotal());
 
@@ -263,7 +267,7 @@ class CheckoutPageController extends PageController
                             'Selamat! Tiket gratis Anda berhasil dipesan.');
                     }
                     
-                    return $this->redirect('/order/detail/' . $order->ID);
+                    return $this->redirect(Director::absoluteBaseURL() . '/order/detail/' . $order->ID);
                     
                 } else {
                     error_log('CheckoutPageController::processOrder - Failed to mark free ticket as paid');

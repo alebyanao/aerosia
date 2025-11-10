@@ -32,6 +32,12 @@ class Order extends DataObject
         // Flags
         "CapacityReduced" => "Boolean(0)", // Flag untuk track apakah kapasitas sudah dikurangi
         "InvoiceSent" => "Boolean(0)",
+
+        //QRCODE
+        "QRCodeData" => "Varchar(255)",  // Unique identifier untuk QR
+        "QRCodeScanned" => "Boolean",    // Status sudah di-scan atau belum
+        "ScannedAt" => "Datetime",        // Kapan di-scan
+        "ScannedBy" => "Varchar(100)",    // Siapa yang scan
     ];
     
     private static $has_one = [

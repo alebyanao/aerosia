@@ -126,6 +126,15 @@ class InvoiceController extends PageController
         $ticketType = $order->TicketType();
         $ticket = $ticketType ? $ticketType->Ticket() : null;
 
+        // Generate QR Code langsung sebagai data URI (tanpa file)
+        $qrCodeDataUri = null;
+        try {
+            $qrCodeDataUri = QRCodeService::generateOrderQRCode($order, 200);
+            error_log('Generated QR for order #' . $order->ID . ': ' . substr($qrCodeDataUri, 0, 50));
+        } catch (Exception $e) {
+            error_log('Failed to generate QR code: ' . $e->getMessage());
+        }
+
         return [
             'Order' => $order,
             'Member' => $order->Member(),
@@ -151,6 +160,9 @@ class InvoiceController extends PageController
             'FormattedPaymentFee' => $order->getFormattedPaymentFee(),
             'GrandTotal' => $order->getGrandTotal(),
             'FormattedGrandTotal' => $order->getFormattedGrandTotal(),
+            
+            // QR Code
+            'QRCodePath' => $qrCodeDataUri,
             
             // Site config
             'SiteConfig' => $siteConfig,
@@ -182,6 +194,11 @@ class InvoiceController extends PageController
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
 
+        // Cleanup QR code file
+        // if (isset($data['QRCodePath']) && $data['QRCodePath'] && file_exists($data['QRCodePath'])) {
+        //     unlink($data['QRCodePath']);
+        // }
+
         return $dompdf->output();
     }
 
@@ -204,44 +221,59 @@ class InvoiceController extends PageController
 
             // Send email to buyer's email (from order)
             $email = Email::create()
-                ->setHTMLTemplate('InvoiceEmail')
-                ->setData($emailData)
-                ->setFrom($companyEmail)
-                ->setTo($order->Email) // Email pemesan dari order
-                ->setSubject('Invoice Tiket - ' . $order->OrderCode)
-                ->addAttachmentFromData(
-                    $pdfContent,
-                    'Invoice-' . $order->OrderCode . '.pdf',
-                    'application/pdf'
+            ->setHTMLTemplate('InvoiceEmail')
+            ->setFrom($companyEmail)
+            ->setTo($order->Email)
+            ->setSubject('Invoice Tiket - ' . $order->OrderCode)
+            ->addAttachmentFromData(
+                $pdfContent,
+                'Invoice-' . $order->OrderCode . '.pdf',
+                'application/pdf'
+            );
+
+        // Attach logo if exists
+        if ($siteConfig->logo && $siteConfig->logo->exists()) {
+            $logoName = $siteConfig->logo->Name;
+            $fullLogoPath = BASE_PATH . '/public/assets/Uploads/' . $logoName;
+
+            if (file_exists($fullLogoPath)) {
+                $logoData = file_get_contents($fullLogoPath);
+                $imageInfo = getimagesize($fullLogoPath);
+                $logoMimeType = $imageInfo['mime'] ?? 'image/png';
+                $logoExtension = pathinfo($logoName, PATHINFO_EXTENSION);
+                $logoFilename = 'company-logo.' . $logoExtension;
+
+                $email->addAttachmentFromData(
+                    $logoData,
+                    $logoFilename,
+                    $logoMimeType,
                 );
 
-            // Attach logo if exists
-            if ($siteConfig->logo && $siteConfig->logo->exists()) {
-                $logoName = $siteConfig->logo->Name;
-                $fullLogoPath = BASE_PATH . '/public/assets/Uploads/' . $logoName;
-
-                if (file_exists($fullLogoPath)) {
-                    $logoData = file_get_contents($fullLogoPath);
-                    $imageInfo = getimagesize($fullLogoPath);
-                    $logoMimeType = $imageInfo['mime'] ?? 'image/png';
-                    $logoExtension = pathinfo($logoName, PATHINFO_EXTENSION);
-                    $logoFilename = 'company-logo.' . $logoExtension;
-
-                    $email->addAttachmentFromData(
-                        $logoData,
-                        $logoFilename,
-                        $logoMimeType,
-                    );
-
-                    $emailData['LogoCID'] = 'cid:' . $logoFilename;
-                    error_log('Logo attached as inline with CID: ' . $emailData['LogoCID']);
-                } else {
-                    error_log('Logo file not found: ' . $fullLogoPath);
-                }
+                $emailData['LogoCID'] = 'cid:' . $logoFilename;
+                error_log('Logo attached as inline with CID: ' . $emailData['LogoCID']);
+            } else {
+                error_log('Logo file not found: ' . $fullLogoPath);
             }
+        }
 
-            $email->setData($emailData);
-            $email->send();
+        // ==== Generate QR Code as inline attachment (CID) ====
+        if (!empty($emailData['QRCodePath'])) {
+            // Decode base64 image and save temporary file
+            $qrImageData = base64_decode(str_replace('data:image/png;base64,', '', $emailData['QRCodePath']));
+            $qrTempFile = tempnam(sys_get_temp_dir(), 'qr_') . '.png';
+            file_put_contents($qrTempFile, $qrImageData);
+
+            // Attach inline image with CID
+            $qrCid = 'qr-code-' . uniqid() . '.png';
+            $email->addAttachmentFromData($qrImageData, $qrCid, 'image/png');
+
+            // Ganti path QR Code agar jadi inline CID (bisa ditampilkan di email)
+            $emailData['QRCodePath'] = 'cid:' . $qrCid;
+        }
+
+        // 👉 Set data SEKALI SAJA di akhir
+        $email->setData($emailData);
+        $email->send();
 
             if (file_exists($tempFile)) {
                 unlink($tempFile);
@@ -267,8 +299,17 @@ class InvoiceController extends PageController
     public static function sendInvoiceAfterPayment($order)
     {
         if ($order->InvoiceSent) {
-            return false; // sudah pernah kirim
+            error_log('Invoice already sent for order ID: ' . $order->ID);
+            return false;
         }
+
+        // Cegah double trigger dalam satu proses PHP
+        static $alreadySent = [];
+        if (in_array($order->ID, $alreadySent)) {
+            error_log('Invoice already sent in this request for order ID: ' . $order->ID);
+            return false;
+        }
+        $alreadySent[] = $order->ID;
 
         $controller = new InvoiceController();
         $sent = $controller->sendInvoiceToMember($order);
@@ -276,8 +317,10 @@ class InvoiceController extends PageController
         if ($sent) {
             $order->InvoiceSent = true;
             $order->write();
+            error_log('Invoice sent and marked for order ID: ' . $order->ID);
         }
 
         return $sent;
     }
+
 }
