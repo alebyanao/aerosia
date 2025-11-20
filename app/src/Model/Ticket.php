@@ -25,7 +25,7 @@ class Ticket extends DataObject
 
     private static $has_many = [
         'TicketTypes' => TicketType::class,
-        'Wishlist' =>Wishlist::class
+        'Wishlist' => Wishlist::class
     ];
 
     private static $owns = [
@@ -112,7 +112,6 @@ class Ticket extends DataObject
         return 'Rp ' . number_format($minPrice, 0, ',', '.');
     }
 
-
     /**
      * Mendapatkan label harga untuk card
      */
@@ -145,6 +144,11 @@ class Ticket extends DataObject
         return $this->Link();
     }
 
+    /**
+     * Check if current user has this ticket in wishlist
+     * 
+     * @return bool
+     */
     public function getIsInWishlist()
     {
         $user = Security::getCurrentUser();
@@ -159,5 +163,26 @@ class Ticket extends DataObject
         ])->first();
         
         return $wishlist ? true : false;
+    }
+    
+    /**
+     * Get wishlist ID for current user (untuk remove dari wishlist)
+     * 
+     * @return int|null
+     */
+    public function getWishlistID()
+    {
+        $user = Security::getCurrentUser();
+        
+        if (!$user) {
+            return null;
+        }
+        
+        $wishlist = Wishlist::get()->filter([
+            'TicketID' => $this->ID,
+            'MemberID' => $user->ID
+        ])->first();
+        
+        return $wishlist ? $wishlist->ID : null;
     }
 }

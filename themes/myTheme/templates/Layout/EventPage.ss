@@ -14,15 +14,18 @@
                         <p class="ticket-location-modern">$Location</p>
                         <div class="ticket-footer-modern">
                             <span class="ticket-price-modern">$PriceLabel</span>
-                            <% if $Top.CurrentUser %>
-                                <% if $Top.CurrentUser.Wishlists.Filter('TicketID', $ID).Count > 0 %>
+                            
+                            <% if $Top.IsLoggedIn %>
+                                <% if $IsInWishlist %>
+                                    <!-- SUDAH DI WISHLIST - MERAH PENUH ❤️ -->
                                     <button class="wishlist-icon-modern active" 
                                             data-ticket-id="$ID" 
-                                            data-wishlist-id="{$Top.CurrentUser.Wishlists.Filter('TicketID', $ID).First.ID}"
+                                            data-wishlist-id="$WishlistID"
                                             onclick="toggleWishlist(this, event)">
                                         <i class="bi bi-heart-fill"></i>
                                     </button>
                                 <% else %>
+                                    <!-- BELUM DI WISHLIST - PUTIH KOSONG 🤍 -->
                                     <button class="wishlist-icon-modern" 
                                             data-ticket-id="$ID"
                                             onclick="toggleWishlist(this, event)">
@@ -30,6 +33,7 @@
                                     </button>
                                 <% end_if %>
                             <% else %>
+                                <!-- BELUM LOGIN -->
                                 <a href="{$BaseURL}auth/login" class="wishlist-icon-modern">
                                     <i class="bi bi-heart"></i>
                                 </a>
@@ -195,167 +199,58 @@ function toggleWishlist(button, event) {
         button.style.transform = 'scale(1)';
     }, 200);
     
+    const baseUrl = window.location.origin + '/';
+    
     if (isActive) {
-        // Remove from wishlist
+        // REMOVE from wishlist
         fetch(`$BaseHref/wishlist/remove/${wishlistId}`, {
             method: 'GET',
             headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json'
+                'X-Requested-With': 'XMLHttpRequest'
             }
         })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Update UI - Ubah ke heart kosong
+                // Update UI - Ubah ke heart KOSONG (putih) 🤍
                 button.classList.remove('active');
                 icon.classList.remove('bi-heart-fill');
                 icon.classList.add('bi-heart');
                 button.removeAttribute('data-wishlist-id');
-                
-                // Update wishlist count di navbar (jika ada)
-                updateWishlistCount(-1);
-                
-                // Optional: Tampilkan notifikasi
-                showNotification('Dihapus dari wishlist', 'info');
-            } else {
-                showNotification('Gagal menghapus dari wishlist', 'error');
+                console.log('✅ Dihapus dari wishlist');
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            showNotification('Terjadi kesalahan', 'error');
+            console.error('❌ Error:', error);
         })
         .finally(() => {
             button.disabled = false;
         });
     } else {
-        // Add to wishlist
+        // ADD to wishlist
         fetch(`$BaseHref/wishlist/add/${ticketId}`, {
             method: 'GET',
             headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json'
+                'X-Requested-With': 'XMLHttpRequest'
             }
         })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Update UI - Ubah ke heart penuh merah
+                // Update UI - Ubah ke heart PENUH (merah) ❤️
                 button.classList.add('active');
                 icon.classList.remove('bi-heart');
                 icon.classList.add('bi-heart-fill');
                 button.setAttribute('data-wishlist-id', data.wishlistId);
-                
-                // Update wishlist count di navbar (jika ada)
-                updateWishlistCount(1);
-                
-                // Optional: Tampilkan notifikasi
-                showNotification('Ditambahkan ke wishlist', 'success');
-            } else {
-                showNotification('Gagal menambahkan ke wishlist', 'error');
+                console.log('✅ Ditambahkan ke wishlist, ID:', data.wishlistId);
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            showNotification('Terjadi kesalahan', 'error');
+            console.error('❌ Error:', error);
         })
         .finally(() => {
             button.disabled = false;
         });
     }
 }
-
-// Update wishlist count di navbar
-function updateWishlistCount(change) {
-    const countElement = document.querySelector('.wishlist-count, #wishlist-count');
-    if (countElement) {
-        let currentCount = parseInt(countElement.textContent) || 0;
-        currentCount += change;
-        countElement.textContent = currentCount > 0 ? currentCount : '';
-        
-        // Animasi count
-        countElement.style.transform = 'scale(1.3)';
-        setTimeout(() => {
-            countElement.style.transform = 'scale(1)';
-        }, 200);
-    }
-}
-
-// Notifikasi sederhana (opsional)
-function showNotification(message, type = 'info') {
-    // Hapus notifikasi yang ada
-    const existingNotif = document.querySelector('.wishlist-notification');
-    if (existingNotif) {
-        existingNotif.remove();
-    }
-    
-    // Buat notifikasi baru
-    const notification = document.createElement('div');
-    notification.className = `wishlist-notification wishlist-notification-${type}`;
-    notification.textContent = message;
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 12px 20px;
-        background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#17a2b8'};
-        color: white;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        z-index: 9999;
-        animation: slideIn 0.3s ease;
-        font-size: 14px;
-        font-weight: 500;
-    `;
-    
-    document.body.appendChild(notification);
-    
-    // Hapus setelah 3 detik
-    setTimeout(() => {
-        notification.style.animation = 'slideOut 0.3s ease';
-        setTimeout(() => notification.remove(), 300);
-    }, 3000);
-}
-
-// CSS untuk animasi notifikasi
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideIn {
-        from {
-            transform: translateX(400px);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
-    }
-    
-    @keyframes slideOut {
-        from {
-            transform: translateX(0);
-            opacity: 1;
-        }
-        to {
-            transform: translateX(400px);
-            opacity: 0;
-        }
-    }
-    
-    .wishlist-icon-modern {
-        transition: all 0.2s ease !important;
-    }
-`;
-document.head.appendChild(style);
 </script>
