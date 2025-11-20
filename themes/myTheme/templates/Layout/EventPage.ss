@@ -17,7 +17,7 @@
                             
                             <% if $Top.IsLoggedIn %>
                                 <% if $IsInWishlist %>
-                                    <!-- SUDAH DI WISHLIST - MERAH PENUH ❤️ -->
+                                    <!-- SUDAH DI WISHLIST - MERAH PENUH -->
                                     <button class="wishlist-icon-modern active" 
                                             data-ticket-id="$ID" 
                                             data-wishlist-id="$WishlistID"
@@ -25,7 +25,7 @@
                                         <i class="bi bi-heart-fill"></i>
                                     </button>
                                 <% else %>
-                                    <!-- BELUM DI WISHLIST - PUTIH KOSONG 🤍 -->
+                                    <!-- BELUM DI WISHLIST - PUTIH KOSONG -->
                                     <button class="wishlist-icon-modern" 
                                             data-ticket-id="$ID"
                                             onclick="toggleWishlist(this, event)">
@@ -212,16 +212,16 @@ function toggleWishlist(button, event) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Update UI - Ubah ke heart KOSONG (putih) 🤍
+                // Update UI - Ubah ke heart KOSONG (putih)
                 button.classList.remove('active');
                 icon.classList.remove('bi-heart-fill');
                 icon.classList.add('bi-heart');
                 button.removeAttribute('data-wishlist-id');
-                console.log('✅ Dihapus dari wishlist');
+                console.log('Dihapus dari wishlist');
             }
         })
         .catch(error => {
-            console.error('❌ Error:', error);
+            console.error('Error:', error);
         })
         .finally(() => {
             button.disabled = false;
@@ -237,16 +237,16 @@ function toggleWishlist(button, event) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Update UI - Ubah ke heart PENUH (merah) ❤️
+                // Update UI - Ubah ke heart PENUH (merah)
                 button.classList.add('active');
                 icon.classList.remove('bi-heart');
                 icon.classList.add('bi-heart-fill');
                 button.setAttribute('data-wishlist-id', data.wishlistId);
-                console.log('✅ Ditambahkan ke wishlist, ID:', data.wishlistId);
+                console.log('Ditambahkan ke wishlist, ID:', data.wishlistId);
             }
         })
         .catch(error => {
-            console.error('❌ Error:', error);
+            console.error('Error:', error);
         })
         .finally(() => {
             button.disabled = false;
