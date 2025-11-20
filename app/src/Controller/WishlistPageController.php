@@ -2,6 +2,7 @@
 
 use SilverStripe\Control\Director;
 use SilverStripe\Control\HTTPRequest;
+use SilverStripe\Control\HTTPResponse;
 
 class WishlistPageController extends PageController
 {
@@ -46,6 +47,11 @@ class WishlistPageController extends PageController
     public function add(HTTPRequest $request)
     {
         if (!$this->isLoggedIn()) {
+            if ($request->isAjax()) {
+                $response = new HTTPResponse(json_encode(['success' => false, 'message' => 'Not logged in']));
+                $response->addHeader('Content-Type', 'application/json');
+                return $response;
+            }
             return $this->redirect(Director::absoluteBaseURL() . '/auth/login');
         }
 
@@ -53,6 +59,11 @@ class WishlistPageController extends PageController
         $ticket = Ticket::get()->byID($ticketID);
 
         if (!$ticket) {
+            if ($request->isAjax()) {
+                $response = new HTTPResponse(json_encode(['success' => false, 'message' => 'Ticket not found']));
+                $response->addHeader('Content-Type', 'application/json');
+                return $response;
+            }
             return $this->httpError(404);
         }
 
@@ -67,17 +78,42 @@ class WishlistPageController extends PageController
             $wishlist->TicketID = $ticketID;
             $wishlist->MemberID = $user->ID;
             $wishlist->write();
+            
+            if ($request->isAjax()) {
+                $response = new HTTPResponse(json_encode([
+                    'success' => true,
+                    'wishlistId' => $wishlist->ID,
+                    'message' => 'Added to wishlist'
+                ]));
+                $response->addHeader('Content-Type', 'application/json');
+                return $response;
+            }
+        } else {
+            if ($request->isAjax()) {
+                $response = new HTTPResponse(json_encode([
+                    'success' => true,
+                    'wishlistId' => $existingWishlist->ID,
+                    'message' => 'Already in wishlist'
+                ]));
+                $response->addHeader('Content-Type', 'application/json');
+                return $response;
+            }
         }
 
         return $this->redirectBack();
     }
 
     /**
-     * Menhapus Produk di dalam wishlist
+     * Menghapus Produk di dalam wishlist
      */
     public function remove(HTTPRequest $request)
     {
         if (!$this->isLoggedIn()) {
+            if ($request->isAjax()) {
+                $response = new HTTPResponse(json_encode(['success' => false, 'message' => 'Not logged in']));
+                $response->addHeader('Content-Type', 'application/json');
+                return $response;
+            }
             return $this->redirect(Director::absoluteBaseURL() . '/auth/login');
         }
 
@@ -91,6 +127,21 @@ class WishlistPageController extends PageController
 
         if ($wishlist) {
             $wishlist->delete();
+            
+            if ($request->isAjax()) {
+                $response = new HTTPResponse(json_encode([
+                    'success' => true,
+                    'message' => 'Removed from wishlist'
+                ]));
+                $response->addHeader('Content-Type', 'application/json');
+                return $response;
+            }
+        } else {
+            if ($request->isAjax()) {
+                $response = new HTTPResponse(json_encode(['success' => false, 'message' => 'Wishlist not found']));
+                $response->addHeader('Content-Type', 'application/json');
+                return $response;
+            }
         }
 
         return $this->redirectBack();
