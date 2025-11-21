@@ -14,6 +14,24 @@
       <nav class="main-nav d-flex align-items-center">
           <% include Navigation %>
       </nav>
+    
+        <%-- WISHLIST --%>
+        <div class="d-flex align-items-center gap-3 text-dark">
+        <% if $IsLoggedIn %>
+            <a href="$BaseHref/wishlist" class="position-relative text-decoration-none">
+                <i class="bi bi-heart" style="cursor: pointer; font-size: 1.5rem; color: #000000;"></i>
+                <span id="wishlist-count"
+                    class="position-absolute top-0 start-100 translate-middle badge rounded-pill"
+                    style="background-color: #8c52ff; color: white; font-size: 0.7rem;
+                        display: <% if $WishlistCount %>inline-block<% else %>none<% end_if %>;">
+                    $WishlistCount
+                </span>
+            </a>
+        <% else %>
+            <a href="$BaseHref/auth/login" class="position-relative text-decoration-none">
+            <i class="bi bi-heart" style="cursor: pointer; font-size: 1.5rem; color: #000000;"></i>
+            </a>
+        <% end_if %>
 
       <!-- User dropdown -->
       <div class="dropdown">

@@ -10,9 +10,7 @@
       <li class="nav-item">
         <a class="nav-link" href="$BaseHref/profile">Profile</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="$BaseHref/wishlist">Wishlist</a>
-      </li>
+  
     </ul>
   </div>
 </nav>

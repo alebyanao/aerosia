@@ -34,13 +34,24 @@
                                     <span class="ticket-price-modern">$PriceLabel</span>
                                     
                                     <!-- Wishlist Button - Always Active (Red) karena ini halaman wishlist -->
-                                    <button class="wishlist-icon-modern active" 
-                                            data-ticket-id="$ID" 
-                                            data-wishlist-id="$Up.ID"
-                                            onclick="toggleWishlist(this, event)"
-                                            title="Hapus dari wishlist">
-                                        <i class="bi bi-heart-fill"></i>
-                                    </button>
+                                    <% if $Top.IsLoggedIn %>
+    <% if $IsInWishlist %>
+        <a href="$BaseHref/wishlist/remove/$WishlistID" 
+           class="wishlist-icon-modern active">
+            <i class="bi bi-heart-fill"></i>
+        </a>
+    <% else %>
+        <a href="$BaseHref/wishlist/add/$ID" 
+           class="wishlist-icon-modern">
+            <i class="bi bi-heart"></i>
+        </a>
+    <% end_if %>
+<% else %>
+    <a href="$BaseHref/auth/login" class="wishlist-icon-modern">
+        <i class="bi bi-heart"></i>
+    </a>
+<% end_if %>
+
                                 </div>
                             </div>
                         </div>
@@ -242,90 +253,3 @@
     }
 }
 </style>
-
-
-<script>
-function toggleWishlist(button, event) {
-    event.preventDefault();
-    event.stopPropagation();
-    
-    const ticketId = button.getAttribute('data-ticket-id');
-    const wishlistId = button.getAttribute('data-wishlist-id');
-    const isActive = button.classList.contains('active');
-    const icon = button.querySelector('i');
-    
-    // Disable button sementara untuk mencegah double click
-    button.disabled = true;
-    
-    // Animasi bounce
-    button.style.transform = 'scale(1.3)';
-    setTimeout(() => {
-        button.style.transform = 'scale(1)';
-    }, 200);
-    
-    const baseUrl = window.location.origin + '/';
-    
-    if (isActive) {
-        // REMOVE from wishlist
-        fetch(`$BaseHref/wishlist/remove/${wishlistId}`, {
-            method: 'GET',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Hapus card dari DOM (dengan animasi smooth)
-                const card = button.closest('.col-6, .col-lg-3');
-                if (card) {
-                    card.style.transition = "all 0.4s ease";
-                    card.style.opacity = "0";
-                    card.style.transform = "scale(0.9)";
-                    
-                    setTimeout(() => {
-                        card.remove();
-
-                        // Jika semua wishlist habis → tampilkan empty state
-                        const remaining = document.querySelectorAll('.ticket-card-modern').length;
-                        if (remaining === 0) {
-                            document.location.reload(); // atau: tampilkan empty state manual
-                        }
-                    }, 400);
-                }
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        })
-        .finally(() => {
-            button.disabled = false;
-        });
-    } else {
-        // ADD to wishlist
-        fetch(`$BaseHref/wishlist/add/${ticketId}`, {
-            method: 'GET',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Update UI - Ubah ke heart PENUH (merah)
-                button.classList.add('active');
-                icon.classList.remove('bi-heart');
-                icon.classList.add('bi-heart-fill');
-                button.setAttribute('data-wishlist-id', data.wishlistId);
-                console.log('Ditambahkan ke wishlist, ID:', data.wishlistId);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        })
-        .finally(() => {
-            button.disabled = false;
-        });
-    }
-}
-</script>

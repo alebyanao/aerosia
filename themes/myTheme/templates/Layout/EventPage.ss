@@ -17,24 +17,18 @@
                             
                             <% if $Top.IsLoggedIn %>
                                 <% if $IsInWishlist %>
-                                    <!-- SUDAH DI WISHLIST - MERAH PENUH -->
-                                    <button class="wishlist-icon-modern active" 
-                                            data-ticket-id="$ID" 
-                                            data-wishlist-id="$WishlistID"
-                                            onclick="toggleWishlist(this, event)">
+                                    <a href="$BaseHref/wishlist/toggle/$ID" 
+                                    class="wishlist-icon-modern active">
                                         <i class="bi bi-heart-fill"></i>
-                                    </button>
+                                    </a>
                                 <% else %>
-                                    <!-- BELUM DI WISHLIST - PUTIH KOSONG -->
-                                    <button class="wishlist-icon-modern" 
-                                            data-ticket-id="$ID"
-                                            onclick="toggleWishlist(this, event)">
+                                    <a href="$BaseHref/wishlist/toggle/$ID" 
+                                    class="wishlist-icon-modern">
                                         <i class="bi bi-heart"></i>
-                                    </button>
+                                    </a>
                                 <% end_if %>
                             <% else %>
-                                <!-- BELUM LOGIN -->
-                                <a href="{$BaseURL}auth/login" class="wishlist-icon-modern">
+                                <a href="$BaseHref/auth/login" class="wishlist-icon-modern">
                                     <i class="bi bi-heart"></i>
                                 </a>
                             <% end_if %>
@@ -179,78 +173,3 @@
     }
 }
 </style>
-
-<script>
-function toggleWishlist(button, event) {
-    event.preventDefault();
-    event.stopPropagation();
-    
-    const ticketId = button.getAttribute('data-ticket-id');
-    const wishlistId = button.getAttribute('data-wishlist-id');
-    const isActive = button.classList.contains('active');
-    const icon = button.querySelector('i');
-    
-    // Disable button sementara untuk mencegah double click
-    button.disabled = true;
-    
-    // Animasi bounce
-    button.style.transform = 'scale(1.3)';
-    setTimeout(() => {
-        button.style.transform = 'scale(1)';
-    }, 200);
-    
-    const baseUrl = window.location.origin + '/';
-    
-    if (isActive) {
-        // REMOVE from wishlist
-        fetch(`$BaseHref/wishlist/remove/${wishlistId}`, {
-            method: 'GET',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Update UI - Ubah ke heart KOSONG (putih)
-                button.classList.remove('active');
-                icon.classList.remove('bi-heart-fill');
-                icon.classList.add('bi-heart');
-                button.removeAttribute('data-wishlist-id');
-                console.log('Dihapus dari wishlist');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        })
-        .finally(() => {
-            button.disabled = false;
-        });
-    } else {
-        // ADD to wishlist
-        fetch(`$BaseHref/wishlist/add/${ticketId}`, {
-            method: 'GET',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Update UI - Ubah ke heart PENUH (merah)
-                button.classList.add('active');
-                icon.classList.remove('bi-heart');
-                icon.classList.add('bi-heart-fill');
-                button.setAttribute('data-wishlist-id', data.wishlistId);
-                console.log('Ditambahkan ke wishlist, ID:', data.wishlistId);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        })
-        .finally(() => {
-            button.disabled = false;
-        });
-    }
-}
-</script>

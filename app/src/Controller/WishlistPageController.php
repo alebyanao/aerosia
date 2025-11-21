@@ -10,7 +10,8 @@ class WishlistPageController extends PageController
         'ticket',
         'add',
         'remove',
-        'index'
+        'index',
+        'toggle'
     ];
 
     private static $url_segment = 'wishlist';
@@ -21,6 +22,7 @@ class WishlistPageController extends PageController
         'ticket/$ID' => 'ticket', 
         'add/$ID' => 'add',
         'remove/$ID' => 'remove',
+        'toggle/$ID' => 'toggle',
         '' => 'index'
     ];
 
@@ -142,6 +144,42 @@ class WishlistPageController extends PageController
                 $response->addHeader('Content-Type', 'application/json');
                 return $response;
             }
+        }
+
+        return $this->redirectBack();
+    }
+
+    public function toggle(HTTPRequest $request)
+    {
+        // user login
+        if (!$this->isLoggedIn()) {
+            return $this->redirect(Director::absoluteBaseURL() . '/auth/login');
+        }
+
+        $ticketID = $request->param('ID');
+        $ticket = Ticket::get()->byID($ticketID);
+
+        if (!$ticket) {
+            return $this->httpError(404);
+        }
+
+        $user = $this->getCurrentUser();
+
+        // Cek apakah sudah ada di wishlist
+        $existing = Wishlist::get()->filter([
+            'TicketID' => $ticketID,
+            'MemberID' => $user->ID
+        ])->first();
+
+        if ($existing) {
+            // Kalau sudah → hapus
+            $existing->delete();
+        } else {
+            // Kalau belum → tambahkan
+            $wishlist = Wishlist::create();
+            $wishlist->TicketID = $ticketID;
+            $wishlist->MemberID = $user->ID;
+            $wishlist->write();
         }
 
         return $this->redirectBack();
