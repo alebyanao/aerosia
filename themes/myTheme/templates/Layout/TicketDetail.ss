@@ -1,82 +1,302 @@
-<div class="container my-5">
-    <div class="row">
+<% require css('https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css') %>
+<% require css('https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css') %>
+
+<style>
+   
+    body {
+        background: #ffffffff;
+    }
+    .event-image {
+        width: 100%;
+        border-radius: 16px;
+        object-fit: cover;
+    }
+    .event-info-card {
+        background: #fff;
+        border: 2px solid #9370DB;
+        border-radius: 16px;
+        padding: 24px;
+    }
+    .event-title {
+        font-weight: 700;
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+    }
+    .event-meta {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
+        color: #555;
+        font-size: 0.95rem;
+    }
+    .event-meta i {
+        color: #7B68EE;
+        font-size: 1.1rem;
+    }
+    .tabs-container {
+        display: flex;
+        border-bottom: 2px solid #e0e0e0;
+        margin-bottom: 20px;
+    }
+    .tab-item {
+        padding: 12px 40px;
+        cursor: pointer;
+        font-weight: 500;
+        color: #666;
+        position: relative;
+    }
+    .tab-item.active {
+        color: #7B68EE;
+    }
+    .tab-item.active::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: #7B68EE;
+        border-radius: 2px;
+    }
+    .tab-content {
+        display: none;
+    }
+    .tab-content.active {
+        display: block;
+    }
+    .ticket-card {
+        background: linear-gradient(135deg, #E8E0F0 0%, #F5F0FA 100%);
+        border-radius: 16px;
+        padding: 24px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        margin-bottom: 16px;
+        transition: all 0.3s ease;
+    }
+    .ticket-card::before {
+        content: '';
+        position: absolute;
+        left: 30%;
+        top: 0;
+        bottom: 0;
+        border-left: 2px dashed #C4B5D8;
+    }
+    .ticket-left {
+        width: 28%;
+        text-align: center;
+        padding-right: 20px;
+    }
+    .ticket-type-name {
+        font-weight: 700;
+        font-size: 1rem;
+        color: #333;
+        text-transform: uppercase;
+        line-height: 1.4;
+    }
+    .ticket-price {
+        font-weight: 600;
+        font-size: 1.4rem;
+        color: #7B68EE;
+        margin-top: 8px;
+    }
+    .ticket-right {
+        width: 72%;
+        padding-left: 30px;
+    }
+    .ticket-description {
+        color: #000000ff;
+        font-size: 0.9rem;
+        text-align: center;
+        margin-bottom: 12px;
+        line-height: 1.5;
+    }
+    .ticket-stock {
+        font-size: 0.75rem;
+        color: #888;
+        text-align: center;
+        margin-bottom: 12px;
+    }
+    .btn-pilih {
+        background: #7B68EE;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 32px;
+        font-weight: 500;
+        display: block;
+        margin: 0 auto;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    .btn-pilih:hover {
+        background: #6A5ACD;
+        color: #fff;
+    }
+    .checkout-card {
+        background: #fff;
+        border: 2px solid #9370DB;
+        border-radius: 16px;
+        padding: 20px;
+    }
+    .total-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+    .total-label {
+        font-weight: 500;
+        color: #333;
+    }
+    .total-price {
+        font-weight: 600;
+        color: #7B68EE;
+    }
+    .btn-beli {
+        background: #7B68EE;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 12px;
+        width: 100%;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    .btn-beli:hover:not(.disabled) {
+        background: #6A5ACD;
+        color: #fff;
+    }
+    .btn-beli.disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    .quantity-wrapper {
+        margin-top: 12px;
+        text-align: center;
+    }
+    .quantity-wrapper label {
+        font-size: 0.8rem;
+        color: #666;
+    }
+    .quantity-wrapper input {
+        width: 80px;
+        text-align: center;
+        margin: 0 auto;
+        display: block;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        padding: 6px;
+    }
+    .ticket-card.selected {
+        box-shadow: 0 0 0 3px #7B68EE;
+    }
+    .event-description-content {
+        background: #fff;
+        border-radius: 12px;
+        padding: 20px;
+    }
+</style>
+
+<div class="container my-4">
+    <div class="row g-4">
         <!-- Kolom Kiri -->
-        <div class="col-lg-7">
+        <div class="col-lg-8">
             <% with $Ticket %>
+                <!-- Event Image -->
                 <% if $Image %>
-                    <img src="$Image.URL" class="img-fluid rounded shadow mb-4" alt="$Title">
+                    <img src="$Image.URL" class="event-image mb-4" alt="$Title">
                 <% end_if %>
-                <h1 class="fw-bold mb-3">$Title</h1>
-                <div class="mb-4">
-                    <p class="text-muted mb-2"><i class="bi bi-calendar-event fs-5"></i> <strong>Tanggal:</strong> $EventDate.Nice</p>
-                    <p class="text-muted mb-2"><i class="bi bi-geo-alt fs-5"></i> <strong>Lokasi:</strong> $Location</p>
+                
+                <!-- Tabs -->
+                <div class="tabs-container">
+                    <div class="tab-item" data-tab="deskripsi">DESKRIPSI</div>
+                    <div class="tab-item active" data-tab="tiket">TIKET</div>
                 </div>
-                <div class="card border-0 bg-light p-4 mb-4">
-                    <h3 class="h5 fw-bold mb-3">Deskripsi</h3>
-                    <div class="event-description">$Description</div>
+
+                <!-- Tab Content: Deskripsi -->
+                <div class="tab-content" id="tab-deskripsi">
+                    <div class="event-description-content">
+                        $Description
+                    </div>
+                </div>
+
+                <!-- Tab Content: Tiket -->
+                <div class="tab-content active" id="tab-tiket">
+                    <% if $TicketTypes %>
+                        <% loop $TicketTypes %>
+                            <div class="ticket-card ticket-type-item" 
+                                 data-ticket-id="$ID" 
+                                 data-price="$Price" 
+                                 data-max="$MaxPerMember"
+                                 data-capacity="$Capacity">
+                                <div class="ticket-left">
+                                    <div class="ticket-type-name">$TypeName</div>
+                                    <div class="ticket-price">$FormattedPrice</div>
+                                </div>
+                                <div class="ticket-right">
+                                    <% if $Description %>
+                                        <p class="ticket-description">$Description</p>
+                                    <% end_if %>
+                                    <p class="ticket-stock">
+                                        <i class="bi bi-ticket-perforated"></i> Tersedia: $Capacity tiket
+                                    </p>
+                                    <button class="btn-pilih select-ticket-btn">Pilih Tiket</button>
+                                    
+                                    <!-- Input Quantity -->
+                                    <div class="quantity-wrapper d-none">
+                                        <label>Jumlah Tiket:</label>
+                                        <input type="number" class="quantity-input" value="1" min="1" max="$MaxPerMember">
+                                        <div class="text-danger small mt-1 d-none quantity-alert">
+                                            Maksimal <span class="max-limit">$MaxPerMember</span> tiket per member
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <% end_loop %>
+                    <% else %>
+                        <div class="alert alert-warning" role="alert">
+                            <i class="bi bi-exclamation-triangle"></i> Belum ada tipe tiket yang tersedia untuk event ini.
+                        </div>
+                    <% end_if %>
                 </div>
             <% end_with %>
         </div>
 
         <!-- Kolom Kanan -->
-        <div class="col-lg-5">
-            <div class="card shadow sticky-top" style="top: 20px;">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Pilih Tipe Tiket</h4>
-                </div>
-                <div class="card-body">
-                    <% with $Ticket %>
-                        <% if $TicketTypes %>
-                            <% loop $TicketTypes %>
-                                <div class="ticket-type-item p-3 mb-3 border rounded" 
-                                     data-ticket-id="$ID" 
-                                     data-price="$Price" 
-                                     data-max="$MaxPerMember">
-                                    <div class="d-flex justify-content-between align-items-start mb-2">
-                                        <div>
-                                            <h5 class="fw-bold mb-1">$TypeName</h5>
-                                            <% if $Description %>
-                                                <p class="text-muted small mb-0">$Description</p>
-                                            <% end_if %>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center mt-3">
-                                        <span class="fw-bold text-primary fs-5">$FormattedPrice</span>
-                                        <button class="btn btn-outline-primary btn-sm select-ticket-btn">
-                                            <i class="bi bi-check2-circle"></i> Pilih
-                                        </button>
-                                    </div>
+        <div class="col-lg-4">
+            <div class="sticky-top" style="top: 20px;">
+                <% with $Ticket %>
+                    <!-- Event Info Card -->
+                    <div class="event-info-card mb-3">
+                        <h2 class="event-title">$Title</h2>
+                        <div class="event-meta">
+                            <i class="bi bi-calendar3"></i>
+                            <span>$EventDate.Nice</span>
+                        </div>
+                        <div class="event-meta">
+                            <i class="bi bi-geo-alt"></i>
+                            <span>$Location</span>
+                        </div>
+                    </div>
 
-                                    <!-- Input Quantity (disembunyikan awalnya) -->
-                                    <div class="quantity-wrapper mt-3 d-none">
-                                        <label class="form-label small mb-1">Jumlah Tiket:</label>
-                                        <input type="number" class="form-control form-control-sm quantity-input" value="1" min="1" step="1">
-                                        <div class="text-danger small mt-1 d-none quantity-alert">Maksimal <span class="max-limit"></span> tiket per member</div>
-                                    </div>
-                                </div>
-                            <% end_loop %>
-
-                            <div class="mt-4 border-top pt-3">
-                                <h5 class="fw-bold mb-2">Total:</h5>
-                                <h3 class="fw-bold text-success" id="total-amount">Rp 0</h3>
-
-                                <!-- Tombol beli pakai BaseHref -->
-                            <form id="checkoutForm" action="$BaseHref/checkout" method="post">
-                                <input type="hidden" name="ticket_type_id" id="ticketTypeId">
-                                <input type="hidden" name="quantity" id="ticketQty">
-                                <button type="submit" id="buy-btn" class="btn btn-success w-100 mt-3 disabled" aria-disabled="true">
-                                    <i class="bi bi-cart-check"></i> Beli Sekarang
-                                </button>
-                            </form>
-
-                            </div>
-                        <% else %>
-                            <div class="alert alert-warning" role="alert">
-                                <i class="bi bi-exclamation-triangle"></i> Belum ada tipe tiket yang tersedia untuk event ini.
-                            </div>
-                        <% end_if %>
-                    <% end_with %>
-                </div>
+                    <!-- Checkout Card -->
+                    <div class="checkout-card">
+                        <div class="total-row">
+                            <span class="total-label">Total harga :</span>
+                            <span class="total-price" id="total-amount">Rp. ...</span>
+                        </div>
+                        <form id="checkoutForm" action="$BaseHref/checkout" method="post">
+                            <input type="hidden" name="ticket_type_id" id="ticketTypeId">
+                            <input type="hidden" name="quantity" id="ticketQty">
+                            <button type="submit" id="buy-btn" class="btn-beli disabled" aria-disabled="true">
+                                Beli Tiket
+                            </button>
+                        </form>
+                    </div>
+                <% end_with %>
             </div>
         </div>
     </div>
@@ -93,6 +313,19 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Tab switching
+    const tabItems = document.querySelectorAll('.tab-item');
+    tabItems.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabItems.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+        });
+    });
+
+    // Ticket selection
     const ticketItems = document.querySelectorAll('.ticket-type-item');
     const totalAmountEl = document.getElementById('total-amount');
     const buyBtn = document.getElementById('buy-btn');
@@ -106,31 +339,30 @@ document.addEventListener('DOMContentLoaded', function() {
         const alertMsg = item.querySelector('.quantity-alert');
         const maxLimit = parseInt(item.dataset.max);
         const price = parseInt(item.dataset.price);
-
-        item.querySelector('.max-limit').textContent = maxLimit;
+        const capacity = parseInt(item.dataset.capacity);
 
         selectBtn.addEventListener('click', () => {
             // Reset semua
             ticketItems.forEach(i => {
-                i.classList.remove('border-primary');
+                i.classList.remove('selected');
                 i.querySelector('.quantity-wrapper').classList.add('d-none');
-                i.querySelector('.select-ticket-btn').classList.remove('btn-primary');
-                i.querySelector('.select-ticket-btn').classList.add('btn-outline-primary');
+                i.querySelector('.select-ticket-btn').textContent = 'Pilih Tiket';
             });
 
             // Aktifkan yang dipilih
-            item.classList.add('border-primary');
+            item.classList.add('selected');
             qtyWrapper.classList.remove('d-none');
-            selectBtn.classList.add('btn-primary');
-            selectBtn.classList.remove('btn-outline-primary');
+            selectBtn.textContent = 'Dipilih';
 
-            selectedTicket = { item, price, maxLimit };
+            selectedTicket = { item, price, maxLimit, capacity };
             updateTotal();
         });
 
         qtyInput.addEventListener('input', () => {
             const val = parseInt(qtyInput.value) || 0;
-            if (val > maxLimit) {
+            const effectiveMax = Math.min(maxLimit, capacity);
+            
+            if (val > effectiveMax) {
                 alertMsg.classList.remove('d-none');
                 qtyInput.classList.add('is-invalid');
                 disableBuy();
@@ -144,16 +376,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function updateTotal() {
         if (!selectedTicket) {
-            totalAmountEl.textContent = 'Rp 0';
+            totalAmountEl.textContent = 'Rp. ...';
             disableBuy();
             return;
         }
 
         const qty = parseInt(selectedTicket.item.querySelector('.quantity-input').value) || 0;
         const total = qty * selectedTicket.price;
+        const effectiveMax = Math.min(selectedTicket.maxLimit, selectedTicket.capacity);
 
-        totalAmountEl.textContent = 'Rp ' + total.toLocaleString('id-ID');
-        if (qty >= 1 && qty <= selectedTicket.maxLimit) {
+        totalAmountEl.textContent = 'Rp. ' + total.toLocaleString('id-ID');
+        
+        if (qty >= 1 && qty <= effectiveMax) {
             enableBuy();
         } else {
             disableBuy();
@@ -169,31 +403,15 @@ document.addEventListener('DOMContentLoaded', function() {
         buyBtn.classList.add('disabled');
         buyBtn.setAttribute('aria-disabled', 'true');
     }
+
     buyBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      if (!selectedTicket) return;
-    
-      document.getElementById('ticketTypeId').value = selectedTicket.item.dataset.ticketId;
-      document.getElementById('ticketQty').value = selectedTicket.item.querySelector('.quantity-input').value;
-    
-      document.getElementById('checkoutForm').submit();
+        e.preventDefault();
+        if (!selectedTicket || buyBtn.classList.contains('disabled')) return;
+
+        document.getElementById('ticketTypeId').value = selectedTicket.item.dataset.ticketId;
+        document.getElementById('ticketQty').value = selectedTicket.item.querySelector('.quantity-input').value;
+
+        document.getElementById('checkoutForm').submit();
     });
 });
-
-
 </script>
-
-<style>
-.ticket-type-item {
-    transition: all 0.3s ease;
-    background: #f8f9fa;
-}
-.ticket-type-item:hover {
-    background: #fff;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    transform: translateX(5px);
-}
-.ticket-type-item.border-primary {
-    box-shadow: 0 0 0 2px #0d6efd !important;
-}
-</style>

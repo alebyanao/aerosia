@@ -59,6 +59,8 @@ Change it, enhance it and most importantly enjoy it!
 	</div>
 </div>
 <% include Footer %>
+<% require css('https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css') %>
+<% require css('https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css') %>
 
 <% require javascript('//code.jquery.com/jquery-3.7.1.min.js') %>
 <%-- <% require themedJavascript('script') %> --%>
