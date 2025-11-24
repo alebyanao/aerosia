@@ -240,15 +240,33 @@
                                     <% if $Description %>
                                         <p class="ticket-description">$Description</p>
                                     <% end_if %>
-                                    <p class="ticket-stock">
-                                        <i class="bi bi-ticket-perforated"></i> Tersedia: $Capacity tiket
-                                    </p>
-                                    <button class="btn-pilih select-ticket-btn">Pilih Tiket</button>
-                                    
+                                    <% if $Capacity > 0 %>
+                                        <p class="ticket-stock">
+                                            <i class="bi bi-ticket-perforated"></i> Tersedia: $Capacity tiket
+                                        </p>
+                                    <% else %>
+                                        <p class="ticket-stock text-danger fw-bold">
+                                            <i class="bi bi-exclamation-circle"></i> SOLD OUT
+                                        </p>
+                                    <% end_if %>
+                                    <% if $Capacity > 0 %>
+                                        <button class="btn-pilih select-ticket-btn">Pilih Tiket</button>
+                                    <% else %>
+                                        <div class="btn-pilih disabled" style="background:#aaa; cursor:not-allowed;">
+                                            SOLD OUT
+                                        </div>
+                                    <% end_if %>                        
                                     <!-- Input Quantity -->
                                     <div class="quantity-wrapper d-none">
                                         <label>Jumlah Tiket:</label>
-                                        <input type="number" class="quantity-input" value="1" min="1" max="$MaxPerMember">
+                                       <input 
+                                                type="number" 
+                                                class="quantity-input" 
+                                                value="1" 
+                                                min="1" 
+                                                max="$Capacity" 
+                                                data-max="$MaxPerMember"
+                                            >
                                         <div class="text-danger small mt-1 d-none quantity-alert">
                                             Maksimal <span class="max-limit">$MaxPerMember</span> tiket per member
                                         </div>
@@ -377,18 +395,32 @@ document.addEventListener('DOMContentLoaded', function() {
         const price = parseInt(item.dataset.price);
         const capacity = parseInt(item.dataset.capacity);
 
+        if (capacity === 0 || !selectBtn) {
+            return;
+        }
+
         selectBtn.addEventListener('click', () => {
-            // Reset semua
             ticketItems.forEach(i => {
                 i.classList.remove('selected');
-                i.querySelector('.quantity-wrapper').classList.add('d-none');
-                i.querySelector('.select-ticket-btn').textContent = 'Pilih Tiket';
+
+                // Sembunyikan qty wrapper
+                const qtyWrap = i.querySelector('.quantity-wrapper');
+                if (qtyWrap) qtyWrap.classList.add('d-none');
+
+                // Reset teks tombol hanya untuk tiket yang punya tombol
+                const btn = i.querySelector('.select-ticket-btn');
+                if (btn) {
+                    btn.textContent = 'Pilih Tiket';
+                }
             });
 
-            // Aktifkan yang dipilih
             item.classList.add('selected');
             qtyWrapper.classList.remove('d-none');
             selectBtn.textContent = 'Dipilih';
+
+            const effectiveMax = Math.min(maxLimit, capacity);
+            qtyInput.setAttribute('max', effectiveMax);
+            qtyWrapper.querySelector('.max-limit').textContent = effectiveMax;
 
             selectedTicket = { item, price, maxLimit, capacity };
             updateTotal();
@@ -397,8 +429,9 @@ document.addEventListener('DOMContentLoaded', function() {
         qtyInput.addEventListener('input', () => {
             const val = parseInt(qtyInput.value) || 0;
             const effectiveMax = Math.min(maxLimit, capacity);
-            
+   
             if (val > effectiveMax) {
+                alertMsg.querySelector('.max-limit').textContent = effectiveMax; // ← update
                 alertMsg.classList.remove('d-none');
                 qtyInput.classList.add('is-invalid');
                 disableBuy();
