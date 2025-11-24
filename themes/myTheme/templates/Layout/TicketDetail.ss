@@ -207,7 +207,7 @@
             <% with $Ticket %>
                 <!-- Event Image -->
                 <% if $Image %>
-                    <img src="$Image.URL" class="event-image mb-4" alt="$Title">
+                    <img src="$Image.Fill(700,350).URL" class="event-image mb-4" alt="$Title">
                 <% end_if %>
                 
                 <!-- Tabs -->
@@ -272,14 +272,50 @@
                     <!-- Event Info Card -->
                     <div class="event-info-card mb-3">
                         <h2 class="event-title">$Title</h2>
+
+                        <!-- Tanggal -->
                         <div class="event-meta">
                             <i class="bi bi-calendar3"></i>
                             <span>$EventDate.Nice</span>
                         </div>
+
+                        <!-- Waktu -->
+                        <div class="event-meta">
+                            <i class="bi bi-clock"></i>
+                            <% if $EventTimeFormatted %>
+                                <span class="small">$EventTimeFormatted</span>
+                            <% else %>
+                                <span class="small">-</span>
+                            <% end_if %>
+                        </div>
+
+                        <!-- Lokasi -->
                         <div class="event-meta">
                             <i class="bi bi-geo-alt"></i>
-                            <span>$Location</span>
+                            <% if $EventMapURL %>
+                                <a href="{$EventMapURL}" target="_blank" class="small text-dark text-decoration-none">
+                                    $Location
+                                </a>
+                            <% else %>
+                                $Location
+                            <% end_if %>
                         </div>
+
+                        <% if $InstagramURL %>
+                            <!-- Garis pemisah -->
+                            <hr class="my-2">
+
+                            <!-- Instagram Row -->
+                            <div class="event-meta">
+                                <img src="https://cdn-icons-png.flaticon.com/512/1384/1384063.png"
+                                    alt="Instagram"
+                                    style="width:18px; height:18px; margin-right:6px; object-fit:contain;">
+
+                                <a href="$InstagramURL" target="_blank" class="small text-dark text-decoration-none">
+                                    @$Instagram
+                                </a>
+                            </div>
+                        <% end_if %>
                     </div>
 
                     <!-- Checkout Card -->

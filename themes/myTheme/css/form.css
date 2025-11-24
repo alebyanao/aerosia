@@ -114,7 +114,7 @@ form .message {
         border: none;
         font-size: 13px;
         margin-right: 10px;
-        float: left;
+        /* float: left; */
     }
     a.btn:hover, button, input[type="submit"]:hover, .Actions .action:hover {
         background: #C80000;
@@ -163,10 +163,10 @@ form .message {
     }
 
     /* Search / Login */
-    .header form .middleColumn {
-        /* float: none;
-        width: 100% !important; */
-    }
+    /* .header form .middleColumn {
+        float: none;
+        width: 100% !important;
+    } */
 
 
 
@@ -232,12 +232,12 @@ span.message {
     max-width: 390px;
     clear: left;
 }
-div.holder-required {               /* This class needs to be changed - is used for both input and div */
-    /* background-color: #f9d0d0;
+/* div.holder-required {              
+     background-color: #f9d0d0;
     border: 1px solid #cf0000;
     padding: 10px;
-    margin-left: -11px; */
-}
+    margin-left: -11px; 
+} */
 form input.holder-required {        /* This class needs to be changed - is used for both input and div */
     border: 1px solid #cf0000;
 }

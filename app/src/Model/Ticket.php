@@ -7,6 +7,8 @@ use SilverStripe\Forms\GridField\GridField;
 use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
 use Silverstripe\Forms\HTMLEditor\HTMLEditorField;
 use SilverStripe\Security\Security;
+use SilverStripe\Forms\TimeField;
+use SilverStripe\Forms\TextField;
 
 class Ticket extends DataObject
 {
@@ -15,8 +17,12 @@ class Ticket extends DataObject
     private static $db = [
         'Title'       => 'Varchar(255)',
         'EventDate'   => 'Date',
+        'EventTime'   => 'Time',
         'Location'    => 'Varchar(255)',
-        'Description' => 'HTMLText'
+        'EventMapURL' => 'Varchar(255)',
+        'Instagram' => 'Varchar(50)',
+        'InstagramURL' => 'Varchar(50)',
+        'Description' => 'HTMLText',
     ];
 
     private static $has_one = [
@@ -46,12 +52,17 @@ class Ticket extends DataObject
         $fields->removeByName(['TicketTypes']);
 
         $fields->addFieldsToTab('Root.Main', [
+            TextField::create('Location', 'Lokasi Event'),
+            TextField::create('EventMapURL', 'Google Map URL'),
+            TimeField::create('EventTime', 'Jam Acara')
+                ->setHTML5(true), 
+            TextField::create('Instagram', 'Username Instagram (opsional)'),
+            TextField::create('InstagramURL', 'Link Instagram (opsional)'),
             UploadField::create('Image', 'Gambar Tiket')
                 ->setFolderName('tickets')
                 ->setAllowedExtensions(['jpg', 'jpeg', 'png', 'gif', 'svg']),
+            HTMLEditorField::create('Description', 'Deskripsi Event')->setRows(15),
             
-            HTMLEditorField::create('Description', 'Deskripsi Event')
-                ->setRows(15)
         ]);
 
         // GridField untuk mengelola tipe tiket
@@ -185,4 +196,17 @@ class Ticket extends DataObject
         
         return $wishlist ? $wishlist->ID : null;
     }
+
+    public function getEventTimeFormatted()
+    {
+        if (!$this->EventTime) {
+            return null;
+        }
+
+        // Format: 08.00
+        $formatted = date('H.i', strtotime($this->EventTime));
+
+        return $formatted . ' WIB';
+    }
+
 }
