@@ -134,6 +134,57 @@
         background: #6A5ACD;
         color: #fff;
     }
+    .btn-pilih.disabled {
+        background: #aaa;
+        cursor: not-allowed;
+    }
+    .quantity-control {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin: 0 auto;
+        max-width: 150px;
+    }
+    .quantity-control.active {
+        display: flex;
+    }
+    .qty-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: none;
+        background: #7B68EE;
+        color: #fff;
+        font-size: 1.2rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s;
+        flex-shrink: 0;
+    }
+    .qty-btn:hover:not(:disabled) {
+        background: #6A5ACD;
+    }
+    .qty-btn:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+    }
+    .qty-display {
+        width: 40px;
+        text-align: center;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #333;
+    }
+    .quantity-alert {
+        font-size: 0.75rem;
+        color: #dc3545;
+        text-align: center;
+        margin-top: 8px;
+    }
     .checkout-card {
         background: #fff;
         border: 2px solid #9370DB;
@@ -172,23 +223,6 @@
     .btn-beli.disabled {
         opacity: 0.6;
         cursor: not-allowed;
-    }
-    .quantity-wrapper {
-        margin-top: 12px;
-        text-align: center;
-    }
-    .quantity-wrapper label {
-        font-size: 0.8rem;
-        color: #666;
-    }
-    .quantity-wrapper input {
-        width: 80px;
-        text-align: center;
-        margin: 0 auto;
-        display: block;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        padding: 6px;
     }
     .ticket-card.selected {
         box-shadow: 0 0 0 3px #7B68EE;
@@ -249,28 +283,26 @@
                                             <i class="bi bi-exclamation-circle"></i> SOLD OUT
                                         </p>
                                     <% end_if %>
+                                    
                                     <% if $Capacity > 0 %>
                                         <button class="btn-pilih select-ticket-btn">Pilih Tiket</button>
+                                        
+                                        <!-- Quantity Control -->
+                                        <div class="quantity-control">
+                                            <button type="button" class="qty-btn qty-minus">−</button>
+                                            <span class="qty-display">1</span>
+                                            <button type="button" class="qty-btn qty-plus">+</button>
+                                        </div>
+                                        
+                                        <!-- Alert -->
+                                        <div class="quantity-alert d-none">
+                                            Maksimal <span class="max-limit">$MaxPerMember</span> tiket
+                                        </div>
                                     <% else %>
-                                        <div class="btn-pilih disabled" style="background:#aaa; cursor:not-allowed;">
+                                        <div class="btn-pilih disabled">
                                             SOLD OUT
                                         </div>
-                                    <% end_if %>                        
-                                    <!-- Input Quantity -->
-                                    <div class="quantity-wrapper d-none">
-                                        <label>Jumlah Tiket:</label>
-                                       <input 
-                                                type="number" 
-                                                class="quantity-input" 
-                                                value="1" 
-                                                min="1" 
-                                                max="$Capacity" 
-                                                data-max="$MaxPerMember"
-                                            >
-                                        <div class="text-danger small mt-1 d-none quantity-alert">
-                                            Maksimal <span class="max-limit">$MaxPerMember</span> tiket per member
-                                        </div>
-                                    </div>
+                                    <% end_if %>
                                 </div>
                             </div>
                         <% end_loop %>
@@ -379,7 +411,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Ticket selection
+    // Ticket selection with quantity control
     const ticketItems = document.querySelectorAll('.ticket-type-item');
     const totalAmountEl = document.getElementById('total-amount');
     const buyBtn = document.getElementById('buy-btn');
@@ -388,9 +420,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     ticketItems.forEach(item => {
         const selectBtn = item.querySelector('.select-ticket-btn');
-        const qtyWrapper = item.querySelector('.quantity-wrapper');
-        const qtyInput = item.querySelector('.quantity-input');
+        const qtyControl = item.querySelector('.quantity-control');
+        const qtyDisplay = item.querySelector('.qty-display');
+        const qtyPlus = item.querySelector('.qty-plus');
+        const qtyMinus = item.querySelector('.qty-minus');
         const alertMsg = item.querySelector('.quantity-alert');
+        
         const maxLimit = parseInt(item.dataset.max);
         const price = parseInt(item.dataset.price);
         const capacity = parseInt(item.dataset.capacity);
@@ -399,45 +434,57 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
+        let currentQty = 1;
+
+        // Click "Pilih Tiket" button
         selectBtn.addEventListener('click', () => {
+            // Reset semua tiket lain
             ticketItems.forEach(i => {
                 i.classList.remove('selected');
-
-                // Sembunyikan qty wrapper
-                const qtyWrap = i.querySelector('.quantity-wrapper');
-                if (qtyWrap) qtyWrap.classList.add('d-none');
-
-                // Reset teks tombol hanya untuk tiket yang punya tombol
                 const btn = i.querySelector('.select-ticket-btn');
-                if (btn) {
-                    btn.textContent = 'Pilih Tiket';
-                }
+                const ctrl = i.querySelector('.quantity-control');
+                const alert = i.querySelector('.quantity-alert');
+                
+                if (btn) btn.style.display = 'block';
+                if (ctrl) ctrl.classList.remove('active');
+                if (alert) alert.classList.add('d-none');
             });
 
+            // Aktifkan tiket ini
             item.classList.add('selected');
-            qtyWrapper.classList.remove('d-none');
-            selectBtn.textContent = 'Dipilih';
+            selectBtn.style.display = 'none';
+            qtyControl.classList.add('active');
+            
+            currentQty = 1;
+            qtyDisplay.textContent = currentQty;
 
-            const effectiveMax = Math.min(maxLimit, capacity);
-            qtyInput.setAttribute('max', effectiveMax);
-            qtyWrapper.querySelector('.max-limit').textContent = effectiveMax;
-
-            selectedTicket = { item, price, maxLimit, capacity };
+            selectedTicket = { item, price, maxLimit, capacity, currentQty };
             updateTotal();
         });
 
-        qtyInput.addEventListener('input', () => {
-            const val = parseInt(qtyInput.value) || 0;
+        // Plus button
+        qtyPlus.addEventListener('click', () => {
             const effectiveMax = Math.min(maxLimit, capacity);
-   
-            if (val > effectiveMax) {
-                alertMsg.querySelector('.max-limit').textContent = effectiveMax; // ← update
-                alertMsg.classList.remove('d-none');
-                qtyInput.classList.add('is-invalid');
-                disableBuy();
-            } else {
+            
+            if (currentQty < effectiveMax) {
+                currentQty++;
+                qtyDisplay.textContent = currentQty;
+                selectedTicket.currentQty = currentQty;
                 alertMsg.classList.add('d-none');
-                qtyInput.classList.remove('is-invalid');
+                updateTotal();
+            } else {
+                alertMsg.querySelector('.max-limit').textContent = effectiveMax;
+                alertMsg.classList.remove('d-none');
+            }
+        });
+
+        // Minus button
+        qtyMinus.addEventListener('click', () => {
+            if (currentQty > 1) {
+                currentQty--;
+                qtyDisplay.textContent = currentQty;
+                selectedTicket.currentQty = currentQty;
+                alertMsg.classList.add('d-none');
                 updateTotal();
             }
         });
@@ -450,17 +497,9 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        const qty = parseInt(selectedTicket.item.querySelector('.quantity-input').value) || 0;
-        const total = qty * selectedTicket.price;
-        const effectiveMax = Math.min(selectedTicket.maxLimit, selectedTicket.capacity);
-
+        const total = selectedTicket.currentQty * selectedTicket.price;
         totalAmountEl.textContent = 'Rp. ' + total.toLocaleString('id-ID');
-        
-        if (qty >= 1 && qty <= effectiveMax) {
-            enableBuy();
-        } else {
-            disableBuy();
-        }
+        enableBuy();
     }
 
     function enableBuy() {
@@ -478,7 +517,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!selectedTicket || buyBtn.classList.contains('disabled')) return;
 
         document.getElementById('ticketTypeId').value = selectedTicket.item.dataset.ticketId;
-        document.getElementById('ticketQty').value = selectedTicket.item.querySelector('.quantity-input').value;
+        document.getElementById('ticketQty').value = selectedTicket.currentQty;
 
         document.getElementById('checkoutForm').submit();
     });
