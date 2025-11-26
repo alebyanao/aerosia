@@ -1,5 +1,5 @@
 <main class="checkout-page py-5">
-  <div class="container my-5">
+  <div class="container my-4">
     <!-- Alert Error -->
     <% if $ErrorMessage %>
       <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -21,109 +21,12 @@
     <% if $IsFreeTicket %>
       <div class="alert alert-success alert-dismissible fade show" role="alert">
         <i class="bi bi-gift-fill me-2"></i>
-        <strong>Tiket Gratis!</strong> Anda akan langsung mendapatkan tiket setelah mengisi data pemesan. Tidak perlu melakukan pembayaran.
+        <strong>Tiket Gratis!</strong> Anda akan langsung mendapatkan tiket setelah mengisi data pemesan.
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
       </div>
     <% end_if %>
     
     <div class="row g-4">
-      <!-- Ringkasan Pembelian (Sticky Sidebar) -->
-      <div class="col-lg-5 order-lg-2">
-        <div class="card border-0 shadow-sm sticky-top" style="top: 100px;">
-          <div class="card-body p-4">
-            <h4 class="fw-bold mb-4">
-              <i class="bi bi-ticket-detailed-fill me-2 text-primary"></i> 
-              Ringkasan Pembelian
-            </h4>
-            
-            <!-- Event Info -->
-            <% if $Ticket %>
-              <div class="event-info mb-4 p-3 bg-light rounded">
-                <% if $Ticket.Image %>
-                  <img src="$Ticket.Image.URL" alt="$Ticket.Title" class="img-fluid rounded mb-3" style="max-height: 200px; width: 100%; object-fit: cover;">
-                <% end_if %>
-                <h6 class="text-muted mb-1 small">Event</h6>
-                <h5 class="mb-2 fw-bold">$Ticket.Title</h5>
-                <% if $Ticket.EventDate %>
-                  <p class="mb-1 small">
-                    <i class="bi bi-calendar-event me-1"></i> 
-                    $Ticket.EventDate.Nice
-                  </p>
-                <% end_if %>
-                <% if $Ticket.Location %>
-                  <p class="mb-0 small">
-                    <i class="bi bi-geo-alt me-1"></i> 
-                    $Ticket.Location
-                  </p>
-                <% end_if %>
-              </div>
-            <% end_if %>
-
-            <!-- Ticket Type Info -->
-            <div class="ticket-info mb-4">
-              <h6 class="text-muted mb-2 small">Tipe Tiket</h6>
-              <div class="d-flex justify-content-between align-items-start mb-2">
-                <div>
-                  <h5 class="mb-1 fw-bold">$TicketType.TypeName</h5>
-                  <% if $TicketType.Description %>
-                    <p class="text-muted small mb-0">$TicketType.Description</p>
-                  <% end_if %>
-                </div>
-              </div>
-            </div>
-
-            <hr class="my-3">
-
-            <!-- Price Breakdown -->
-            <div class="price-breakdown">
-              <div class="d-flex justify-content-between mb-2">
-                <span class="text-muted">Harga per tiket</span>
-                <strong>$TicketType.FormattedPrice</strong>
-              </div>
-
-              <div class="d-flex justify-content-between mb-3">
-                <span class="text-muted">Jumlah tiket</span>
-                <strong>$Quantity tiket</strong>
-              </div>
-
-              <hr class="my-3">
-
-              <div class="d-flex justify-content-between mb-2">
-                <span class="fw-semibold">Subtotal</span>
-                <strong class="text-dark">$FormattedTotal</strong>
-              </div>
-
-              <% if not $IsFreeTicket %>
-              <div class="d-flex justify-content-between mb-2" id="payment-fee-row" style="display: none !important;">
-                <span class="text-muted small">Biaya Admin</span>
-                <span class="text-muted small" id="payment-fee-value">Rp 0</span>
-              </div>
-              <% end_if %>
-
-              <hr class="my-3">
-
-              <div class="d-flex justify-content-between align-items-center">
-                <h5 class="mb-0 fw-bold">Total <% if not $IsFreeTicket %>Bayar<% end_if %></h5>
-                <h4 class="mb-0 <% if $IsFreeTicket %>text-success<% else %>text-success<% end_if %> fw-bold" id="grand-total-display">$FormattedTotal</h4>
-              </div>
-            </div>
-
-            <!-- Security Info -->
-            <% if $IsFreeTicket %>
-            <div class="alert alert-success mt-4 mb-0 small">
-              <i class="bi bi-gift-fill me-2"></i>
-              <strong>Tiket Gratis</strong> - Langsung diproses tanpa pembayaran
-            </div>
-            <% else %>
-            <div class="alert alert-info mt-4 mb-0 small">
-              <i class="bi bi-shield-check me-2"></i>
-              Transaksi Anda aman dan terenkripsi
-            </div>
-            <% end_if %>
-          </div>
-        </div>
-      </div>
-
       <!-- Form Checkout -->
       <div class="col-lg-7">
         <form method="post" action="$BaseHref/checkout/processOrder" id="checkoutForm">
@@ -132,115 +35,90 @@
           <input type="hidden" name="quantity" value="$Quantity">
           <input type="hidden" id="is_free_ticket" value="<% if $IsFreeTicket %>1<% else %>0<% end_if %>">
 
-          <!-- Step 1: Data Pemesan -->
-          <div class="card border-0 shadow-sm mb-4">
-            <div class="card-body p-4">
-              <h5 class="fw-bold mb-4">
-                <span class="badge bg-primary me-2">1</span>
-                <i class="bi bi-person-circle me-2"></i> 
-                Data Pemesan
-              </h5>
-
-              <div class="form-check mb-4 p-3 bg-light rounded">
-                <input class="form-check-input" type="checkbox" id="useProfile" name="use_profile" checked>
-                <label class="form-check-label fw-semibold" for="useProfile">
-                  <i class="bi bi-check-circle-fill text-success me-1"></i>
-                  Gunakan data dari profil saya
+          <!-- Data Pemesan -->
+          <div class="modern-card mb-4">
+            <div class="card-header-modern">
+              <h5 class="section-title">DATA PEMESAN</h5>
+            </div>
+            <div class="card-body-modern">
+              <div class="form-check-modern mb-4">
+                <label class="switch-label">
+                  <input type="checkbox" id="useProfile" name="use_profile" checked>
+                  <span class="switch-slider"></span>
+                  <span class="switch-text">Samakan seperti data di profile</span>
                 </label>
               </div>
 
-              <div class="mb-3">
-                <label for="FullName" class="form-label fw-semibold">
-                  Nama Lengkap <span class="text-danger">*</span>
-                </label>
-                <input type="text" class="form-control" id="FullName" name="FullName"
+              <div class="form-group-modern mb-3">
+                <label class="form-label-modern">Nama lengkap</label>
+                <input type="text" class="form-control-modern" id="FullName" name="FullName"
                        value="$CurrentUser.FirstName $CurrentUser.Surname"
                        data-profile-value="$CurrentUser.FirstName $CurrentUser.Surname"
-                       placeholder="Masukkan nama lengkap"
-                       required>
+                       placeholder="Masukkan nama lengkap" required>
               </div>
 
-              <div class="mb-3">
-                <label for="Email" class="form-label fw-semibold">
-                  Email <span class="text-danger">*</span>
-                </label>
-                <input type="email" class="form-control" id="Email" name="Email"
+              <div class="form-group-modern mb-3">
+                <label class="form-label-modern">Email</label>
+                <input type="email" class="form-control-modern" id="Email" name="Email"
                        value="$CurrentUser.Email"
                        data-profile-value="$CurrentUser.Email"
-                       placeholder="contoh@email.com"
-                       required>
-                <small class="text-muted">
-                  <i class="bi bi-info-circle me-1"></i>
-                  Invoice dan e-ticket akan dikirim ke email ini
-                </small>
+                       placeholder="Masukkan email" required>
               </div>
 
-              <div class="mb-0">
-                <label for="Phone" class="form-label fw-semibold">
-                  No. Telepon <span class="text-danger">*</span>
-                </label>
-                <input type="tel" class="form-control" id="Phone" name="Phone"
+              <div class="form-group-modern mb-0">
+                <label class="form-label-modern">No. Telepon</label>
+                <input type="tel" class="form-control-modern" id="Phone" name="Phone"
                        value="$CurrentUser.Phone"
                        data-profile-value="$CurrentUser.Phone"
                        placeholder="08123456789"
-                       pattern="[0-9]{10,15}"
-                       required>
-                <small class="text-muted">
-                  <i class="bi bi-info-circle me-1"></i>
-                  Format: 08xxxxxxxxxx (10-15 digit)
-                </small>
+                       pattern="[0-9]{10,15}" required>
               </div>
             </div>
           </div>
 
-          <!-- Step 2: Metode Pembayaran (Hanya untuk tiket berbayar) -->
+          <!-- Metode Pembayaran -->
           <% if not $IsFreeTicket %>
-          <div class="card border-0 shadow-sm mb-4">
-            <div class="card-body p-4">
-              <h5 class="fw-bold mb-4">
-                <span class="badge bg-primary me-2">2</span>
-                <i class="bi bi-credit-card me-2"></i> 
-                Metode Pembayaran
-              </h5>
-
+          <div class="modern-card mb-4">
+            <div class="card-header-modern">
+              <h5 class="section-title">METODE PEMBAYARAN</h5>
+            </div>
+            <div class="card-body-modern">
               <% if $PaymentMethods %>
                 <div id="payment-methods-container">
                   <% loop $PaymentMethods %>
-                    <div class="payment-method-item border rounded p-3 mb-3 cursor-pointer">
-                      <div class="form-check">
-                        <input class="form-check-input" type="radio" name="payment_method" 
-                               id="payment_$paymentMethod" 
-                               value="$paymentMethod"
-                               data-fee="$totalFee"
-                               required>
-                        <label class="form-check-label w-100 cursor-pointer" for="payment_$paymentMethod">
-                          <div class="d-flex justify-content-between align-items-center">
-                            <div class="d-flex align-items-center">
-                              <% if $paymentImage %>
-                                <img src="$paymentImage" alt="$paymentName" class="me-3" style="height: 30px; max-width: 80px; object-fit: contain;">
-                              <% end_if %>
-                              <div>
-                                <strong class="d-block">$paymentName</strong>
-                                <small class="text-muted">Biaya admin: Rp <span class="fw-semibold">{$totalFee}</span></small>
-                              </div>
-                            </div>
-                            <i class="bi bi-check-circle-fill text-success fs-4 payment-check d-none"></i>
+                    <div class="payment-option" data-index="$Pos">
+                      <input type="radio" name="payment_method" 
+                             id="payment_$paymentMethod" 
+                             value="$paymentMethod"
+                             data-fee="$totalFee"
+                             data-category="$paymentCategory" required>
+                      <label for="payment_$paymentMethod" class="payment-label">
+                        <div class="payment-content">
+                          <% if $paymentImage %>
+                            <img src="$paymentImage" alt="$paymentName" class="payment-logo">
+                          <% end_if %>
+                          <div class="payment-info">
+                            <div class="payment-name">$paymentName</div>
+                            <div class="payment-category">$paymentCategory</div>
                           </div>
-                        </label>
-                      </div>
+                        </div>
+                        <div class="payment-check">
+                          <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                      </label>
                     </div>
                   <% end_loop %>
                 </div>
 
-                <div class="alert alert-warning small mt-3 mb-0">
-                  <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                  <strong>Perhatian:</strong> Biaya admin akan ditambahkan ke total pembayaran sesuai metode yang dipilih.
+                <div class="text-center mt-3" id="load-more-container" style="display: none;">
+                  <button type="button" class="btn-load-more" id="load-more-btn">
+                    Tampilkan lebih banyak
+                  </button>
                 </div>
               <% else %>
                 <div class="alert alert-danger">
                   <i class="bi bi-exclamation-circle me-2"></i>
-                  <strong>Metode pembayaran tidak tersedia.</strong><br>
-                  Silakan hubungi admin atau coba lagi nanti.
+                  Metode pembayaran tidak tersedia. Silakan hubungi admin.
                 </div>
               <% end_if %>
             </div>
@@ -248,92 +126,529 @@
           <% end_if %>
 
           <!-- Submit Button -->
-          <div class="card border-0 shadow-sm">
-            <div class="card-body p-4">
-              <div class="d-grid gap-2">
-                <% if $IsFreeTicket %>
-                  <button type="submit" class="btn btn-success btn-lg py-3" id="submitBtn">
-                    <i class="bi bi-gift-fill me-2"></i> 
-                    <span id="submitBtnText">Konfirmasi Pemesanan Gratis</span>
-                  </button>
-                <% else %>
-                  <button type="submit" class="btn btn-success btn-lg py-3" id="submitBtn" disabled>
-                    <i class="bi bi-lock-fill me-2"></i> 
-                    <span id="submitBtnText">Lanjutkan ke Pembayaran</span>
-                  </button>
-                <% end_if %>
-                <a href="<% if $Ticket %>$Ticket.Link<% else %>$BaseHref/event<% end_if %>" class="btn btn-outline-secondary btn-lg">
-                  <i class="bi bi-arrow-left me-2"></i> Kembali
-                </a>
-              </div>
-
-              <p class="text-center text-muted small mt-3 mb-0">
-                Dengan melanjutkan, Anda menyetujui <a href="#">Syarat & Ketentuan</a> kami
-              </p>
-            </div>
+          <div class="button-group">
+            <% if $IsFreeTicket %>
+              <button type="submit" class="btn-submit" id="submitBtn">
+                <span id="submitBtnText">Buat Pesanan</span>
+              </button>
+            <% else %>
+              <button type="submit" class="btn-submit" id="submitBtn" disabled>
+                <span id="submitBtnText">Buat Pesanan</span>
+              </button>
+            <% end_if %>
           </div>
         </form>
+      </div>
+
+      <!-- Ringkasan Pembelian -->
+      <div class="col-lg-5">
+        <div class="modern-card summary-card sticky-top" style="top: 20px;">
+          <div class="card-body-modern">
+            <!-- Event Info -->
+            <% if $Ticket %>
+              <div class="event-info-card mb-4">
+                <% if $Ticket.Image %>
+                  <img src="$Ticket.Image.URL" alt="$Ticket.Title" class="event-image">
+                <% end_if %>
+                <div class="event-details">
+                  <h6 class="event-title">$Ticket.Title</h6>
+                  <% if $Ticket.EventDate %>
+                    <div class="event-meta">
+                      <i class="bi bi-calendar3"></i>
+                      <span>$Ticket.EventDate.Nice</span>
+                    </div>
+                  <% end_if %>
+                  <% if $Ticket.EventTime %>
+                    <div class="event-meta">
+                      <i class="bi bi-clock"></i>
+                      <span>$Ticket.EventTime WIB</span>
+                    </div>
+                  <% end_if %>
+                  <% if $Ticket.Location %>
+                    <div class="event-meta">
+                      <i class="bi bi-geo-alt"></i>
+                      <span>$Ticket.Location</span>
+                    </div>
+                  <% end_if %>
+                </div>
+              </div>
+            <% end_if %>
+
+            <h5 class="summary-title">RINGKASAN PEMBELIAN</h5>
+
+            <!-- Ticket Info -->
+            <div class="summary-row">
+              <span class="summary-label">TIPE TICKET</span>
+              <span class="summary-value">$Quantity</span>
+            </div>
+
+            <div class="divider-line"></div>
+
+            <!-- Price Breakdown -->
+            <div class="summary-row">
+              <span class="summary-label">SUBTOTAL</span>
+              <span class="summary-value">$FormattedTotal</span>
+            </div>
+
+            <% if not $IsFreeTicket %>
+            <div class="summary-row" id="payment-fee-row" style="display: none;">
+              <span class="summary-label">BIAYA ADMIN</span>
+              <span class="summary-value" id="payment-fee-value">Rp. 0</span>
+            </div>
+            <% end_if %>
+
+            <div class="divider-line"></div>
+
+            <!-- Grand Total -->
+            <div class="summary-row total-row">
+              <span class="summary-label">TOTAL</span>
+              <span class="summary-total" id="grand-total-display">$FormattedTotal</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </main>
 
 <style>
-.payment-method-item {
-  cursor: pointer;
-  transition: all 0.3s ease;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background-color: #ffffffff;
+  color: #333;
+}
+
+.modern-card {
   background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
-.payment-method-item:hover {
-  background-color: #f8f9fa;
-  border-color: #198754 !important;
-  box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.1);
+.card-header-modern {
+  padding: 20px 24px;
+  border-bottom: 1px solid #e8e8e8;
 }
 
-.payment-method-item input:checked ~ label {
-  color: #198754;
+.section-title {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #333;
+  margin: 0;
 }
 
-.payment-method-item input:checked ~ label .payment-check {
-  display: inline-block !important;
+.card-body-modern {
+  padding: 24px;
 }
 
-.payment-method-item input:checked {
-  border-color: #198754;
-  background-color: #198754;
+/* Toggle Switch */
+.form-check-modern {
+  display: flex;
+  align-items: center;
 }
 
-.payment-method-item:has(input:checked) {
-  border-color: #198754 !important;
-  background-color: #f0fdf4;
-  box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.15);
-}
-
-.cursor-pointer {
+.switch-label {
+  display: flex;
+  align-items: center;
   cursor: pointer;
+  gap: 12px;
+  user-select: none;
 }
 
-.sticky-top {
-  position: sticky;
+.switch-label input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
 }
 
+.switch-slider {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background-color: #e0e0e0;
+  border-radius: 24px;
+  transition: background-color 0.3s;
+}
+
+.switch-slider::before {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #fff;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.3s;
+}
+
+.switch-label input[type="checkbox"]:checked + .switch-slider {
+  background-color: #6366f1;
+}
+
+.switch-label input[type="checkbox"]:checked + .switch-slider::before {
+  transform: translateX(20px);
+}
+
+.switch-text {
+  font-size: 14px;
+  color: #666;
+}
+
+/* Form Inputs */
+.form-group-modern {
+  margin-bottom: 20px;
+}
+
+.form-label-modern {
+  display: block;
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.form-control-modern {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s;
+  background-color: #fff;
+}
+
+.form-control-modern:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.form-control-modern.bg-light {
+  background-color: #f8f8f8 !important;
+}
+
+.form-control-modern:read-only {
+  background-color: #f8f8f8;
+  cursor: not-allowed;
+}
+
+/* Payment Options */
+#payment-methods-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.payment-option {
+  position: relative;
+}
+
+.payment-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+}
+
+.payment-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 12px;
+  border: 2px solid #e8e8e8;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s;
+  background-color: #fff;
+  height: 100%;
+  min-height: 100px;
+  position: relative;
+}
+
+.payment-label:hover {
+  border-color: #6366f1;
+  background-color: #f8f9ff;
+}
+
+.payment-option input[type="radio"]:checked + .payment-label {
+  border-color: #6366f1;
+  background-color: #f0f1ff;
+}
+
+.payment-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.payment-logo {
+  width: 60px;
+  height: 30px;
+  object-fit: contain;
+}
+
+.payment-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+}
+
+.payment-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.3;
+}
+
+.payment-category {
+  font-size: 10px;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.payment-check {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: #6366f1;
+  font-size: 18px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.payment-option input[type="radio"]:checked + .payment-label .payment-check {
+  opacity: 1;
+}
+
+/* Buttons */
+.btn-load-more {
+  padding: 10px 24px;
+  background-color: transparent;
+  border: 1px solid #6366f1;
+  border-radius: 8px;
+  color: #6366f1;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-load-more:hover {
+  background-color: #6366f1;
+  color: #fff;
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: capitalize;
+}
+
+.btn-submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.button-group {
+  margin-top: 24px;
+}
+
+/* Summary Card */
+.summary-card {
+  border: none;
+}
+
+.event-info-card {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e8e8e8;
+}
+
+.event-image {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+}
+
+.event-details {
+  padding: 16px;
+}
+
+.event-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 12px;
+}
+
+.event-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 6px;
+}
+
+.event-meta i {
+  color: #6366f1;
+  font-size: 14px;
+}
+
+.summary-title {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.summary-label {
+  font-size: 13px;
+  color: #666;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.summary-value {
+  font-size: 14px;
+  color: #333;
+  font-weight: 600;
+}
+
+.divider-line {
+  height: 1px;
+  background-color: #e8e8e8;
+  margin: 16px 0;
+}
+
+.total-row {
+  margin-top: 20px;
+  margin-bottom: 0;
+}
+
+.total-row .summary-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #333;
+}
+
+.summary-total {
+  font-size: 20px;
+  font-weight: 700;
+  color: #333;
+}
+
+/* Responsive */
 @media (max-width: 991px) {
   .sticky-top {
     position: relative !important;
     top: 0 !important;
   }
+  
+  .modern-card {
+    margin-bottom: 20px;
+  }
+  
+  #payment-methods-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
-/* Loading animation */
+@media (max-width: 576px) {
+  .card-body-modern {
+    padding: 20px;
+  }
+  
+  #payment-methods-container {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  
+  .payment-label {
+    padding: 12px 8px;
+    min-height: 90px;
+  }
+  
+  .payment-logo {
+    width: 45px;
+    height: 28px;
+  }
+  
+  .payment-name {
+    font-size: 11px;
+  }
+  
+  .event-image {
+    height: 140px;
+  }
+}
+
+/* Alerts */
+.alert {
+  border-radius: 10px;
+  border: none;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
 .spinner-border-sm {
+  display: inline-block;
   width: 1rem;
   height: 1rem;
-  border-width: 0.2em;
+  border: 0.2em solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+  margin-right: 8px;
 }
 </style>
 
@@ -341,11 +656,7 @@
 document.addEventListener('DOMContentLoaded', function() {
   const isFreeTicket = document.getElementById('is_free_ticket').value === '1';
   
-  console.log('Is Free Ticket:', isFreeTicket);
-
-  // ========================================
-  // 1. Data Pemesan Toggle (Use Profile)
-  // ========================================
+  // Data Pemesan Toggle
   const useProfile = document.getElementById('useProfile');
   const inputs = {
     FullName: document.getElementById('FullName'),
@@ -409,11 +720,41 @@ document.addEventListener('DOMContentLoaded', function() {
 
   applyUseProfile(useProfile.checked);
 
-  // ========================================
-  // 2. Payment Method Selection & Fee Calculation
-  // (Hanya untuk tiket berbayar)
-  // ========================================
+  // Payment Method - Load More
   if (!isFreeTicket) {
+    const paymentItems = document.querySelectorAll('.payment-option');
+    const loadMoreBtn = document.getElementById('load-more-btn');
+    const loadMoreContainer = document.getElementById('load-more-container');
+    const INITIAL_SHOW = 6;
+    let currentlyShown = INITIAL_SHOW;
+
+    if (paymentItems.length > INITIAL_SHOW) {
+      paymentItems.forEach((item, index) => {
+        if (index >= INITIAL_SHOW) {
+          item.style.display = 'none';
+        }
+      });
+      loadMoreContainer.style.display = 'block';
+    }
+
+    if (loadMoreBtn) {
+      loadMoreBtn.addEventListener('click', function() {
+        const hiddenItems = Array.from(paymentItems).filter(item => item.style.display === 'none');
+        
+        hiddenItems.slice(0, 6).forEach(item => {
+          item.style.display = 'block';
+          item.style.animation = 'fadeIn 0.4s ease';
+        });
+
+        currentlyShown += 6;
+
+        if (currentlyShown >= paymentItems.length) {
+          loadMoreContainer.style.display = 'none';
+        }
+      });
+    }
+
+    // Payment Method Selection
     const paymentMethodInputs = document.querySelectorAll('input[name="payment_method"]');
     const paymentFeeRow = document.getElementById('payment-fee-row');
     const paymentFeeValue = document.getElementById('payment-fee-value');
@@ -426,37 +767,25 @@ document.addEventListener('DOMContentLoaded', function() {
         const fee = parseFloat(this.getAttribute('data-fee')) || 0;
         const grandTotal = subtotal + fee;
 
-        // Show payment fee
-        paymentFeeRow.style.display = 'flex';
-        paymentFeeRow.style.justifyContent = 'space-between';
-        paymentFeeValue.textContent = 'Rp ' + fee.toLocaleString('id-ID');
+        if (paymentFeeRow) {
+          paymentFeeRow.style.display = 'flex';
+          paymentFeeValue.textContent = 'Rp. ' + fee.toLocaleString('id-ID');
+        }
 
-        // Update grand total
-        grandTotalDisplay.textContent = 'Rp ' + grandTotal.toLocaleString('id-ID');
+        grandTotalDisplay.textContent = 'Rp. ' + grandTotal.toLocaleString('id-ID');
 
-        // Enable submit button
         submitBtn.disabled = false;
-
-        // Remove highlight from all payment methods
-        document.querySelectorAll('.payment-method-item').forEach(item => {
-          item.classList.remove('border-success', 'bg-light');
-        });
-
-        // Highlight selected payment method
-        this.closest('.payment-method-item').classList.add('border-success');
+        submitBtn.querySelector('#submitBtnText').textContent = 'Buat pesanan';
       });
     });
   }
 
-  // ========================================
-  // 3. Form Validation & Submit
-  // ========================================
+  // Form Validation
   const form = document.getElementById('checkoutForm');
   const submitBtn = document.getElementById('submitBtn');
   const submitBtnText = document.getElementById('submitBtnText');
 
   form.addEventListener('submit', function(e) {
-    // Untuk tiket berbayar, cek payment method
     if (!isFreeTicket) {
       const selectedPayment = document.querySelector('input[name="payment_method"]:checked');
       
@@ -467,7 +796,6 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }
 
-    // Validate phone number
     const phone = inputs.Phone.value;
     const phoneRegex = /^[0-9]{10,15}$/;
     if (!phoneRegex.test(phone)) {
@@ -477,34 +805,19 @@ document.addEventListener('DOMContentLoaded', function() {
       return false;
     }
 
-    // Disable submit button & show loading
     submitBtn.disabled = true;
-    
-    if (isFreeTicket) {
-      submitBtnText.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Memproses Pemesanan Gratis...';
-    } else {
-      submitBtnText.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Memproses...';
-    }
-    
-    // Form will submit normally
+    submitBtnText.innerHTML = '<span class="spinner-border-sm"></span>Memproses...';
   });
 
-  // ========================================
-  // 4. Session Error Auto-dismiss
-  // ========================================
+  // Auto-dismiss Alerts
   setTimeout(function() {
-    const alerts = document.querySelectorAll('.alert');
+    const alerts = document.querySelectorAll('.alert-dismissible');
     alerts.forEach(alert => {
-      if (alert.querySelector('.btn-close')) {
-        setTimeout(() => {
-          alert.classList.remove('show');
-          setTimeout(() => alert.remove(), 150);
-        }, 5000);
-      }
+      setTimeout(() => {
+        const closeBtn = alert.querySelector('.btn-close');
+        if (closeBtn) closeBtn.click();
+      }, 5000);
     });
   }, 100);
 });
 </script>
-
-</body>
-</html>
