@@ -13,7 +13,7 @@
     }
     .event-info-card {
         background: #fff;
-        border: 2px solid #9370DB;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
         border-radius: 16px;
         padding: 24px;
     }
@@ -187,7 +187,7 @@
     }
     .checkout-card {
         background: #fff;
-        border: 2px solid #9370DB;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         border-radius: 16px;
         padding: 20px;
     }
@@ -241,7 +241,7 @@
             <% with $Ticket %>
                 <!-- Event Image -->
                 <% if $Image %>
-                    <img src="$Image.Fill(700,350).URL" class="event-image mb-4" alt="$Title">
+                    <img src="$Image.Fill(700,350).URL" class="event-image mb-4" alt="$Title" style="box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);">
                 <% end_if %>
                 
                 <!-- Tabs -->

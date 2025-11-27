@@ -1,5 +1,5 @@
 <main class="order-detail-page py-5">
-  <div class="container my-5">
+  <div class="container my-4">
     <!-- Session Messages -->
     <% if $OrderSuccess %>
       <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -59,129 +59,155 @@
 
     <!-- Back Button -->
     <div class="mb-4">
-      <a href="$BaseHref/order" class="btn btn-outline-secondary">
-        <i class="bi bi-arrow-left me-2"></i> Kembali ke Daftar Pesanan
+      <a href="$BaseHref/order" class="btn-back">
+        <i class="bi bi-arrow-left"></i>
+        <span>Kembali ke Daftar Pesanan</span>
       </a>
     </div>
 
     <% with $Order %>
       <!-- Order Header -->
-      <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body p-4">
-          <div class="row align-items-center">
-            <div class="col-lg-8">
-              <h2 class="fw-bold mb-2">Pesanan #$OrderCode</h2>
-              <p class="text-muted mb-0">
-                <i class="bi bi-clock me-1"></i>
+      <div class="modern-card mb-4">
+        <div class="card-body-modern">
+          <div class="order-header-detail">
+            <div class="order-info-header">
+              <h2 class="order-title">Pesanan #$OrderCode</h2>
+              <p class="order-date">
+                <i class="bi bi-clock"></i>
                 Dipesan pada: $CreatedAt.Nice
               </p>
             </div>
-            <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+            <div class="order-status-header">
               <% if $Status == 'pending' || $Status == 'pending_payment' %>
-                <span class="badge bg-warning text-dark fs-6 px-3 py-2">
-                  <i class="bi bi-clock me-1"></i> Menunggu Pembayaran
+                <span class="status-badge-large status-pending">
+                  <i class="bi bi-clock"></i>
+                  Menunggu Pembayaran
                 </span>
               <% else_if $Status == 'paid' %>
-                <span class="badge bg-success fs-6 px-3 py-2">
-                  <i class="bi bi-check-circle me-1"></i> Sudah Dibayar
+                <span class="status-badge-large status-success">
+                  <i class="bi bi-check-circle"></i>
+                  Sudah Dibayar
                 </span>
               <% else_if $Status == 'completed' %>
-                <span class="badge bg-primary fs-6 px-3 py-2">
-                  <i class="bi bi-check-all me-1"></i> Selesai
+                <span class="status-badge-large status-primary">
+                  <i class="bi bi-check-all"></i>
+                  Selesai
                 </span>
               <% else_if $Status == 'cancelled' %>
-                <span class="badge bg-danger fs-6 px-3 py-2">
-                  <i class="bi bi-x-circle me-1"></i> Dibatalkan
+                <span class="status-badge-large status-cancelled">
+                  <i class="bi bi-x-circle"></i>
+                  Dibatalkan
                 </span>
               <% end_if %>
             </div>
           </div>
 
-          <!-- Payment Timer (for pending orders) -->
+          <!-- Payment Timer -->
           <% if $Status == 'pending_payment' && $Up.TimeRemaining %>
-            <div class="alert alert-warning mt-3 mb-0">
-              <i class="bi bi-clock-history me-2"></i>
-              <strong>Waktu pembayaran tersisa:</strong> $Up.TimeRemaining
-              <br>
-              <small>Setelah melewati batas waktu, pesanan akan dibatalkan otomatis.</small>
+            <div class="payment-timer">
+              <i class="bi bi-clock-history"></i>
+              <div>
+                <strong>Waktu pembayaran tersisa: $Up.TimeRemaining</strong>
+                <br>
+                <small>Setelah melewati batas waktu, pesanan akan dibatalkan otomatis.</small>
+              </div>
             </div>
           <% end_if %>
         </div>
       </div>
 
-      <div class="row">
+      <div class="row g-4">
         <!-- Left Column -->
         <div class="col-lg-8">
           <!-- Event Details -->
           <% with $Up.Ticket %>
-            <div class="card border-0 shadow-sm mb-4">
-              <div class="card-body p-4">
-                <h5 class="fw-bold mb-3">
-                  <i class="bi bi-calendar-event text-primary me-2"></i>
-                  Detail Event
+            <div class="modern-card mb-4">
+              <div class="card-header-modern">
+                <h5 class="section-title">
+                  <i class="bi bi-calendar-event"></i>
+                  DETAIL EVENT
                 </h5>
-
+              </div>
+              <div class="card-body-modern">
                 <% if $Image %>
-                  <img src="$Image.URL" alt="$Title" class="img-fluid rounded mb-3" style="max-height: 250px; width: 100%; object-fit: cover;">
+                  <img src="$Image.URL" alt="$Title" class="event-detail-image">
                 <% end_if %>
 
-                <h4 class="fw-bold mb-3">$Title</h4>
+                <h4 class="event-title-detail">$Title</h4>
 
-                <div class="event-info">
+                <div class="event-info-detail">
                   <% if $EventDate %>
-                    <p class="mb-2">
-                      <i class="bi bi-calendar3 text-muted me-2"></i>
-                      <strong>Tanggal:</strong> $EventDate.Nice
-                    </p>
+                    <div class="info-item">
+                      <i class="bi bi-calendar3"></i>
+                      <div>
+                        <span class="info-label">Tanggal</span>
+                        <span class="info-value">$EventDate.Nice</span>
+                      </div>
+                    </div>
                   <% end_if %>
 
                   <% if $Location %>
-                    <p class="mb-2">
-                      <i class="bi bi-geo-alt text-muted me-2"></i>
-                      <strong>Lokasi:</strong> $Location
-                    </p>
+                    <div class="info-item">
+                      <i class="bi bi-geo-alt"></i>
+                      <div>
+                        <span class="info-label">Lokasi</span>
+                        <span class="info-value">$Location</span>
+                      </div>
+                    </div>
                   <% end_if %>
 
-                  <p class="mb-0">
-                    <i class="bi bi-ticket-perforated text-muted me-2"></i>
-                    <strong>Tipe Tiket:</strong> $Up.Up.TicketType.TypeName
-                  </p>
+                  <div class="info-item">
+                    <i class="bi bi-ticket-perforated"></i>
+                    <div>
+                      <span class="info-label">Tipe Tiket</span>
+                      <span class="info-value">$Up.Up.TicketType.TypeName</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           <% end_with %>
 
           <!-- Buyer Information -->
-          <div class="card border-0 shadow-sm mb-4">
-            <div class="card-body p-4">
-              <h5 class="fw-bold mb-3">
-                <i class="bi bi-person-circle text-primary me-2"></i>
-                Data Pemesan
+          <div class="modern-card mb-4">
+            <div class="card-header-modern">
+              <h5 class="section-title">
+                <i class="bi bi-person-circle"></i>
+                DATA PEMESAN
               </h5>
-              <p class="mb-2">
-                <strong>Nama:</strong> $FullName
-              </p>
-              <p class="mb-2">
-                <strong>Email:</strong> $Email
-              </p>
-              <% if $Phone %>
-                <p class="mb-0">
-                  <strong>Telepon:</strong> $Phone
-                </p>
-              <% end_if %>
+            </div>
+            <div class="card-body-modern">
+              <div class="buyer-info">
+                <div class="buyer-item">
+                  <span class="buyer-label">Nama</span>
+                  <span class="buyer-value">$FullName</span>
+                </div>
+                <div class="buyer-item">
+                  <span class="buyer-label">Email</span>
+                  <span class="buyer-value">$Email</span>
+                </div>
+                <% if $Phone %>
+                  <div class="buyer-item">
+                    <span class="buyer-label">Telepon</span>
+                    <span class="buyer-value">$Phone</span>
+                  </div>
+                <% end_if %>
+              </div>
             </div>
           </div>
 
-          <!-- Payment Transactions (if any) -->
+          <!-- Payment Transactions -->
           <% if $Up.Transactions %>
-            <div class="card border-0 shadow-sm mb-4">
-              <div class="card-body p-4">
-                <h5 class="fw-bold mb-3">
-                  <i class="bi bi-credit-card text-primary me-2"></i>
-                  Riwayat Transaksi
+            <div class="modern-card mb-4">
+              <div class="card-header-modern">
+                <h5 class="section-title">
+                  <i class="bi bi-credit-card"></i>
+                  RIWAYAT TRANSAKSI
                 </h5>
+              </div>
+              <div class="card-body-modern">
                 <div class="table-responsive">
-                  <table class="table table-sm">
+                  <table class="transaction-table">
                     <thead>
                       <tr>
                         <th>Transaction ID</th>
@@ -192,15 +218,15 @@
                     <tbody>
                       <% loop $Up.Transactions %>
                         <tr>
-                          <td><code>$TransactionID</code></td>
+                          <td><code class="transaction-code">$TransactionID</code></td>
                           <td>$CreatedAt.Nice</td>
                           <td>
                             <% if $Status == 'success' %>
-                              <span class="badge bg-success">Success</span>
+                              <span class="status-badge-small status-success">Success</span>
                             <% else_if $Status == 'failed' %>
-                              <span class="badge bg-danger">Failed</span>
+                              <span class="status-badge-small status-cancelled">Failed</span>
                             <% else %>
-                              <span class="badge bg-warning text-dark">Pending</span>
+                              <span class="status-badge-small status-pending">Pending</span>
                             <% end_if %>
                           </td>
                         </tr>
@@ -215,83 +241,79 @@
 
         <!-- Right Column (Summary) -->
         <div class="col-lg-4">
-          <!-- Price Summary -->
-          <div class="card border-0 shadow-sm mb-4 sticky-top" style="top: 100px;">
-            <div class="card-body p-4">
-              <h5 class="fw-bold mb-3">
-                <i class="bi bi-receipt text-primary me-2"></i>
-                Ringkasan Pembayaran
+          <div class="modern-card summary-card-sticky sticky-top" style="top: 20px;">
+            <div class="card-header-modern">
+              <h5 class="section-title">
+                <i class="bi bi-receipt"></i>
+                RINGKASAN PEMBAYARAN
               </h5>
-
-              <div class="price-row mb-2">
-                <div class="d-flex justify-content-between">
-                  <span class="text-muted">Harga per Tiket</span>
-                  <strong>$TicketType.FormattedPrice / $Quantity</strong>
-                </div>
+            </div>
+            <div class="card-body-modern">
+              <!-- Price Breakdown -->
+              <div class="summary-detail-row">
+                <span class="summary-detail-label">Harga per Tiket</span>
+                <span class="summary-detail-value">$TicketType.FormattedPrice</span>
               </div>
 
-              <div class="price-row mb-2">
-                <div class="d-flex justify-content-between">
-                  <span class="text-muted">Jumlah Tiket</span>
-                  <strong>$Quantity tiket</strong>
-                </div>
+              <div class="summary-detail-row">
+                <span class="summary-detail-label">Jumlah Tiket</span>
+                <span class="summary-detail-value">$Quantity tiket</span>
               </div>
 
-              <hr>
+              <div class="divider-line"></div>
 
-              <div class="price-row mb-2">
-                <div class="d-flex justify-content-between">
-                  <span>Subtotal</span>
-                  <strong>$FormattedTotalPrice</strong>
-                </div>
+              <div class="summary-detail-row">
+                <span class="summary-detail-label">Subtotal</span>
+                <span class="summary-detail-value">$FormattedTotalPrice</span>
               </div>
 
-              <div class="price-row mb-3">
-                <div class="d-flex justify-content-between">
-                  <span>Biaya Admin</span>
-                  <span>$FormattedPaymentFee</span>
-                </div>
+              <div class="summary-detail-row">
+                <span class="summary-detail-label">Biaya Admin</span>
+                <span class="summary-detail-value">$FormattedPaymentFee</span>
               </div>
 
-              <hr class="my-3">
+              <div class="divider-line"></div>
 
-              <div class="price-row">
-                <div class="d-flex justify-content-between align-items-center">
-                  <h5 class="mb-0">Total Bayar</h5>
-                  <h4 class="mb-0 text-success fw-bold">$FormattedGrandTotal</h4>
-                </div>
+              <!-- Grand Total -->
+              <div class="grand-total-row">
+                <span class="grand-total-label">TOTAL BAYAR</span>
+                <span class="grand-total-value">$FormattedGrandTotal</span>
               </div>
 
-              <hr class="my-3">
+              <div class="divider-line"></div>
 
               <!-- Action Buttons -->
-              <div class="d-grid gap-2">
+              <div class="action-buttons-detail">
                 <% if $canBePaid %>
-                  <a href="$BaseHref/payment/initiate/$ID" target="_blank" class="btn btn-success">
-                    <i class="bi bi-credit-card me-2"></i> Bayar Sekarang
+                  <a href="$BaseHref/payment/initiate/$ID" target="_blank" class="btn-submit">
+                    <i class="bi bi-credit-card"></i>
+                    Bayar Sekarang
                   </a>
                 <% end_if %>
 
                 <% if $PaymentStatus == 'paid' %>
-                  <a href="$BaseHref/invoice/download/$ID" class="btn btn-primary">
-                    <i class="bi bi-download me-2"></i> Download Invoice
+                  <a href="$BaseHref/invoice/download/$ID" class="btn-primary-detail">
+                    <i class="bi bi-download"></i>
+                    Download Invoice
                   </a>
-                  <a href="$BaseHref/invoice/send/$ID" class="btn btn-outline-primary">
-                    <i class="bi bi-envelope me-2"></i> Kirim Ulang Invoice
+                  <a href="$BaseHref/invoice/send/$ID" class="btn-outline-detail">
+                    <i class="bi bi-envelope"></i>
+                    Kirim Ulang Invoice
                   </a>
                 <% end_if %>
 
                 <% if $canBeCancelled %>
-                  <a href="$BaseHref/order/cancel/$ID" class="btn btn-outline-danger" 
+                  <a href="$BaseHref/order/cancel/$ID" class="btn-danger-detail" 
                      onclick="return confirm('Apakah Anda yakin ingin membatalkan pesanan ini? Tindakan ini tidak dapat dibatalkan.')">
-                    <i class="bi bi-x-circle me-2"></i> Batalkan Pesanan
+                    <i class="bi bi-x-circle"></i>
+                    Batalkan Pesanan
                   </a>
                 <% end_if %>
               </div>
 
               <% if $PaymentStatus == 'paid' %>
-                <div class="alert alert-info mt-3 mb-0 small">
-                  <i class="bi bi-info-circle me-1"></i>
+                <div class="info-alert">
+                  <i class="bi bi-info-circle"></i>
                   E-ticket telah dikirim ke email Anda
                 </div>
               <% end_if %>
@@ -304,25 +326,513 @@
 </main>
 
 <style>
-.sticky-top {
-  position: sticky;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-@media (max-width: 991px) {
-  .sticky-top {
-    position: relative !important;
-    top: 0 !important;
-  }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background-color: #ffffffff;
+  color: #333;
 }
 
-.event-info p {
+/* Modern Card */
+.modern-card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.card-header-modern {
+  padding: 20px 24px;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #333;
+  margin: 0;
   display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-title i {
+  font-size: 16px;
+  color: #6366f1;
+}
+
+.card-body-modern {
+  padding: 24px;
+}
+
+/* Alerts */
+.alert {
+  border-radius: 10px;
+  border: none;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+/* Back Button */
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background-color: #fff;
+  border: 2px solid #e8e8e8;
+  border-radius: 8px;
+  color: #666;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.btn-back:hover {
+  border-color: #6366f1;
+  background-color: #f8f9ff;
+  color: #6366f1;
+}
+
+.btn-back i {
+  font-size: 16px;
+}
+
+/* Order Header */
+.order-header-detail {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.order-info-header {
+  flex: 1;
+}
+
+.order-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.order-date {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.order-date i {
+  font-size: 15px;
+  color: #999;
+}
+
+.order-status-header {
+  display: flex;
+  align-items: center;
+}
+
+.status-badge-large {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.status-badge-large i {
+  font-size: 16px;
+}
+
+.status-pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-primary {
+  background-color: #cfe2ff;
+  color: #084298;
+}
+
+.status-cancelled {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* Payment Timer */
+.payment-timer {
+  margin-top: 20px;
+  padding: 16px;
+  background-color: #fff3cd;
+  border-radius: 8px;
+  display: flex;
+  gap: 12px;
   align-items: start;
 }
 
-.event-info i {
+.payment-timer i {
+  font-size: 24px;
+  color: #856404;
   flex-shrink: 0;
-  margin-top: 3px;
+}
+
+.payment-timer strong {
+  color: #856404;
+  font-size: 14px;
+}
+
+.payment-timer small {
+  color: #856404;
+  font-size: 12px;
+}
+
+/* Event Detail Image */
+.event-detail-image {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.event-title-detail {
+  font-size: 20px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* Event Info Detail */
+.event-info-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.info-item {
+  display: flex;
+  align-items: start;
+  gap: 12px;
+}
+
+.info-item i {
+  font-size: 20px;
+  color: #6366f1;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.info-item > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.info-label {
+  font-size: 12px;
+  color: #999;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.info-value {
+  font-size: 14px;
+  color: #333;
+  font-weight: 600;
+}
+
+/* Buyer Info */
+.buyer-info {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.buyer-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.buyer-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.buyer-label {
+  font-size: 13px;
+  color: #666;
+  font-weight: 500;
+}
+
+.buyer-value {
+  font-size: 14px;
+  color: #333;
+  font-weight: 600;
+  text-align: right;
+}
+
+/* Transaction Table */
+.table-responsive {
+  overflow-x: auto;
+}
+
+.transaction-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.transaction-table thead {
+  background-color: #f8f8f8;
+}
+
+.transaction-table th {
+  padding: 12px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 700;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border-bottom: 2px solid #e8e8e8;
+}
+
+.transaction-table td {
+  padding: 12px;
+  font-size: 13px;
+  color: #333;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.transaction-code {
+  background-color: #f8f8f8;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #6366f1;
+  font-family: 'Courier New', monospace;
+}
+
+.status-badge-small {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Summary Detail */
+.summary-card-sticky {
+  position: sticky;
+}
+
+.summary-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.summary-detail-label {
+  font-size: 13px;
+  color: #666;
+  font-weight: 500;
+}
+
+.summary-detail-value {
+  font-size: 14px;
+  color: #333;
+  font-weight: 600;
+}
+
+.divider-line {
+  height: 1px;
+  background-color: #e8e8e8;
+  margin: 16px 0;
+}
+
+.grand-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0;
+}
+
+.grand-total-label {
+  font-size: 13px;
+  color: #666;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.grand-total-value {
+  font-size: 24px;
+  color: #333;
+  font-weight: 700;
+}
+
+/* Action Buttons Detail */
+.action-buttons-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn-submit,
+.btn-primary-detail,
+.btn-outline-detail,
+.btn-danger-detail {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.btn-submit {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #fff;
+}
+
+.btn-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+  color: #fff;
+}
+
+.btn-primary-detail {
+  background-color: #6366f1;
+  color: #fff;
+}
+
+.btn-primary-detail:hover {
+  background-color: #4f46e5;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  color: #fff;
+}
+
+.btn-outline-detail {
+  background-color: #fff;
+  color: #6366f1;
+  border-color: #6366f1;
+}
+
+.btn-outline-detail:hover {
+  background-color: #6366f1;
+  color: #fff;
+}
+
+.btn-danger-detail {
+  background-color: #fff;
+  color: #dc3545;
+  border-color: #dc3545;
+}
+
+.btn-danger-detail:hover {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+.info-alert {
+  margin-top: 16px;
+  padding: 12px;
+  background-color: #cfe2ff;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #084298;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.info-alert i {
+  font-size: 16px;
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+  .summary-card-sticky {
+    position: relative !important;
+    top: 0 !important;
+  }
+
+  .order-header-detail {
+    flex-direction: column;
+  }
+
+  .order-status-header {
+    width: 100%;
+  }
+
+  .status-badge-large {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .event-detail-image {
+    height: 200px;
+  }
+}
+
+@media (max-width: 576px) {
+  .order-title {
+    font-size: 20px;
+  }
+
+  .card-body-modern {
+    padding: 20px;
+  }
+
+  .card-header-modern {
+    padding: 16px 20px;
+  }
+
+  .event-detail-image {
+    height: 180px;
+  }
+
+  .grand-total-value {
+    font-size: 20px;
+  }
+
+  .transaction-table {
+    font-size: 12px;
+  }
+
+  .transaction-table th,
+  .transaction-table td {
+    padding: 10px 8px;
+  }
 }
 </style>
 
@@ -332,8 +842,8 @@ setTimeout(function() {
   const alerts = document.querySelectorAll('.alert-dismissible');
   alerts.forEach(alert => {
     setTimeout(() => {
-      alert.classList.remove('show');
-      setTimeout(() => alert.remove(), 150);
+      const closeBtn = alert.querySelector('.btn-close');
+      if (closeBtn) closeBtn.click();
     }, 5000);
   });
 }, 100);
