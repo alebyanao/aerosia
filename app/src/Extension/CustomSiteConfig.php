@@ -17,11 +17,13 @@ class CustomSiteConfig extends DataExtension
     ];
 
     private static $has_one = [
-        "logo" => Image::class
+        "logo" => Image::class,
+        "BackgroundPage" => Image::class
     ];
 
     private static $owns = [
         "logo",
+        "BackgroundPage"
     ];
 
     public function updateCMSFields(FieldList $fields)
@@ -31,6 +33,7 @@ class CustomSiteConfig extends DataExtension
         TextField::create('Phone', 'Phone Company'),
         TextField::create('Address', 'Address Company'),
         UploadField::create('logo', 'Logo'),
+        UploadField::create('BackgroundPage', 'Background Halaman'),
     ]);
     }
 }

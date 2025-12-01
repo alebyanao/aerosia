@@ -57,7 +57,7 @@ class TicketType extends DataObject
             TextareaField::create('Description', 'Deskripsi')
                 ->setDescription('Deskripsi singkat tentang tipe tiket ini. <strong>MAKSIMAL 20 KATA</strong>')
                 ->setRows(1)
-                ->setAttribute('maxlength', 200) // Batasi karakter sebagai proteksi tambahan
+                ->setAttribute('maxlength', 200)
         ]);
         
         return $fields;

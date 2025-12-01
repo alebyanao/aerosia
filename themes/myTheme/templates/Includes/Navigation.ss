@@ -7,10 +7,6 @@
       <li class="nav-item">
         <a class="nav-link" href="$BaseHref/event">Event</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="$BaseHref/profile">Profile</a>
-      </li>
-  
     </ul>
   </div>
 </nav>

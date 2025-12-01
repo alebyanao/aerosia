@@ -1,4 +1,4 @@
-<header class="event-navbar py-3" role="banner">
+<header class="event-navbar py-3 position-sticky top-0 w-100 z-3" role="banner" style="background: transparent;">
 <div class="container">
   <div class="event-nav-container d-flex align-items-center justify-content-between">
 
@@ -63,6 +63,10 @@
 </header>
 
 <style>
+  body {
+  margin: 0;
+  padding: 0;
+}
  /* Capsule background */
 .event-nav-container {
     background: linear-gradient(180deg, #d4d4d4ff 0%, #e9e9e9ff 100%);
