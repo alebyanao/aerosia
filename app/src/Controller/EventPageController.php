@@ -16,6 +16,24 @@ class EventPageController extends PageController
     ];
 
     /**
+     * Index method dengan search functionality
+     */
+    public function index(HTTPRequest $request)
+    {
+        $searchQuery = $request->getVar('search');
+        $tickets = $this->getFilteredTickets($searchQuery);
+
+        $data = array_merge($this->getCommonData(), [
+            'Tickets' => $tickets,
+            'SearchQuery' => $searchQuery,
+        ]);
+
+        return $this->customise($data)->renderWith(['EventPage', 'Page']);
+    }
+
+    
+
+    /**
      * Menampilkan daftar semua tiket
      */
     public function Tickets()

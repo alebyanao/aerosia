@@ -25,6 +25,7 @@ namespace {
                 "CurrentUser" => $this->getCurrentUser(),
                 "WishlistCount" => $this->getWishlistCount(),
                 "CustomSiteConfig" => SiteConfig::current_site_config(),
+                "SearchQuery" => $this->getRequest()->getVar('search'),
             ];
         }
 
@@ -61,9 +62,24 @@ namespace {
                         error_log("Error getting wishlist count: " . $e->getMessage());
                         return 0;
                     }
-                }
+                }   
             }
             return 0;
+        }
+
+        public function getFilteredTickets($searchQuery = null)
+        {
+            $tickets = Ticket::get()->sort('EventDate ASC');
+
+            if ($searchQuery) {
+                $tickets = $tickets->filterAny([
+                    'Title:PartialMatch' => $searchQuery,
+                    'Description:PartialMatch' => $searchQuery,
+                    'Location:PartialMatch' => $searchQuery,
+                ]);
+            }
+
+            return $tickets;
         }
 
     }

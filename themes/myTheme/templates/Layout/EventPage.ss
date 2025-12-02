@@ -1,47 +1,72 @@
 <div class="container py-4">
-    <div class="row g-2 g-md-3">
-        <% loop $Tickets %>
-            <div class="col-6 col-lg-3">
-                <div class="ticket-card-modern">
-                    <a href="$Link">
-                        <img src="$Image.URL" class="ticket-img-modern" alt="$Title">
-                    </a>
-                    <div class="ticket-body-modern">
-                        <a href="$Link" class="ticket-title-modern">
-                            $Title
+    <!-- Tickets Grid -->
+    <% if $Tickets.Count > 0 %>
+        <div class="row g-2 g-md-3">
+            <% loop $Tickets %>
+                <div class="col-6 col-lg-3">
+                    <div class="ticket-card-modern">
+                        <a href="$Link">
+                            <img src="$Image.URL" class="ticket-img-modern" alt="$Title">
                         </a>
-                        <p class="ticket-date-modern">$EventDate.Nice</p>
-                        <p class="ticket-location-modern">$Location</p>
-                        <div class="ticket-footer-modern">
-                            <span class="ticket-price-modern">$PriceLabel</span>
-                            
-                            <% if $Top.IsLoggedIn %>
-                                <% if $IsInWishlist %>
-                                    <a href="$BaseHref/wishlist/toggle/$ID" 
-                                    class="wishlist-icon-modern active">
-                                        <i class="bi bi-heart-fill"></i>
-                                    </a>
+                        <div class="ticket-body-modern">
+                            <a href="$Link" class="ticket-title-modern">
+                                $Title
+                            </a>
+                            <p class="ticket-date-modern">$EventDate.Nice</p>
+                            <p class="ticket-location-modern">$Location</p>
+                            <div class="ticket-footer-modern">
+                                <span class="ticket-price-modern">$PriceLabel</span>
+                                
+                                <% if $Top.IsLoggedIn %>
+                                    <% if $IsInWishlist %>
+                                        <a href="$BaseHref/wishlist/toggle/$ID" 
+                                        class="wishlist-icon-modern active">
+                                            <i class="bi bi-heart-fill"></i>
+                                        </a>
+                                    <% else %>
+                                        <a href="$BaseHref/wishlist/toggle/$ID" 
+                                        class="wishlist-icon-modern">
+                                            <i class="bi bi-heart"></i>
+                                        </a>
+                                    <% end_if %>
                                 <% else %>
-                                    <a href="$BaseHref/wishlist/toggle/$ID" 
-                                    class="wishlist-icon-modern">
+                                    <a href="$BaseHref/auth/login" class="wishlist-icon-modern">
                                         <i class="bi bi-heart"></i>
                                     </a>
                                 <% end_if %>
-                            <% else %>
-                                <a href="$BaseHref/auth/login" class="wishlist-icon-modern">
-                                    <i class="bi bi-heart"></i>
-                                </a>
-                            <% end_if %>
+                            </div>
                         </div>
                     </div>
                 </div>
+            <% end_loop %>
+        </div>
+    <% else %>
+        <!-- Empty State -->
+        <div class="empty-state-modern">
+            <div class="empty-state-icon">
+                <i class="bi bi-ticket-perforated"></i>
             </div>
-        <% end_loop %>
-    </div>
+            <h3 class="empty-state-title">
+                <% if $SearchQuery %>
+                    Tidak ada event yang ditemukan
+                <% else %>
+                    Belum ada event tersedia
+                <% end_if %>
+            </h3>
+            <p class="empty-state-text">
+                <% if $SearchQuery %>
+                    Coba gunakan kata kunci yang berbeda atau <a href="$Link">lihat semua event</a>
+                <% else %>
+                    Event akan segera hadir. Silakan cek kembali nanti!
+                <% end_if %>
+            </p>
+        </div>
+    <% end_if %>
 </div>
 
 <style>
-/* --- CARD STYLE --- */
+
+/* --- EXISTING CARD STYLES --- */
 .ticket-card-modern {
     background: #fff;
     border-radius: 12px;
@@ -52,19 +77,18 @@
     display: flex;
     flex-direction: column;
 }
+
 .ticket-card-modern:hover {
     transform: translateY(-3px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.12);
 }
 
-/* --- IMAGE --- */
 .ticket-img-modern {
     height: 120px;
     width: 100%;
     object-fit: cover;
 }
 
-/* --- BODY CONTENT --- */
 .ticket-body-modern {
     padding: 10px 12px 12px 12px;
     display: flex;
@@ -86,6 +110,7 @@
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
 }
+
 .ticket-title-modern:hover {
     color: #7b2ddf;
 }
@@ -106,7 +131,6 @@
     white-space: nowrap;
 }
 
-/* --- FOOTER PRICE + WISHLIST --- */
 .ticket-footer-modern {
     border-top: 1px solid #eaeaea;
     padding-top: 10px;
@@ -122,7 +146,6 @@
     color: #000 !important;
 }
 
-/* --- WISHLIST HEART --- */
 .wishlist-icon-modern {
     font-size: 18px;
     color: #ccc;
@@ -151,17 +174,54 @@
 }
 
 /* --- RESPONSIVE --- */
+@media (max-width: 767px) {
+    .search-wrapper-modern {
+        flex-direction: column;
+    }
+    
+    .search-btn-modern {
+        width: 100%;
+        padding: 12px 24px;
+    }
+    
+    .search-input-modern {
+        padding: 12px 40px 12px 44px;
+        font-size: 14px;
+    }
+    
+   
+    
+    .empty-state-modern {
+        padding: 40px 20px;
+    }
+    
+    .empty-state-icon {
+        font-size: 48px;
+    }
+    
+    .empty-state-title {
+        font-size: 18px;
+    }
+    
+    .empty-state-text {
+        font-size: 14px;
+    }
+}
+
 @media (min-width: 768px) {
     .ticket-img-modern {
         height: 140px;
     }
+    
     .ticket-title-modern {
         font-size: 15px;
     }
+    
     .ticket-date-modern,
     .ticket-location-modern {
         font-size: 13px;
     }
+    
     .ticket-price-modern {
         font-size: 15px;
     }
@@ -171,5 +231,9 @@
     .ticket-body-modern {
         padding: 12px 14px 14px 14px;
     }
+    
+    .search-section-modern {
+        padding: 24px;
+    }
 }
-</style>
+</style>    

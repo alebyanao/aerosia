@@ -10,6 +10,30 @@
           <% end_if %>
       </a>
 
+       <form role="search" action="$BaseHref/event" method="GET" class="search-form-modern">
+            <div class="search-wrapper-modern">
+                <div class="search-input-group-modern">
+                    <i class="bi bi-search search-icon-modern"></i>
+                    <input
+                        type="text"
+                        name="search"
+                        class="search-input-modern"
+                        placeholder="Cari event"
+                        aria-label="Search"
+                        value="$SearchQuery"
+                    />
+                    <% if $SearchQuery %>
+                    <a href="$Link" class="search-clear-modern" title="Clear search">
+                        <i class="bi bi-x-circle-fill"></i>
+                    </a>
+                    <% end_if %>
+                </div>
+                <button class="search-btn-modern" type="submit">
+                    Cari
+                </button>
+            </div>
+        </form>
+
       <!-- Navigation -->
       <nav class="main-nav d-flex align-items-center">
           <% include Navigation %>
@@ -67,6 +91,152 @@
   margin: 0;
   padding: 0;
 }
+
+
+/* --- SEARCH SECTION --- */
+.search-section-modern {
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.search-form-modern {
+    margin-bottom: 0;
+}
+
+.search-wrapper-modern {
+    display: flex;
+    gap: 12px;
+    align-items: stretch;
+}
+
+.search-input-group-modern {
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.search-icon-modern {
+    position: absolute;
+    left: 16px;
+    color: #9ca3af;
+    font-size: 18px;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.search-input-modern {
+    width: 100%;
+    padding: 14px 45px 14px 48px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    background: #fff;
+}
+
+.search-input-modern:focus {
+    outline: none;
+    border-color: #7b2ddf;
+    box-shadow: 0 0 0 3px rgba(123, 45, 223, 0.1);
+}
+
+.search-input-modern::placeholder {
+    color: #9ca3af;
+}
+
+.search-clear-modern {
+    position: absolute;
+    right: 16px;
+    color: #9ca3af;
+    font-size: 18px;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    text-decoration: none;
+    z-index: 1;
+}
+
+.search-clear-modern:hover {
+    color: #ef4444;
+}
+
+.search-btn-modern {
+    padding: 14px 32px;
+    background: #7b2ddf;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.search-btn-modern:hover {
+    background: #6a25c7;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(123, 45, 223, 0.3);
+}
+
+.search-btn-modern:active {
+    transform: translateY(0);
+}
+
+/* Search Results Info */
+.search-results-info {
+    margin-top: 16px;
+    padding: 12px 16px;
+    background: #f3f4f6;
+    border-radius: 8px;
+    color: #4b5563;
+    font-size: 14px;
+}
+
+.search-results-info strong {
+    color: #1f2937;
+}
+
+/* --- EMPTY STATE --- */
+.empty-state-modern {
+    text-align: center;
+    padding: 60px 20px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.empty-state-icon {
+    font-size: 64px;
+    color: #d1d5db;
+    margin-bottom: 20px;
+}
+
+.empty-state-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 12px;
+}
+
+.empty-state-text {
+    font-size: 15px;
+    color: #6b7280;
+    margin-bottom: 0;
+}
+
+.empty-state-text a {
+    color: #7b2ddf;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.empty-state-text a:hover {
+    text-decoration: underline;
+}
+
  /* Capsule background */
 .event-nav-container {
     background: linear-gradient(180deg, #d4d4d4ff 0%, #e9e9e9ff 100%);
