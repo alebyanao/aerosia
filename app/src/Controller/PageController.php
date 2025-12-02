@@ -6,6 +6,8 @@ namespace {
     use SilverStripe\SiteConfig\SiteConfig;
     use SilverStripe\Security\Security;
     use SilverStripe\View\ArrayData;
+    use SilverStripe\ORM\ArrayList;
+    use SilverStripe\ORM\DB;
 
     class PageController extends ContentController
     {
@@ -75,11 +77,29 @@ namespace {
         }
 
         /**
-         * Get filtered tickets (dengan search, province, dan city filter)
+         * Get filtered tickets dengan enhanced filters
          * Method ini bisa di-override di child controller kalau perlu
+         * 
+         * @param string|null $searchQuery Search term
+         * @param string|null $provinceId Province ID
+         * @param string|null $cityId City ID
+         * @param string|null $month Month (1-12)
+         * @param string|null $year Year (YYYY)
+         * @param string|null $minPrice Minimum price
+         * @param string|null $maxPrice Maximum price
+         * @param string $sort Sort option (date_asc, date_desc, name_asc, name_desc, price_asc, price_desc)
+         * @return \SilverStripe\ORM\DataList|\SilverStripe\ORM\ArrayList
          */
-        public function getFilteredTickets($searchQuery = null, $provinceId = null, $cityId = null)
-        {
+        public function getFilteredTickets(
+            $searchQuery = null, 
+            $provinceId = null, 
+            $cityId = null,
+            $month = null,
+            $year = null,
+            $minPrice = null,
+            $maxPrice = null,
+            $sort = 'date_asc'
+        ) {
             $tickets = Ticket::get();
 
             // Filter by search query
@@ -101,7 +121,93 @@ namespace {
                 $tickets = $tickets->filter('CityID', $cityId);
             }
 
-            return $tickets->sort('EventDate ASC');
+            // Filter by month
+            if ($month) {
+                $tickets = $tickets->where("MONTH(EventDate) = " . (int)$month);
+            }
+            
+            // Filter by year
+            if ($year) {
+                $tickets = $tickets->where("YEAR(EventDate) = " . (int)$year);
+            }
+            
+            // Filter by price range
+            if ($minPrice !== null || $maxPrice !== null) {
+                // Get ticket IDs that match price criteria
+                $sql = "SELECT DISTINCT TicketID FROM TicketType WHERE 1=1";
+                
+                if ($minPrice !== null && $minPrice !== '') {
+                    $sql .= " AND Price >= " . (int)$minPrice;
+                }
+                
+                if ($maxPrice !== null && $maxPrice !== '') {
+                    $sql .= " AND Price <= " . (int)$maxPrice;
+                }
+                
+                $result = DB::query($sql);
+                $ticketIds = [];
+                
+                foreach ($result as $row) {
+                    $ticketIds[] = $row['TicketID'];
+                }
+                
+                if (empty($ticketIds)) {
+                    // No tickets match price criteria
+                    return ArrayList::create();
+                }
+                
+                $tickets = $tickets->filter('ID', $ticketIds);
+            }
+            
+            // Apply sorting
+            switch ($sort) {
+                case 'date_desc':
+                    $tickets = $tickets->sort('EventDate DESC');
+                    break;
+                case 'name_asc':
+                    $tickets = $tickets->sort('Title ASC');
+                    break;
+                case 'name_desc':
+                    $tickets = $tickets->sort('Title DESC');
+                    break;
+                case 'price_asc':
+                case 'price_desc':
+                    // For price sorting, we need custom logic
+                    return $this->sortTicketsByPrice($tickets, $sort);
+                default: // date_asc
+                    $tickets = $tickets->sort('EventDate ASC');
+            }
+
+            return $tickets;
+        }
+
+        /**
+         * Sort tickets by price (min price)
+         * 
+         * @param \SilverStripe\ORM\DataList $tickets
+         * @param string $direction 'price_asc' or 'price_desc'
+         * @return \SilverStripe\ORM\ArrayList
+         */
+        protected function sortTicketsByPrice($tickets, $direction)
+        {
+            $ticketArray = $tickets->toArray();
+            
+            usort($ticketArray, function($a, $b) use ($direction) {
+                $priceA = $a->getMinPrice();
+                $priceB = $b->getMinPrice();
+                
+                // Handle null/zero prices - push to end
+                if ($priceA === 0 || $priceA === null) $priceA = PHP_INT_MAX;
+                if ($priceB === 0 || $priceB === null) $priceB = PHP_INT_MAX;
+                
+                if ($direction === 'price_asc') {
+                    return $priceA <=> $priceB;
+                } else {
+                    return $priceB <=> $priceA;
+                }
+            });
+            
+            return ArrayList::create($ticketArray);
         }
     }
 }

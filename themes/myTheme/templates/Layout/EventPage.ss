@@ -27,6 +27,77 @@
                         <% end_loop %>
                     </select>
                 </div>
+
+                <!-- Month Filter -->
+                <div class="filter-item-modern">
+                    <label class="filter-label-modern">Bulan</label>
+                    <select name="month" class="filter-select-modern">
+                        <option value="">Semua Bulan</option>
+                        <% loop $MonthList %>
+                            <option value="$Value" <% if $Selected %>selected<% end_if %>>$Label</option>
+                        <% end_loop %>
+                    </select>
+                </div>
+
+                <!-- Year Filter -->
+                <div class="filter-item-modern">
+                    <label class="filter-label-modern">Tahun</label>
+                    <select name="year" class="filter-select-modern">
+                        <option value="">Semua Tahun</option>
+                        <% loop $YearList %>
+                            <option value="$Value" <% if $Selected %>selected<% end_if %>>$Label</option>
+                        <% end_loop %>
+                    </select>
+                </div>
+            </div>
+
+            <div class="filter-row-modern mt-3">
+                <!-- Min Price -->
+                <div class="filter-item-modern">
+                    <label class="filter-label-modern">Harga Minimal</label>
+                    <input type="number" 
+                           name="min_price" 
+                           class="filter-input-modern" 
+                           placeholder="Rp 0"
+                           value="$CurrentMinPrice"
+                           min="0">
+                </div>
+
+                <!-- Max Price -->
+                <div class="filter-item-modern">
+                    <label class="filter-label-modern">Harga Maksimal</label>
+                    <input type="number" 
+                           name="max_price" 
+                           class="filter-input-modern" 
+                           placeholder="Rp 1.000.000"
+                           value="$CurrentMaxPrice"
+                           min="0">
+                </div>
+
+                <!-- Sort By -->
+                <div class="filter-item-modern">
+                    <label class="filter-label-modern">Urutkan</label>
+                    <select name="sort" class="filter-select-modern">
+                        <option value="date_asc" <% if $CurrentSort == 'date_asc' %>selected<% end_if %>>
+                            Tanggal (Terlama)
+                        </option>
+                        <option value="date_desc" <% if $CurrentSort == 'date_desc' %>selected<% end_if %>>
+                            Tanggal (Terbaru)
+                        </option>
+                        <option value="name_asc" <% if $CurrentSort == 'name_asc' %>selected<% end_if %>>
+                            Nama (A-Z)
+                        </option>
+                        <option value="name_desc" <% if $CurrentSort == 'name_desc' %>selected<% end_if %>>
+                            Nama (Z-A)
+                        </option>
+                        <option value="price_asc" <% if $CurrentSort == 'price_asc' %>selected<% end_if %>>
+                            Harga (Termurah)
+                        </option>
+                        <option value="price_desc" <% if $CurrentSort == 'price_desc' %>selected<% end_if %>>
+                            Harga (Termahal)
+                        </option>
+                    </select>
+                </div>
                 
                 <!-- Action Buttons -->
                 <div class="filter-actions-modern">
@@ -41,8 +112,54 @@
         </form>
     </div>
 
+    <!-- Active Filters Display -->
+    <% if $HasActiveFilters %>
+        <div class="active-filters-modern mb-3">
+            <span class="active-filter-label">Filter aktif:</span>
+            <% if $CurrentProvinceName %>
+                <span class="active-filter-tag">
+                    Provinsi: $CurrentProvinceName
+                    <a href="$LinkWithoutFilter('province')" class="remove-filter">×</a>
+                </span>
+            <% end_if %>
+            <% if $CurrentCityName %>
+                <span class="active-filter-tag">
+                    Kota: $CurrentCityName
+                    <a href="$LinkWithoutFilter('city')" class="remove-filter">×</a>
+                </span>
+            <% end_if %>
+            <% if $CurrentMonth %>
+                <span class="active-filter-tag">
+                    Bulan: $CurrentMonthName
+                    <a href="$LinkWithoutFilter('month')" class="remove-filter">×</a>
+                </span>
+            <% end_if %>
+            <% if $CurrentYear %>
+                <span class="active-filter-tag">
+                    Tahun: $CurrentYear
+                    <a href="$LinkWithoutFilter('year')" class="remove-filter">×</a>
+                </span>
+            <% end_if %>
+            <% if $CurrentMinPrice %>
+                <span class="active-filter-tag">
+                    Min: Rp {$CurrentMinPrice.Nice}
+                    <a href="$LinkWithoutFilter('min_price')" class="remove-filter">×</a>
+                </span>
+            <% end_if %>
+            <% if $CurrentMaxPrice %>
+                <span class="active-filter-tag">
+                    Max: Rp {$CurrentMaxPrice.Nice}
+                    <a href="$LinkWithoutFilter('max_price')" class="remove-filter">×</a>
+                </span>
+            <% end_if %>
+        </div>
+    <% end_if %>
+
     <!-- Tickets Grid -->
     <% if $Tickets.Count > 0 %>
+        <div class="mb-3 text-muted">
+            Menampilkan $Tickets.Count event
+        </div>
         <div class="row g-2 g-md-3">
             <% loop $Tickets %>
                 <div class="col-6 col-lg-3">
@@ -95,18 +212,10 @@
                 <i class="bi bi-ticket-perforated"></i>
             </div>
             <h3 class="empty-state-title">
-                <% if $SearchQuery || $ProvinceFilter || $CityFilter %>
-                    Tidak ada event yang ditemukan
-                <% else %>
-                    Belum ada event tersedia
-                <% end_if %>
+                Tidak ada event yang ditemukan
             </h3>
             <p class="empty-state-text">
-                <% if $SearchQuery || $ProvinceFilter || $CityFilter %>
-                    Coba ubah filter atau <a href="$Link">lihat semua event</a>
-                <% else %>
-                    Event akan segera hadir. Silakan cek kembali nanti!
-                <% end_if %>
+                Coba ubah filter atau <a href="$Link">lihat semua event</a>
             </p>
         </div>
     <% end_if %>
@@ -154,21 +263,9 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => {
                 console.error('Error loading cities:', error);
                 cityFilter.innerHTML = '<option value="">Error loading cities</option>';
-                
-                // Show error message to user
                 alert('Gagal memuat data kota. Silakan refresh halaman atau coba lagi nanti.');
             });
     });
-    
-    // Auto-submit on filter change (optional)
-    // Uncomment jika mau filter otomatis tanpa klik tombol
-    /*
-    cityFilter.addEventListener('change', function() {
-        if (this.value) {
-            document.getElementById('filter-form').submit();
-        }
-    });
-    */
 });
 </script>
 
@@ -276,6 +373,43 @@ document.addEventListener('DOMContentLoaded', function() {
 .btn-reset-modern:hover {
     background: rgba(255,255,255,0.3);
     border-color: #fff;
+}
+
+/* --- ACTIVE FILTERS --- */
+.active-filters-modern {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.active-filter-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #666;
+}
+
+.active-filter-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: #f0f0f0;
+    border-radius: 20px;
+    font-size: 13px;
+    color: #333;
+}
+
+.remove-filter {
+    color: #999;
+    font-size: 18px;
+    line-height: 1;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.remove-filter:hover {
+    color: #ff4444;
 }
 
 /* --- CARD STYLES --- */

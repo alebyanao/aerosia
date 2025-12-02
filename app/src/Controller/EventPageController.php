@@ -17,34 +17,48 @@ class EventPageController extends PageController
     ];
 
     /**
-     * Index method dengan search + filter functionality
+     * Index method dengan enhanced filters
      */
     public function index(HTTPRequest $request)
     {
+        // Get all filter parameters
         $searchQuery = $request->getVar('search');
         $provinceId = $request->getVar('province');
         $cityId = $request->getVar('city');
+        $month = $request->getVar('month');
+        $year = $request->getVar('year');
+        $minPrice = $request->getVar('min_price');
+        $maxPrice = $request->getVar('max_price');
+        $sort = $request->getVar('sort') ?: 'date_asc';
         
-        // Get filtered tickets (method dari parent PageController)
-        $tickets = $this->getFilteredTickets($searchQuery, $provinceId, $cityId);
+        // Get filtered tickets using parent method
+        $tickets = $this->getFilteredTickets(
+            $searchQuery,
+            $provinceId, 
+            $cityId, 
+            $month, 
+            $year,
+            $minPrice,
+            $maxPrice,
+            $sort
+        );
 
         $data = array_merge($this->getCommonData(), [
             'Tickets' => $tickets,
+            'CurrentProvince' => $provinceId,
+            'CurrentCity' => $cityId,
+            'CurrentMonth' => $month,
+            'CurrentYear' => $year,
+            'CurrentMinPrice' => $minPrice,
+            'CurrentMaxPrice' => $maxPrice,
+            'CurrentSort' => $sort,
         ]);
 
         return $this->customise($data)->renderWith(['EventPage', 'Page']);
     }
 
     /**
-     * Menampilkan daftar semua tiket (tanpa filter)
-     */
-    public function Tickets()
-    {
-        return Ticket::get()->sort('EventDate ASC');
-    }
-
-    /**
-     * Get province list for dropdown filter
+     * Get province list for dropdown
      */
     public function getProvinceList()
     {
@@ -66,7 +80,7 @@ class EventPageController extends PageController
     }
     
     /**
-     * Get city list for dropdown (jika province dipilih)
+     * Get city list for dropdown
      */
     public function getCityList()
     {
@@ -91,9 +105,67 @@ class EventPageController extends PageController
         
         return ArrayList::create($list);
     }
+
+    /**
+     * Get month list for dropdown
+     */
+    public function getMonthList()
+    {
+        $request = $this->getRequest();
+        $currentMonth = $request->getVar('month');
+        
+        $months = [
+            '1' => 'Januari',
+            '2' => 'Februari',
+            '3' => 'Maret',
+            '4' => 'April',
+            '5' => 'Mei',
+            '6' => 'Juni',
+            '7' => 'Juli',
+            '8' => 'Agustus',
+            '9' => 'September',
+            '10' => 'Oktober',
+            '11' => 'November',
+            '12' => 'Desember'
+        ];
+        
+        $list = [];
+        foreach ($months as $value => $label) {
+            $list[] = ArrayData::create([
+                'Value' => $value,
+                'Label' => $label,
+                'Selected' => ($value == $currentMonth)
+            ]);
+        }
+        
+        return ArrayList::create($list);
+    }
+
+    /**
+     * Get year list for dropdown (current year - 1 to current year + 2)
+     */
+    public function getYearList()
+    {
+        $request = $this->getRequest();
+        $currentYear = $request->getVar('year');
+        
+        $thisYear = (int)date('Y');
+        $years = range($thisYear - 1, $thisYear + 2);
+        
+        $list = [];
+        foreach ($years as $year) {
+            $list[] = ArrayData::create([
+                'Value' => $year,
+                'Label' => $year,
+                'Selected' => ($year == $currentYear)
+            ]);
+        }
+        
+        return ArrayList::create($list);
+    }
     
     /**
-     * Get current province ID (untuk template)
+     * Get current province
      */
     public function getCurrentProvince()
     {
@@ -101,7 +173,7 @@ class EventPageController extends PageController
     }
     
     /**
-     * Get current city ID (untuk template)
+     * Get current city
      */
     public function getCurrentCity()
     {
@@ -109,8 +181,84 @@ class EventPageController extends PageController
     }
 
     /**
-     * Menampilkan detail tiket dengan validasi MaxPerMember
-     * URL: /events/ticket/123
+     * Get current province name
+     */
+    public function getCurrentProvinceName()
+    {
+        $provinceId = $this->getCurrentProvince();
+        if (!$provinceId) return null;
+        
+        return IndonesiaRegionAPI::getProvinceName($provinceId);
+    }
+
+    /**
+     * Get current city name
+     */
+    public function getCurrentCityName()
+    {
+        $provinceId = $this->getCurrentProvince();
+        $cityId = $this->getCurrentCity();
+        
+        if (!$provinceId || !$cityId) return null;
+        
+        return IndonesiaRegionAPI::getCityName($provinceId, $cityId);
+    }
+
+    /**
+     * Get current month name
+     */
+    public function getCurrentMonthName()
+    {
+        $month = $this->getRequest()->getVar('month');
+        if (!$month) return null;
+        
+        $months = [
+            '1' => 'Januari', '2' => 'Februari', '3' => 'Maret', 
+            '4' => 'April', '5' => 'Mei', '6' => 'Juni',
+            '7' => 'Juli', '8' => 'Agustus', '9' => 'September', 
+            '10' => 'Oktober', '11' => 'November', '12' => 'Desember'
+        ];
+        
+        return $months[$month] ?? null;
+    }
+
+    /**
+     * Check if has active filters
+     */
+    public function getHasActiveFilters()
+    {
+        $request = $this->getRequest();
+        return $request->getVar('province') 
+            || $request->getVar('city')
+            || $request->getVar('month')
+            || $request->getVar('year')
+            || $request->getVar('min_price')
+            || $request->getVar('max_price');
+    }
+
+    /**
+     * Get link without specific filter
+     */
+    public function LinkWithoutFilter($filterName)
+    {
+        $request = $this->getRequest();
+        $params = $request->getVars();
+        
+        // Remove the specified filter
+        unset($params['url']);
+        unset($params[$filterName]);
+        
+        // If removing province, also remove city
+        if ($filterName === 'province') {
+            unset($params['city']);
+        }
+        
+        $queryString = http_build_query($params);
+        return $this->Link() . ($queryString ? '?' . $queryString : '');
+    }
+
+    /**
+     * Detail method
      */
     public function detail(HTTPRequest $request)
     {
@@ -124,7 +272,6 @@ class EventPageController extends PageController
         $member = Security::getCurrentUser();
         $memberID = $member ? $member->ID : null;
 
-        // Enhance ticket types with purchase info
         $ticketTypes = $ticket->TicketTypes();
         
         if ($memberID && $ticketTypes->count() > 0) {
@@ -143,8 +290,7 @@ class EventPageController extends PageController
     }
 
     /**
-     * Mendapatkan tiket untuk halaman detail
-     * Digunakan dalam template
+     * Get ticket untuk template
      */
     public function getTicket()
     {
