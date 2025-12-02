@@ -43,18 +43,44 @@ class EventPageController extends PageController
             $sort
         );
 
+        // Get price range from database
+        $priceRange = $this->getPriceRange();
+
         $data = array_merge($this->getCommonData(), [
             'Tickets' => $tickets,
             'CurrentProvince' => $provinceId,
             'CurrentCity' => $cityId,
             'CurrentMonth' => $month,
             'CurrentYear' => $year,
-            'CurrentMinPrice' => $minPrice,
+            'CurrentMinPrice' => $minPrice ?: 0,
             'CurrentMaxPrice' => $maxPrice,
             'CurrentSort' => $sort,
+            'MinPriceRange' => $priceRange['min'],
+            'MaxPriceRange' => $priceRange['max'],
         ]);
 
         return $this->customise($data)->renderWith(['EventPage', 'Page']);
+    }
+
+    /**
+     * Get min and max price from all ticket types
+     */
+    public function getPriceRange()
+    {
+        $ticketTypes = TicketType::get()->filter('Price:GreaterThan', 0);
+        
+        $minPrice = 0;
+        $maxPrice = 1000000;
+        
+        if ($ticketTypes->count() > 0) {
+            $minPrice = (int)$ticketTypes->min('Price');
+            $maxPrice = (int)$ticketTypes->max('Price');
+        }
+        
+        return [
+            'min' => $minPrice,
+            'max' => $maxPrice
+        ];
     }
 
     /**
