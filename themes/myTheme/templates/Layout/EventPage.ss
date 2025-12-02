@@ -1,4 +1,46 @@
 <div class="container py-4">
+    <!-- Filter Section -->
+    <div class="filter-section-modern">
+        <form method="get" action="$Link" class="filter-form-modern" id="filter-form">
+            <div class="filter-row-modern">
+                <!-- Province Filter -->
+                <div class="filter-item-modern">
+                    <label class="filter-label-modern">Provinsi</label>
+                    <select name="province" id="province-filter" class="filter-select-modern">
+                        <option value="">Semua Provinsi</option>
+                        <% loop $ProvinceList %>
+                            <option value="$ID" <% if $Selected %>selected<% end_if %>>$Name</option>
+                        <% end_loop %>
+                    </select>
+                </div>
+                
+                <!-- City Filter -->
+                <div class="filter-item-modern">
+                    <label class="filter-label-modern">Kota/Kabupaten</label>
+                    <select name="city" id="city-filter" class="filter-select-modern" 
+                            <% if not $CurrentProvince %>disabled<% end_if %>>
+                        <option value="">
+                            <% if $CurrentProvince %>Semua Kota<% else %>Pilih Provinsi Dulu<% end_if %>
+                        </option>
+                        <% loop $CityList %>
+                            <option value="$ID" <% if $Selected %>selected<% end_if %>>$Name</option>
+                        <% end_loop %>
+                    </select>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="filter-actions-modern">
+                    <button type="submit" class="btn-filter-modern">
+                        <i class="bi bi-funnel"></i> Filter
+                    </button>
+                    <a href="$Link" class="btn-reset-modern">
+                        <i class="bi bi-arrow-clockwise"></i> Reset
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
     <!-- Tickets Grid -->
     <% if $Tickets.Count > 0 %>
         <div class="row g-2 g-md-3">
@@ -13,24 +55,30 @@
                                 $Title
                             </a>
                             <p class="ticket-date-modern">$EventDate.Nice</p>
-                            <p class="ticket-location-modern">$Location</p>
+                            <p class="ticket-location-modern">
+                                $Location
+                            </p>
                             <div class="ticket-footer-modern">
                                 <span class="ticket-price-modern">$PriceLabel</span>
                                 
                                 <% if $Top.IsLoggedIn %>
                                     <% if $IsInWishlist %>
                                         <a href="$BaseHref/wishlist/toggle/$ID" 
-                                        class="wishlist-icon-modern active">
+                                           class="wishlist-icon-modern active"
+                                           title="Hapus dari wishlist">
                                             <i class="bi bi-heart-fill"></i>
                                         </a>
                                     <% else %>
                                         <a href="$BaseHref/wishlist/toggle/$ID" 
-                                        class="wishlist-icon-modern">
+                                           class="wishlist-icon-modern"
+                                           title="Tambah ke wishlist">
                                             <i class="bi bi-heart"></i>
                                         </a>
                                     <% end_if %>
                                 <% else %>
-                                    <a href="$BaseHref/auth/login" class="wishlist-icon-modern">
+                                    <a href="$BaseHref/auth/login" 
+                                       class="wishlist-icon-modern"
+                                       title="Login untuk wishlist">
                                         <i class="bi bi-heart"></i>
                                     </a>
                                 <% end_if %>
@@ -47,15 +95,15 @@
                 <i class="bi bi-ticket-perforated"></i>
             </div>
             <h3 class="empty-state-title">
-                <% if $SearchQuery %>
+                <% if $SearchQuery || $ProvinceFilter || $CityFilter %>
                     Tidak ada event yang ditemukan
                 <% else %>
                     Belum ada event tersedia
                 <% end_if %>
             </h3>
             <p class="empty-state-text">
-                <% if $SearchQuery %>
-                    Coba gunakan kata kunci yang berbeda atau <a href="$Link">lihat semua event</a>
+                <% if $SearchQuery || $ProvinceFilter || $CityFilter %>
+                    Coba ubah filter atau <a href="$Link">lihat semua event</a>
                 <% else %>
                     Event akan segera hadir. Silakan cek kembali nanti!
                 <% end_if %>
@@ -64,9 +112,173 @@
     <% end_if %>
 </div>
 
-<style>
+<script>
+// Dynamic city dropdown di frontend
+document.addEventListener('DOMContentLoaded', function() {
+    const provinceFilter = document.getElementById('province-filter');
+    const cityFilter = document.getElementById('city-filter');
+    
+    if (!provinceFilter || !cityFilter) return;
+    
+    // Load cities when province changes
+    provinceFilter.addEventListener('change', function() {
+        const provinceId = this.value;
+        
+        // Reset city dropdown
+        cityFilter.innerHTML = '<option value="">Loading...</option>';
+        cityFilter.disabled = true;
+        
+        if (!provinceId) {
+            cityFilter.innerHTML = '<option value="">Pilih Provinsi Dulu</option>';
+            return;
+        }
+        
+        // Fetch cities from API
+        fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${provinceId}.json`)
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(data => {
+                cityFilter.innerHTML = '<option value="">Semua Kota</option>';
+                
+                data.forEach(city => {
+                    const option = document.createElement('option');
+                    option.value = city.id;
+                    option.textContent = city.name;
+                    cityFilter.appendChild(option);
+                });
+                
+                cityFilter.disabled = false;
+            })
+            .catch(error => {
+                console.error('Error loading cities:', error);
+                cityFilter.innerHTML = '<option value="">Error loading cities</option>';
+                
+                // Show error message to user
+                alert('Gagal memuat data kota. Silakan refresh halaman atau coba lagi nanti.');
+            });
+    });
+    
+    // Auto-submit on filter change (optional)
+    // Uncomment jika mau filter otomatis tanpa klik tombol
+    /*
+    cityFilter.addEventListener('change', function() {
+        if (this.value) {
+            document.getElementById('filter-form').submit();
+        }
+    });
+    */
+});
+</script>
 
-/* --- EXISTING CARD STYLES --- */
+<style>
+/* --- FILTER STYLES --- */
+.filter-section-modern {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+.filter-form-modern {
+    width: 100%;
+}
+
+.filter-row-modern {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+
+.filter-item-modern {
+    flex: 1;
+    min-width: 180px;
+}
+
+.filter-label-modern {
+    display: block;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.filter-select-modern,
+.filter-input-modern {
+    width: 100%;
+    padding: 10px 14px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 8px;
+    background: rgba(255,255,255,0.95);
+    font-size: 14px;
+    transition: all 0.3s ease;
+    color: #333;
+}
+
+.filter-select-modern:focus,
+.filter-input-modern:focus {
+    outline: none;
+    border-color: #fff;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.2);
+}
+
+.filter-select-modern:disabled {
+    background: rgba(255,255,255,0.5);
+    cursor: not-allowed;
+    color: #999;
+}
+
+.filter-actions-modern {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+}
+
+.btn-filter-modern,
+.btn-reset-modern {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.btn-filter-modern {
+    background: #fff;
+    color: #667eea;
+}
+
+.btn-filter-modern:hover {
+    background: #f0f0f0;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.btn-reset-modern {
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+    border: 2px solid rgba(255,255,255,0.5);
+}
+
+.btn-reset-modern:hover {
+    background: rgba(255,255,255,0.3);
+    border-color: #fff;
+}
+
+/* --- CARD STYLES --- */
 .ticket-card-modern {
     background: #fff;
     border-radius: 12px;
@@ -173,23 +385,64 @@
     color: #cc0028 !important;
 }
 
+/* --- EMPTY STATE --- */
+.empty-state-modern {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.empty-state-icon {
+    font-size: 64px;
+    color: #ddd;
+    margin-bottom: 16px;
+}
+
+.empty-state-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.empty-state-text {
+    font-size: 15px;
+    color: #666;
+}
+
+.empty-state-text a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.empty-state-text a:hover {
+    text-decoration: underline;
+}
+
 /* --- RESPONSIVE --- */
 @media (max-width: 767px) {
-    .search-wrapper-modern {
+    .filter-row-modern {
         flex-direction: column;
     }
     
-    .search-btn-modern {
+    .filter-item-modern {
         width: 100%;
-        padding: 12px 24px;
+        min-width: 100%;
     }
     
-    .search-input-modern {
-        padding: 12px 40px 12px 44px;
-        font-size: 14px;
+    .filter-actions-modern {
+        width: 100%;
     }
     
-   
+    .btn-filter-modern,
+    .btn-reset-modern {
+        flex: 1;
+        justify-content: center;
+    }
+    
+    .filter-section-modern {
+        padding: 16px;
+    }
     
     .empty-state-modern {
         padding: 40px 20px;
@@ -225,6 +478,10 @@
     .ticket-price-modern {
         font-size: 15px;
     }
+    
+    .filter-actions-modern {
+        flex-shrink: 0;
+    }
 }
 
 @media (min-width: 992px) {
@@ -232,8 +489,8 @@
         padding: 12px 14px 14px 14px;
     }
     
-    .search-section-modern {
+    .filter-section-modern {
         padding: 24px;
     }
 }
-</style>    
+</style>

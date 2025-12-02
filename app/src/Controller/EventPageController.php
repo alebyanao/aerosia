@@ -3,42 +3,109 @@
 use SilverStripe\Security\Security;
 use SilverStripe\View\ArrayData;
 use SilverStripe\Control\HTTPRequest;
+use SilverStripe\ORM\ArrayList;
 
 class EventPageController extends PageController
 {
     private static $allowed_actions = [
         'detail',
-        'ticket' // Tambahkan ini jika menggunakan method ticket()
+        'ticket'
     ];
 
     private static $url_handlers = [
-        'ticket/$ID' => 'detail' // atau 'ticket' jika method-nya ticket()
+        'ticket/$ID' => 'detail'
     ];
 
     /**
-     * Index method dengan search functionality
+     * Index method dengan search + filter functionality
      */
     public function index(HTTPRequest $request)
     {
         $searchQuery = $request->getVar('search');
-        $tickets = $this->getFilteredTickets($searchQuery);
+        $provinceId = $request->getVar('province');
+        $cityId = $request->getVar('city');
+        
+        // Get filtered tickets (method dari parent PageController)
+        $tickets = $this->getFilteredTickets($searchQuery, $provinceId, $cityId);
 
         $data = array_merge($this->getCommonData(), [
             'Tickets' => $tickets,
-            'SearchQuery' => $searchQuery,
         ]);
 
         return $this->customise($data)->renderWith(['EventPage', 'Page']);
     }
 
-    
-
     /**
-     * Menampilkan daftar semua tiket
+     * Menampilkan daftar semua tiket (tanpa filter)
      */
     public function Tickets()
     {
         return Ticket::get()->sort('EventDate ASC');
+    }
+
+    /**
+     * Get province list for dropdown filter
+     */
+    public function getProvinceList()
+    {
+        $request = $this->getRequest();
+        $currentProvince = $request->getVar('province');
+        
+        $provinces = IndonesiaRegionAPI::getProvinces();
+        
+        $list = [];
+        foreach ($provinces as $id => $name) {
+            $list[] = ArrayData::create([
+                'ID' => $id,
+                'Name' => $name,
+                'Selected' => ($id == $currentProvince)
+            ]);
+        }
+        
+        return ArrayList::create($list);
+    }
+    
+    /**
+     * Get city list for dropdown (jika province dipilih)
+     */
+    public function getCityList()
+    {
+        $request = $this->getRequest();
+        $provinceId = $request->getVar('province');
+        $currentCity = $request->getVar('city');
+        
+        if (!$provinceId) {
+            return ArrayList::create();
+        }
+        
+        $cities = IndonesiaRegionAPI::getCitiesByProvince($provinceId);
+        
+        $list = [];
+        foreach ($cities as $id => $name) {
+            $list[] = ArrayData::create([
+                'ID' => $id,
+                'Name' => $name,
+                'Selected' => ($id == $currentCity)
+            ]);
+        }
+        
+        return ArrayList::create($list);
+    }
+    
+    /**
+     * Get current province ID (untuk template)
+     */
+    public function getCurrentProvince()
+    {
+        return $this->getRequest()->getVar('province');
+    }
+    
+    /**
+     * Get current city ID (untuk template)
+     */
+    public function getCurrentCity()
+    {
+        return $this->getRequest()->getVar('city');
     }
 
     /**
@@ -57,25 +124,14 @@ class EventPageController extends PageController
         $member = Security::getCurrentUser();
         $memberID = $member ? $member->ID : null;
 
-        error_log('EventPageController::detail - Ticket ID: ' . $id . ', Member ID: ' . ($memberID ?? 'not logged in'));
-
         // Enhance ticket types with purchase info
         $ticketTypes = $ticket->TicketTypes();
         
         if ($memberID && $ticketTypes->count() > 0) {
-            error_log('EventPageController::detail - Processing ' . $ticketTypes->count() . ' ticket types');
-            
             foreach ($ticketTypes as $ticketType) {
                 $purchaseInfo = $ticketType->getPurchaseInfo($memberID);
-                
-                error_log('EventPageController::detail - TicketType: ' . $ticketType->TypeName);
-                error_log('  Purchase Info: ' . json_encode($purchaseInfo));
-                
-                // Wrap in ArrayData untuk template
                 $ticketType->PurchaseInfo = new ArrayData($purchaseInfo);
             }
-        } else {
-            error_log('EventPageController::detail - No member logged in or no ticket types');
         }
 
         return $this->customise([

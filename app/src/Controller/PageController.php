@@ -9,15 +9,9 @@ namespace {
 
     class PageController extends ContentController
     {
-       
-        // private static $allowed_actions = [];
-
-        // protected function init()
-        // {
-        //     parent::init();
-    
-        // }
-
+        /**
+         * Get common data untuk semua pages
+         */
         protected function getCommonData()
         {
             return [
@@ -26,22 +20,33 @@ namespace {
                 "WishlistCount" => $this->getWishlistCount(),
                 "CustomSiteConfig" => SiteConfig::current_site_config(),
                 "SearchQuery" => $this->getRequest()->getVar('search'),
+                "ProvinceFilter" => $this->getRequest()->getVar('province'),
+                "CityFilter" => $this->getRequest()->getVar('city'),
             ];
         }
 
+        /**
+         * Check if user is logged in
+         */
         public function isLoggedIn()
         {
             return Security::getCurrentUser() ? true : false;
         }
 
+        /**
+         * Get current logged in user
+         */
         public function getCurrentUser()
         {
             return Security::getCurrentUser();
         }
 
+        /**
+         * Get user message from session
+         */
         public function getUserMessage()
         {
-             $message = $this->getRequest()->getSession()->get('UserMessage');
+            $message = $this->getRequest()->getSession()->get('UserMessage');
             if ($message) {
                 $this->getRequest()->getSession()->clear('UserMessage');
                 return $message;
@@ -49,6 +54,9 @@ namespace {
             return null;
         }
 
+        /**
+         * Get wishlist count for current user
+         */
         public function getWishlistCount()
         {
             if ($this->isLoggedIn()) {
@@ -58,7 +66,6 @@ namespace {
                         $count = Wishlist::get()->filter('MemberID', $user->ID)->count();
                         return $count ? (int) $count : 0;
                     } catch (Exception $e) {
-                        // Log error atau debug
                         error_log("Error getting wishlist count: " . $e->getMessage());
                         return 0;
                     }
@@ -67,10 +74,15 @@ namespace {
             return 0;
         }
 
-        public function getFilteredTickets($searchQuery = null)
+        /**
+         * Get filtered tickets (dengan search, province, dan city filter)
+         * Method ini bisa di-override di child controller kalau perlu
+         */
+        public function getFilteredTickets($searchQuery = null, $provinceId = null, $cityId = null)
         {
-            $tickets = Ticket::get()->sort('EventDate ASC');
+            $tickets = Ticket::get();
 
+            // Filter by search query
             if ($searchQuery) {
                 $tickets = $tickets->filterAny([
                     'Title:PartialMatch' => $searchQuery,
@@ -79,8 +91,17 @@ namespace {
                 ]);
             }
 
-            return $tickets;
-        }
+            // Filter by Province
+            if ($provinceId) {
+                $tickets = $tickets->filter('ProvinceID', $provinceId);
+            }
 
+            // Filter by City
+            if ($cityId) {
+                $tickets = $tickets->filter('CityID', $cityId);
+            }
+
+            return $tickets->sort('EventDate ASC');
+        }
     }
 }
