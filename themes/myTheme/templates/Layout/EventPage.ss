@@ -176,10 +176,10 @@
                                         <a href="$Link">$Title</a>
                                     </h6>
                                     <p class="ticket-date-sidebar">
-                                        <i class="bi bi-calendar3"></i> $EventDate.Nice
+                                        <i class="bi bi-calendar3" style="color: #7B68EE;"></i> $EventDate.Nice
                                     </p>
                                     <p class="ticket-location-sidebar">
-                                        <i class="bi bi-geo-alt"></i> $Location
+                                        <i class="bi bi-geo-alt" style="color: #7B68EE;"></i> $Location
                                     </p>
                                     <div class="ticket-footer-sidebar">
                                         <span class="ticket-price-sidebar">$PriceLabel</span>
