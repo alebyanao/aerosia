@@ -16,7 +16,7 @@ class Ticket extends DataObject
 {
     private static $table_name = 'Ticket';
 
-    private static $db = [
+    private static $db = [  
         'Title'       => 'Varchar(255)',
         'EventDate'   => 'Date',
         'EventTime'   => 'Time',
