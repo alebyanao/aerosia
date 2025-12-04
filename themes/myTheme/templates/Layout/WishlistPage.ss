@@ -1,57 +1,69 @@
 <div class="container my-5">
     <% if $Wishlists.Count > 0 %>
         <!-- Ticket Grid - Same as EventPage -->
-        <div class="row g-2 g-md-3">
+        <div class="row g-3">
             <% loop $Wishlists %>
                 <% with $Ticket %>
-                    <div class="col-6 col-lg-3">
-                        <div class="ticket-card-modern">
-                            <!-- Image -->
-                            <a href="$Link">
-                                <% if $Image %>
-                                    <img src="$Image.URL" class="ticket-img-modern" alt="$Title">
-                                <% else %>
-                                    <div class="ticket-img-modern bg-light d-flex align-items-center justify-content-center">
-                                        <i class="bi bi-image text-secondary" style="font-size: 2rem;"></i>
-                                    </div>
-                                <% end_if %>
-                            </a>
-                            
-                            <!-- Body -->
-                            <div class="ticket-body-modern">
-                                <a href="$Link" class="ticket-title-modern">
-                                    $Title
-                                </a>
-                                <p class="ticket-date-modern">
-                                    <i class="bi bi-calendar-event"></i> $EventDate.Nice
-                                </p>
-                                <p class="ticket-location-modern">
-                                    <i class="bi bi-geo-alt"></i> $Location
-                                </p>
-                                
-                                <!-- Footer: Price + Wishlist Button -->
-                                <div class="ticket-footer-modern">
-                                    <span class="ticket-price-modern">$PriceLabel</span>
+                    <div class="col-md-6 col-lg-4 col-xl-3">
+                        <div class="ticket-card-sidebar <% if $IsExpired %>ticket-expired<% end_if %>">
+                            <a href="$Link" class="ticket-img-link">
+                                <div class="ticket-img-wrapper">
+                                    <% if $Image %>
+                                        <img src="$Image.URL" class="ticket-img-sidebar" alt="$Title">
+                                    <% else %>
+                                        <div class="ticket-img-sidebar bg-light d-flex align-items-center justify-content-center">
+                                            <i class="bi bi-image text-secondary" style="font-size: 2rem;"></i>
+                                        </div>
+                                    <% end_if %>
                                     
-                                    <!-- Wishlist Button - Always Active (Red) karena ini halaman wishlist -->
+                                    <!-- Badge Status -->
+                                    <% if $IsExpired %>
+                                        <span class="ticket-status-badge expired">
+                                            <i class="bi bi-x-circle"></i> BERAKHIR
+                                        </span>
+                                    <% end_if %>
+                                </div>
+                            </a>
+                            <div class="ticket-body-sidebar">
+                                <h6 class="ticket-title-sidebar">
+                                    <a href="$Link">$Title</a>
+                                </h6>
+                                <p class="ticket-date-sidebar">
+                                    <i class="bi bi-calendar3" style="color: #7B68EE;"></i> $EventDate.Nice
+                                </p>
+                                <p class="ticket-location-sidebar">
+                                    <i class="bi bi-geo-alt" style="color: #7B68EE;"></i> $Location
+                                </p>
+                                <div class="ticket-footer-sidebar">
+                                    <% if $IsExpired %>
+                                        <span class="ticket-price-sidebar expired-price">
+                                            BERAKHIR
+                                        </span>
+                                    <% else %>
+                                        <span class="ticket-price-sidebar">$PriceLabel</span>
+                                    <% end_if %>
+                                    
                                     <% if $Top.IsLoggedIn %>
-    <% if $IsInWishlist %>
-        <a href="$BaseHref/wishlist/remove/$WishlistID" 
-           class="wishlist-icon-modern active">
-            <i class="bi bi-heart-fill"></i>
-        </a>
-    <% else %>
-        <a href="$BaseHref/wishlist/add/$ID" 
-           class="wishlist-icon-modern">
-            <i class="bi bi-heart"></i>
-        </a>
-    <% end_if %>
-<% else %>
-    <a href="$BaseHref/auth/login" class="wishlist-icon-modern">
-        <i class="bi bi-heart"></i>
-    </a>
-<% end_if %>
-
+                                        <% if $IsInWishlist %>
+                                            <a href="$BaseHref/wishlist/remove/$WishlistID" 
+                                               class="wishlist-icon-sidebar active"
+                                               title="Hapus dari wishlist">
+                                                <i class="bi bi-heart-fill"></i>
+                                            </a>
+                                        <% else %>
+                                            <a href="$BaseHref/wishlist/add/$ID" 
+                                               class="wishlist-icon-sidebar"
+                                               title="Tambah ke wishlist">
+                                                <i class="bi bi-heart"></i>
+                                            </a>
+                                        <% end_if %>
+                                    <% else %>
+                                        <a href="$BaseHref/auth/login" 
+                                           class="wishlist-icon-sidebar"
+                                           title="Login untuk wishlist">
+                                            <i class="bi bi-heart"></i>
+                                        </a>
+                                    <% end_if %>
                                 </div>
                             </div>
                         </div>
@@ -86,45 +98,86 @@
 </div>
 
 <style>
-/* --- CARD STYLE (SAMA DENGAN EVENTPAGE) --- */
-.ticket-card-modern {
+/* ===== TICKET CARD STYLE (SAMA DENGAN EVENTPAGE) ===== */
+.ticket-card-sidebar {
     background: #fff;
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    transition: .25s ease;
+    transition: all 0.25s;
     height: 100%;
     display: flex;
     flex-direction: column;
 }
 
-.ticket-card-modern:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+.ticket-card-sidebar:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.12);
 }
 
-/* --- IMAGE --- */
-.ticket-img-modern {
-    height: 120px;
+.ticket-card-sidebar.ticket-expired {
+    opacity: 0.75;
+}
+
+.ticket-card-sidebar.ticket-expired:hover {
+    transform: translateY(-2px);
+}
+
+.ticket-img-link {
+    display: block;
+    position: relative;
+}
+
+.ticket-img-wrapper {
+    position: relative;
+    overflow: hidden;
+}
+
+.ticket-img-sidebar {
     width: 100%;
+    height: 180px;
     object-fit: cover;
+    transition: transform 0.3s;
 }
 
-/* --- BODY CONTENT --- */
-.ticket-body-modern {
-    padding: 10px 12px 12px 12px;
+.ticket-card-sidebar:hover .ticket-img-sidebar {
+    transform: scale(1.05);
+}
+
+/* Status Badge */
+.ticket-status-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    z-index: 10;
+}
+
+.ticket-status-badge.expired {
+    background: rgba(239, 68, 68, 0.95);
+    color: #fff;
+}
+
+.ticket-body-sidebar {
+    padding: 16px;
     display: flex;
     flex-direction: column;
     flex-grow: 1;
 }
 
-.ticket-title-modern {
-    display: block;
-    font-size: 14px;
-    font-weight: 600;
-    color: #000;
-    text-decoration: none;
-    margin-bottom: 4px;
+.ticket-title-sidebar {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 8px;
     line-height: 1.3;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -133,71 +186,69 @@
     -webkit-box-orient: vertical;
 }
 
-.ticket-title-modern:hover {
-    color: #7b2ddf;
+.ticket-title-sidebar a {
+    color: #1f2937;
+    text-decoration: none;
 }
 
-.ticket-date-modern,
-.ticket-location-modern {
-    font-size: 12px;
-    color: #7a7a7a;
-    margin: 0 0 2px 0;
+.ticket-title-sidebar a:hover {
+    color: #7c3aed;
 }
 
-.ticket-location-modern {
-    margin-bottom: 10px;
-    line-height: 1.3;
+.ticket-date-sidebar,
+.ticket-location-sidebar {
+    font-size: 13px;
+    color: #6b7280;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.ticket-location-sidebar {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-/* --- FOOTER PRICE + WISHLIST --- */
-.ticket-footer-modern {
-    border-top: 1px solid #eaeaea;
-    padding-top: 10px;
+.ticket-footer-sidebar {
+    border-top: 1px solid #f3f4f6;
+    padding-top: 12px;
+    margin-top: auto;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: auto;
 }
 
-.ticket-price-modern {
-    font-size: 14px;
+.ticket-price-sidebar {
+    font-size: 16px;
     font-weight: 700;
-    color: #000 !important;
+    color: #1f2937;
 }
 
-/* --- WISHLIST HEART --- */
-.wishlist-icon-modern {
-    font-size: 18px;
-    color: #d1d1d1;
-    background: none;
-    border: none;
-    padding: 0;
-    cursor: pointer;
+.ticket-price-sidebar.expired-price {
+    color: #ef4444;
+    font-size: 14px;
+}
+
+/* Wishlist Heart Icon */
+.wishlist-icon-sidebar {
+    font-size: 20px;
+    color: #d1d5db;
     text-decoration: none;
-    transition: all .3s ease;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    transition: all 0.2s;
 }
 
-.wishlist-icon-modern:hover {
-    color: #ff4466;
-    transform: scale(1.15);
+.wishlist-icon-sidebar:hover {
+    color: #ef4444;
+    transform: scale(1.1);
 }
 
-.wishlist-icon-modern.active {
-    color: #ff0033 !important;
+.wishlist-icon-sidebar.active {
+    color: #ef4444;
 }
 
-.wishlist-icon-modern.active:hover {
-    color: #dd0028 !important;
-    transform: scale(1.15);
-}
-
-/* --- EMPTY STATE --- */
+/* Empty State */
 .empty-wishlist-icon {
     animation: pulse 2s ease-in-out infinite;
 }
@@ -207,49 +258,60 @@
     50% { transform: scale(1.05); }
 }
 
-/* --- RESPONSIVE --- */
-@media (min-width: 768px) {
-    .ticket-img-modern {
+/* ===== RESPONSIVE ===== */
+@media (max-width: 991px) {
+    .ticket-img-sidebar {
+        height: 160px;
+    }
+}
+
+@media (max-width: 767px) {
+    .ticket-img-sidebar {
         height: 140px;
     }
-    .ticket-title-modern {
+    
+    .ticket-body-sidebar {
+        padding: 14px;
+    }
+    
+    .ticket-title-sidebar {
         font-size: 15px;
     }
-    .ticket-date-modern,
-    .ticket-location-modern {
-        font-size: 13px;
+    
+    .ticket-date-sidebar,
+    .ticket-location-sidebar {
+        font-size: 12px;
     }
-    .ticket-price-modern {
+    
+    .ticket-price-sidebar {
         font-size: 15px;
     }
 }
 
-@media (min-width: 992px) {
-    .ticket-body-modern {
-        padding: 12px 14px 14px 14px;
+@media (max-width: 576px) {
+    .ticket-img-sidebar {
+        height: 120px;
     }
-}
-
-/* --- NOTIFICATION ANIMATIONS --- */
-@keyframes slideInRight {
-    from {
-        transform: translateX(400px);
-        opacity: 0;
+    
+    .ticket-body-sidebar {
+        padding: 12px;
     }
-    to {
-        transform: translateX(0);
-        opacity: 1;
+    
+    .ticket-title-sidebar {
+        font-size: 14px;
     }
-}
-
-@keyframes slideOutRight {
-    from {
-        transform: translateX(0);
-        opacity: 1;
+    
+    .ticket-date-sidebar,
+    .ticket-location-sidebar {
+        font-size: 11px;
     }
-    to {
-        transform: translateX(400px);
-        opacity: 0;
+    
+    .ticket-price-sidebar {
+        font-size: 14px;
+    }
+    
+    .wishlist-icon-sidebar {
+        font-size: 18px;
     }
 }
 </style>

@@ -768,7 +768,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     .mobile-filter-trigger {
         width: 100%;
-        background: linear-gradient(135deg, #9a88ffff 0%, #9a88ffff 100%);
+        background: linear-gradient(135deg, #8c52ff 0%, #9a88ffff 100%);
         border: none;
         border-radius: 12px;
         padding: 14px 18px;

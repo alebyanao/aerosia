@@ -29,7 +29,8 @@
     <div class="row g-4">
       <!-- Form Checkout -->
       <div class="col-lg-7">
-        <form method="post" action="$BaseHref/checkout/processOrder" id="checkoutForm">
+        <!-- INI YANG PENTING: Tambahkan target="_blank" di form tag -->
+        <form method="post" action="$BaseHref/checkout/processOrder" id="checkoutForm" target="_blank">
           <!-- Hidden Fields -->
           <input type="hidden" name="ticket_type_id" value="$TicketType.ID">
           <input type="hidden" name="quantity" value="$Quantity">
@@ -142,7 +143,7 @@
 
       <!-- Ringkasan Pembelian -->
       <div class="col-lg-5">
-        <div class="modern-card summary-card sticky-top" style="top: 20px;">
+        <div class="modern-card summary-card" style="top: 20px;">
           <div class="card-body-modern">
             <!-- Event Info -->
             <% if $Ticket %>
@@ -573,11 +574,7 @@ body {
 
 /* Responsive */
 @media (max-width: 991px) {
-  .sticky-top {
-    position: relative !important;
-    top: 0 !important;
-  }
-  
+
   .modern-card {
     margin-bottom: 20px;
   }
@@ -807,6 +804,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     submitBtn.disabled = true;
     submitBtnText.innerHTML = '<span class="spinner-border-sm"></span>Memproses...';
+    
+    // PENTING: Jangan preventDefault di sini, biarkan form submit dengan target="_blank"
   });
 
   // Auto-dismiss Alerts

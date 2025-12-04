@@ -57,14 +57,6 @@
       </div>
     <% end_if %>
 
-    <!-- Back Button -->
-    <div class="mb-4">
-      <a href="$BaseHref/order" class="btn-back">
-        <i class="bi bi-arrow-left"></i>
-        <span>Kembali ke Daftar Pesanan</span>
-      </a>
-    </div>
-
     <% with $Order %>
       <!-- Order Header -->
       <div class="modern-card mb-4">
