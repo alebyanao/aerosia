@@ -11,6 +11,7 @@ use SilverStripe\Forms\TimeField;
 use SilverStripe\Forms\TextField;
 use SilverStripe\Forms\DropdownField;
 use SilverStripe\Forms\LiteralField;
+use SilverStripe\Forms\CheckboxField;
 
 class Ticket extends DataObject
 {
@@ -28,7 +29,8 @@ class Ticket extends DataObject
         'EventMapURL' => 'Varchar(255)',
         'Instagram' => 'Varchar(50)',
         'InstagramURL' => 'Varchar(50)',
-        'Description' => 'HTMLText', 
+        'Description' => 'HTMLText',
+        'IsExpired'   => 'Boolean', // Field baru untuk status expired
     ];
 
     private static $has_one = [
@@ -51,12 +53,17 @@ class Ticket extends DataObject
         'CityName'           => 'Kota', 
         'Location'           => 'Lokasi',
         'MinPriceFormatted'  => 'Harga Mulai Dari',
+        'StatusBadge'        => 'Status',
+    ];
+
+    private static $defaults = [
+        'IsExpired' => false
     ];
 
     public function getCMSFields()
     {
         $fields = parent::getCMSFields();
-        $fields->removeByName(['TicketTypes', 'ProvinceID', 'ProvinceName', 'CityID', 'CityName']);
+        $fields->removeByName(['TicketTypes', 'ProvinceID', 'ProvinceName', 'CityID', 'CityName', 'IsExpired']);
 
         // Get provinces from API
         $provinces = IndonesiaRegionAPI::getProvinces();
@@ -65,9 +72,9 @@ class Ticket extends DataObject
         $provinceField = DropdownField::create('ProvinceID', 'Provinsi')
             ->setSource($provinces)
             ->setEmptyString('-- Pilih Provinsi --')
-            ->setAttribute('data-dynamic-target', 'city'); // Tambahkan attribute
+            ->setAttribute('data-dynamic-target', 'city');
         
-        // Kota Dropdown - selalu load cities jika provinsi sudah ada
+        // Kota Dropdown
         $citySource = ['Loading...'];
         if ($this->ProvinceID) {
             $citySource = IndonesiaRegionAPI::getCitiesByProvince($this->ProvinceID);
@@ -76,35 +83,30 @@ class Ticket extends DataObject
         $cityField = DropdownField::create('CityID', 'Kota/Kabupaten')
             ->setSource($citySource)
             ->setEmptyString($this->ProvinceID ? '-- Pilih Kota/Kabupaten --' : '-- Pilih Provinsi Terlebih Dahulu --')
-            ->setAttribute('data-dynamic-city', 'true'); // Tambahkan attribute
+            ->setAttribute('data-dynamic-city', 'true');
         
         $fields->addFieldsToTab('Root.Main', [
             $provinceField,
             $cityField,
             
-            // JavaScript yang lebih reliable
             LiteralField::create('DynamicCityScript', '
                 <script>
                 (function() {
-                    // Function untuk attach event listener
                     function attachProvinceListener() {
                         const provinceSelect = document.querySelector("[name=\'ProvinceID\']");
                         const citySelect = document.querySelector("[name=\'CityID\']");
                         
                         if (!provinceSelect || !citySelect) {
-                            // Retry setelah 100ms jika element belum ada
                             setTimeout(attachProvinceListener, 100);
                             return;
                         }
                         
-                        // Remove existing listener jika ada
                         provinceSelect.removeEventListener("change", handleProvinceChange);
                         provinceSelect.addEventListener("change", handleProvinceChange);
                         
                         function handleProvinceChange() {
                             const provinceId = this.value;
                             
-                            // Reset city dropdown
                             citySelect.innerHTML = "<option value=\'\'>Loading...</option>";
                             citySelect.disabled = true;
                             
@@ -114,7 +116,6 @@ class Ticket extends DataObject
                                 return;
                             }
                             
-                            // Fetch cities from API
                             fetch(`/admin/tickets/citylist?province=${provinceId}`)
                                 .then(response => response.json())
                                 .then(data => {
@@ -137,10 +138,8 @@ class Ticket extends DataObject
                         }
                     }
                     
-                    // Initial attach
                     attachProvinceListener();
                     
-                    // Re-attach setelah form reload (SilverStripe AJAX)
                     if (typeof jQuery !== "undefined") {
                         jQuery(document).on("ajaxComplete", function() {
                             setTimeout(attachProvinceListener, 100);
@@ -163,6 +162,14 @@ class Ticket extends DataObject
             HTMLEditorField::create('Description', 'Deskripsi Event')->setRows(15),
         ]);
 
+        // Tampilkan status expired di CMS (read-only)
+        if ($this->exists()) {
+            $statusField = CheckboxField::create('IsExpired', 'Event Berakhir')
+                ->setReadonly(true)
+                ->setDescription('Status ini diupdate otomatis oleh sistem');
+            $fields->addFieldToTab('Root.Main', $statusField);
+        }
+
         // GridField untuk mengelola tipe tiket
         if ($this->ID) {
             $ticketTypesConfig = GridFieldConfig_RecordEditor::create();
@@ -179,7 +186,7 @@ class Ticket extends DataObject
         } else {
             $fields->addFieldToTab(
                 'Root.TipeHarga',
-                \SilverStripe\Forms\LiteralField::create(
+                LiteralField::create(
                     'FirstSaveNotice',
                     '<p class="alert alert-info">Simpan tiket terlebih dahulu sebelum menambahkan tipe & harga tiket.</p>'
                 )
@@ -187,6 +194,39 @@ class Ticket extends DataObject
         }
 
         return $fields;
+    }
+
+    /**
+     * Cek apakah event sudah berakhir berdasarkan tanggal & waktu
+     */
+    public function checkIfExpired()
+    {
+        if (!$this->EventDate) {
+            return false;
+        }
+
+        $eventDateTime = $this->EventDate;
+        if ($this->EventTime) {
+            $eventDateTime .= ' ' . $this->EventTime;
+        } else {
+            $eventDateTime .= ' 23:59:59';
+        }
+
+        $eventTimestamp = strtotime($eventDateTime);
+        $currentTimestamp = time();
+
+        return $currentTimestamp > $eventTimestamp;
+    }
+
+    /**
+     * Get status badge untuk CMS GridField
+     */
+    public function getStatusBadge()
+    {
+        if ($this->IsExpired) {
+            return '<span style="background: #dc3545; color: white; padding: 3px 8px; border-radius: 3px; font-size: 11px;">BERAKHIR</span>';
+        }
+        return '<span style="background: #28a745; color: white; padding: 3px 8px; border-radius: 3px; font-size: 11px;">AKTIF</span>';
     }
 
     /**
@@ -206,6 +246,10 @@ class Ticket extends DataObject
      */
     public function getMinPriceFormatted()
     {
+        if ($this->IsExpired) {
+            return 'BERAKHIR';
+        }
+
         $minPrice = $this->getMinPrice();
 
         if ($minPrice === null) {
@@ -224,11 +268,23 @@ class Ticket extends DataObject
      */
     public function getPriceLabel()
     {
+        if ($this->IsExpired) {
+            return 'Event Telah Berakhir';
+        }
+
         $count = $this->TicketTypes()->count();
         if ($count > 0) {
             return ' ' . $this->getMinPriceFormatted();
         }
         return 'Harga belum tersedia';
+    }
+
+    /**
+     * Check apakah tiket bisa dipesan
+     */
+    public function canBeOrdered()
+    {
+        return !$this->IsExpired;
     }
 
     /**
@@ -302,6 +358,8 @@ class Ticket extends DataObject
     public function onBeforeWrite(): void
     {
         parent::onBeforeWrite();
+
+        $this->IsExpired = $this->checkIfExpired();
 
         // Jika province berubah, reset city
         if ($this->isChanged('ProvinceID')) {

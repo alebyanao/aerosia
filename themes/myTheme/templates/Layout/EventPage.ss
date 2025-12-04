@@ -167,9 +167,19 @@
                 <div class="row g-3">
                     <% loop $Tickets %>
                         <div class="col-md-6 col-lg-4">
-                            <div class="ticket-card-sidebar">
+                            <div class="ticket-card-sidebar <% if $IsExpired %>ticket-expired<% end_if %>">
                                 <a href="$Link" class="ticket-img-link">
-                                    <img src="$Image.URL" class="ticket-img-sidebar" alt="$Title">
+                                    <div class="ticket-img-wrapper">
+                                        <img src="$Image.URL" class="ticket-img-sidebar" alt="$Title">
+                                        
+                                        <!-- Badge Status -->
+                                        <% if $IsExpired %>
+                                            <span class="ticket-status-badge expired">
+                                                <i class="bi bi-x-circle"></i> BERAKHIR
+                                            </span>
+                                       
+                                        <% end_if %>
+                                    </div>
                                 </a>
                                 <div class="ticket-body-sidebar">
                                     <h6 class="ticket-title-sidebar">
@@ -182,21 +192,33 @@
                                         <i class="bi bi-geo-alt" style="color: #7B68EE;"></i> $Location
                                     </p>
                                     <div class="ticket-footer-sidebar">
-                                        <span class="ticket-price-sidebar">$PriceLabel</span>
+                                        <% if $IsExpired %>
+                                            <span class="ticket-price-sidebar expired-price">
+                                                BERAKHIR
+                                            </span>
+                                        <% else %>
+                                            <span class="ticket-price-sidebar">$PriceLabel</span>
+                                        <% end_if %>
                                         
                                         <% if $Top.IsLoggedIn %>
-                                            <% if $IsInWishlist %>
-                                                <a href="$BaseHref/wishlist/toggle/$ID" 
-                                                   class="wishlist-icon-sidebar active"
-                                                   title="Hapus dari wishlist">
-                                                    <i class="bi bi-heart-fill"></i>
-                                                </a>
+                                            <% if $canBeOrdered %>
+                                                <% if $IsInWishlist %>
+                                                    <a href="$BaseHref/wishlist/toggle/$ID" 
+                                                       class="wishlist-icon-sidebar active"
+                                                       title="Hapus dari wishlist">
+                                                        <i class="bi bi-heart-fill"></i>
+                                                    </a>
+                                                <% else %>
+                                                    <a href="$BaseHref/wishlist/toggle/$ID" 
+                                                       class="wishlist-icon-sidebar"
+                                                       title="Tambah ke wishlist">
+                                                        <i class="bi bi-heart"></i>
+                                                    </a>
+                                                <% end_if %>
                                             <% else %>
-                                                <a href="$BaseHref/wishlist/toggle/$ID" 
-                                                   class="wishlist-icon-sidebar"
-                                                   title="Tambah ke wishlist">
+                                                <span class="wishlist-icon-sidebar disabled" title="Event berakhir">
                                                     <i class="bi bi-heart"></i>
-                                                </a>
+                                                </span>
                                             <% end_if %>
                                         <% else %>
                                             <a href="$BaseHref/auth/login" 
@@ -519,14 +541,62 @@ document.addEventListener('DOMContentLoaded', function() {
     box-shadow: 0 8px 16px rgba(0,0,0,0.12);
 }
 
+/* Expired Ticket Styling */
+.ticket-card-sidebar.ticket-expired {
+    opacity: 0.75;
+}
+
+.ticket-card-sidebar.ticket-expired:hover {
+    transform: translateY(-2px);
+}
+
 .ticket-img-link {
     display: block;
+    position: relative;
+}
+
+.ticket-img-wrapper {
+    position: relative;
+    overflow: hidden;
 }
 
 .ticket-img-sidebar {
     width: 100%;
     height: 180px;
     object-fit: cover;
+    transition: transform 0.3s;
+}
+
+.ticket-card-sidebar:hover .ticket-img-sidebar {
+    transform: scale(1.05);
+}
+
+/* Status Badge */
+.ticket-status-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    z-index: 10;
+}
+
+.ticket-status-badge.expired {
+    background: rgba(239, 68, 68, 0.95);
+    color: #fff;
+}
+
+.ticket-status-badge.available {
+    background: rgba(34, 197, 94, 0.95);
+    color: #fff;
 }
 
 .ticket-body-sidebar {
@@ -577,6 +647,11 @@ document.addEventListener('DOMContentLoaded', function() {
     color: #1f2937;
 }
 
+.ticket-price-sidebar.expired-price {
+    color: #ef4444;
+    font-size: 14px;
+}
+
 .wishlist-icon-sidebar {
     font-size: 20px;
     color: #d1d5db;
@@ -591,6 +666,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .wishlist-icon-sidebar.active {
     color: #ef4444;
+}
+
+.wishlist-icon-sidebar.disabled {
+    color: #e5e7eb;
+    cursor: not-allowed;
+    pointer-events: none;
 }
 
 /* Empty State */

@@ -10,18 +10,63 @@
         width: 100%;
         border-radius: 16px;
         object-fit: cover;
+        position: relative;
     }
+    
+    /* Badge Expired pada Image */
+    .image-wrapper {
+        position: relative;
+        margin-bottom: 1rem;
+    }
+    
+    .expired-badge-overlay {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: rgba(239, 68, 68, 0.95);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-weight: 700;
+        font-size: 1rem;
+        letter-spacing: 1px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        z-index: 10;
+        backdrop-filter: blur(8px);
+    }
+    
+    .expired-image-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
     .event-info-card {
         background: #fff;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
         border-radius: 16px;
         padding: 24px;
     }
+    
+   
+    
     .event-title {
         font-weight: 700;
         font-size: 1.5rem;
         margin-bottom: 20px;
     }
+    
+    .event-title.expired {
+        color: #6b7280;
+    }
+    
     .event-meta {
         display: flex;
         align-items: center;
@@ -30,10 +75,21 @@
         color: #555;
         font-size: 0.95rem;
     }
+    
+    .event-meta.expired {
+        color: #9ca3af;
+        text-decoration: line-through;
+    }
+    
     .event-meta i {
         color: #7B68EE;
         font-size: 1.1rem;
     }
+    
+    .event-meta.expired i {
+        color: #d1d5db;
+    }
+    
     .tabs-container {
         display: flex;
         border-bottom: 2px solid #e0e0e0;
@@ -75,6 +131,13 @@
         margin-bottom: 16px;
         transition: all 0.3s ease;
     }
+    
+    /* Ticket Card Expired State */
+    .ticket-card.expired-ticket {
+        background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+        opacity: 0.7;
+    }
+    
     .ticket-card::before {
         content: '';
         position: absolute;
@@ -83,6 +146,11 @@
         bottom: 0;
         border-left: 2px dashed #C4B5D8;
     }
+    
+    .ticket-card.expired-ticket::before {
+        border-left-color: #d1d5db;
+    }
+    
     .ticket-left {
         width: 28%;
         text-align: center;
@@ -95,12 +163,22 @@
         text-transform: uppercase;
         line-height: 1.4;
     }
+    
+    .ticket-card.expired-ticket .ticket-type-name {
+        color: #9ca3af;
+    }
+    
     .ticket-price {
         font-weight: 600;
         font-size: 1.4rem;
         color: #7B68EE;
         margin-top: 8px;
     }
+    
+    .ticket-card.expired-ticket .ticket-price {
+        color: #d1d5db;
+    }
+    
     .ticket-right {
         width: 72%;
         padding-left: 30px;
@@ -112,12 +190,22 @@
         margin-bottom: 12px;
         line-height: 1.5;
     }
+    
+    .ticket-card.expired-ticket .ticket-description {
+        color: #9ca3af;
+    }
+    
     .ticket-stock {
         font-size: 0.75rem;
         color: #888;
         text-align: center;
         margin-bottom: 12px;
     }
+    
+    .ticket-card.expired-ticket .ticket-stock {
+        color: #d1d5db;
+    }
+    
     .btn-pilih {
         background: #7B68EE;
         color: #fff;
@@ -138,6 +226,13 @@
         background: #aaa;
         cursor: not-allowed;
     }
+    
+    .btn-pilih.expired-btn {
+     
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+    
     .quantity-control {
         display: none;
         align-items: center;
@@ -191,6 +286,58 @@
         border-radius: 16px;
         padding: 20px;
     }
+    
+    /* Checkout Card Expired */
+    .checkout-card.expired-checkout {
+        background: linear-gradient(135deg, #ffffffff 0%, #ffff 100%);
+
+    }
+    
+    .expired-notice {
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        margin-bottom: 16px;
+    }
+    
+    .expired-notice i {
+        font-size: 3rem;
+        color: #dc2626;
+        margin-bottom: 12px;
+    }
+    
+    .expired-notice-title {
+        font-weight: 700;
+        color: #991b1b;
+        font-size: 1.1rem;
+        margin-bottom: 8px;
+    }
+    
+    .expired-notice-text {
+        color: #7f1d1d;
+        font-size: 0.9rem;
+        margin-bottom: 16px;
+    }
+    
+    .btn-back-events {
+        background: #fff;
+        color: #dc2626;
+        border: 2px solid #dc2626;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s;
+    }
+    
+    .btn-back-events:hover {
+        background: #dc2626;
+        color: #fff;
+    }
+    
     .total-row {
         display: flex;
         justify-content: space-between;
@@ -205,6 +352,11 @@
         font-weight: 600;
         color: #7B68EE;
     }
+    
+    .total-price.expired {
+        color: #d1d5db;
+    }
+    
     .btn-beli {
         background: #7B68EE;
         color: #fff;
@@ -224,6 +376,13 @@
         opacity: 0.6;
         cursor: not-allowed;
     }
+    
+    .btn-beli.expired {
+        background: #9ca3af;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+    
     .ticket-card.selected {
         box-shadow: 0 0 0 3px #7B68EE;
     }
@@ -239,9 +398,18 @@
         <!-- Kolom Kiri -->
         <div class="col-lg-8">
             <% with $Ticket %>
-                <!-- Event Image -->
+                <!-- Event Image with Expired Badge -->
                 <% if $Image %>
-                    <img src="$Image.Fill(700,350).URL" class="event-image mb-4" alt="$Title" style="box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);">
+                    <div class="image-wrapper">
+                        <img src="$Image.Fill(700,350).URL" class="event-image" alt="$Title" style="box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);">
+                        
+                        <% if $IsExpired %>
+                            <div class="expired-badge-overlay">
+                                <i class="bi bi-x-circle-fill"></i>
+                                BERAKHIR
+                            </div>
+                        <% end_if %>
+                    </div>
                 <% end_if %>
                 
                 <!-- Tabs -->
@@ -261,11 +429,12 @@
                 <div class="tab-content active" id="tab-tiket">
                     <% if $TicketTypes %>
                         <% loop $TicketTypes %>
-                            <div class="ticket-card ticket-type-item" 
+                            <div class="ticket-card ticket-type-item <% if $Up.IsExpired %>expired-ticket<% end_if %>" 
                                  data-ticket-id="$ID" 
                                  data-price="$Price" 
                                  data-max="$MaxPerMember"
-                                 data-capacity="$Capacity">
+                                 data-capacity="$Capacity"
+                                 data-expired="<% if $Up.IsExpired %>true<% else %>false<% end_if %>">
                                 <div class="ticket-left">
                                     <div class="ticket-type-name">$TypeName</div>
                                     <div class="ticket-price">$FormattedPrice</div>
@@ -274,17 +443,18 @@
                                     <% if $Description %>
                                         <p class="ticket-description">$Description</p>
                                     <% end_if %>
-                                    <% if $Capacity > 0 %>
+                                    
+                                    <% if $Up.IsExpired %>
+                                        <p class="ticket-stock text-danger fw-bold">
+                                            <i class="bi bi-clock-history"></i> EVENT BERAKHIR
+                                        </p>
+                                        <div class="btn-pilih expired-btn">
+                                            TIDAK TERSEDIA
+                                        </div>
+                                    <% else_if $Capacity > 0 %>
                                         <p class="ticket-stock">
                                             <i class="bi bi-ticket-perforated"></i> Tersedia: $Capacity tiket
                                         </p>
-                                    <% else %>
-                                        <p class="ticket-stock text-danger fw-bold">
-                                            <i class="bi bi-exclamation-circle"></i> SOLD OUT
-                                        </p>
-                                    <% end_if %>
-                                    
-                                    <% if $Capacity > 0 %>
                                         <button class="btn-pilih select-ticket-btn">Pilih Tiket</button>
                                         
                                         <!-- Quantity Control -->
@@ -299,6 +469,9 @@
                                             Maksimal <span class="max-limit">$MaxPerMember</span> tiket
                                         </div>
                                     <% else %>
+                                        <p class="ticket-stock text-danger fw-bold">
+                                            <i class="bi bi-exclamation-circle"></i> SOLD OUT
+                                        </p>
                                         <div class="btn-pilih disabled">
                                             SOLD OUT
                                         </div>
@@ -321,6 +494,7 @@
                 <% with $Ticket %>
                     <!-- Event Info Card -->
                     <div class="event-info-card mb-3">
+                        
                         <h2 class="event-title">$Title</h2>
 
                         <!-- Tanggal -->
@@ -369,18 +543,20 @@
                     </div>
 
                     <!-- Checkout Card -->
-                    <div class="checkout-card">
-                        <div class="total-row">
-                            <span class="total-label">Total harga :</span>
-                            <span class="total-price" id="total-amount">Rp. ...</span>
-                        </div>
-                        <form id="checkoutForm" action="$BaseHref/checkout" method="post">
-                            <input type="hidden" name="ticket_type_id" id="ticketTypeId">
-                            <input type="hidden" name="quantity" id="ticketQty">
-                            <button type="submit" id="buy-btn" class="btn-beli disabled" aria-disabled="true">
-                                Beli Tiket
-                            </button>
-                        </form>
+                    <div class="checkout-card <% if $IsExpired %>expired-checkout<% end_if %>">
+                       
+                            <div class="total-row">
+                                <span class="total-label">Total harga :</span>
+                                <span class="total-price" id="total-amount">Rp. ...</span>
+                            </div>
+                            <form id="checkoutForm" action="$BaseHref/checkout" method="post">
+                                <input type="hidden" name="ticket_type_id" id="ticketTypeId">
+                                <input type="hidden" name="quantity" id="ticketQty">
+                                <button type="submit" id="buy-btn" class="btn-beli disabled" aria-disabled="true">
+                                    Beli Tiket
+                                </button>
+                            </form>
+               
                     </div>
                 <% end_with %>
             </div>
@@ -419,6 +595,11 @@ document.addEventListener('DOMContentLoaded', function() {
     let selectedTicket = null;
 
     ticketItems.forEach(item => {
+        // Skip jika tiket expired
+        if (item.dataset.expired === 'true') {
+            return;
+        }
+        
         const selectBtn = item.querySelector('.select-ticket-btn');
         const qtyControl = item.querySelector('.quantity-control');
         const qtyDisplay = item.querySelector('.qty-display');
@@ -492,34 +673,44 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function updateTotal() {
         if (!selectedTicket) {
-            totalAmountEl.textContent = 'Rp. ...';
+            if (totalAmountEl) {
+                totalAmountEl.textContent = 'Rp. ...';
+            }
             disableBuy();
             return;
         }
 
         const total = selectedTicket.currentQty * selectedTicket.price;
-        totalAmountEl.textContent = 'Rp. ' + total.toLocaleString('id-ID');
+        if (totalAmountEl) {
+            totalAmountEl.textContent = 'Rp. ' + total.toLocaleString('id-ID');
+        }
         enableBuy();
     }
 
     function enableBuy() {
-        buyBtn.classList.remove('disabled');
-        buyBtn.removeAttribute('aria-disabled');
+        if (buyBtn) {
+            buyBtn.classList.remove('disabled');
+            buyBtn.removeAttribute('aria-disabled');
+        }
     }
 
     function disableBuy() {
-        buyBtn.classList.add('disabled');
-        buyBtn.setAttribute('aria-disabled', 'true');
+        if (buyBtn) {
+            buyBtn.classList.add('disabled');
+            buyBtn.setAttribute('aria-disabled', 'true');
+        }
     }
 
-    buyBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        if (!selectedTicket || buyBtn.classList.contains('disabled')) return;
+    if (buyBtn) {
+        buyBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (!selectedTicket || buyBtn.classList.contains('disabled')) return;
 
-        document.getElementById('ticketTypeId').value = selectedTicket.item.dataset.ticketId;
-        document.getElementById('ticketQty').value = selectedTicket.currentQty;
+            document.getElementById('ticketTypeId').value = selectedTicket.item.dataset.ticketId;
+            document.getElementById('ticketQty').value = selectedTicket.currentQty;
 
-        document.getElementById('checkoutForm').submit();
-    });
+            document.getElementById('checkoutForm').submit();
+        });
+    }
 });
 </script>
