@@ -3,112 +3,126 @@
         <!-- Sidebar Filter -->
         <div class="col-lg-3 mb-4">
             <div class="filter-sidebar">
-                <h5 class="filter-sidebar-title">FILTER</h5>
-                
-                <form method="get" action="$Link" id="filter-form">
-                    <!-- Price Range Slider -->
-                    <div class="filter-group">
-                        <label class="filter-group-label">Harga</label>
-                        <div class="price-range-display">
-                            <span class="price-min-display">Rp <span id="min-price-display">$MinPriceRange</span></span>
-                            <span class="price-max-display">Rp <span id="max-price-display">$MaxPriceRange</span></span>
+                <!-- Mobile Filter Trigger (Compact) -->
+                <div class="mobile-filter-wrapper">
+                    <button class="mobile-filter-trigger" id="mobileFilterTrigger">
+                        <div class="trigger-content">
+                            <i class="bi bi-funnel-fill"></i>
+                            <span>Filter & Urutkan</span>
                         </div>
-                        <div class="price-slider-container">
-                            <input type="range" 
-                                   name="min_price" 
-                                   id="min-price-slider"
-                                   class="price-slider"
-                                   min="0" 
-                                   max="$MaxPriceRange"
-                                   value="$CurrentMinPrice"
-                                   step="10000">
-                            <input type="range" 
-                                   name="max_price" 
-                                   id="max-price-slider"
-                                   class="price-slider"
-                                   min="0" 
-                                   max="$MaxPriceRange"
-                                   value="<% if $CurrentMaxPrice %>$CurrentMaxPrice<% else %>$MaxPriceRange<% end_if %>"
-                                   step="10000">
-                        </div>
-                    </div>
+                        <i class="bi bi-chevron-down trigger-arrow"></i>
+                    </button>
+                </div>
 
-                    <!-- Province & City -->
-                    <div class="row">
-                        <div class="col-6">
-                            <div class="filter-group">
-                                <label class="filter-group-label">Provinsi</label>
-                                <select name="province" id="province-filter" class="filter-select-sidebar">
-                                    <option value=""></option>
-                                    <% loop $ProvinceList %>
-                                        <option value="$ID" <% if $Selected %>selected<% end_if %>>$Name</option>
-                                    <% end_loop %>
-                                </select>
+                <!-- Filter Content -->
+                <div class="filter-content" id="filterContent">
+                    <h5 class="filter-sidebar-title">FILTER</h5>
+                    
+                    <form method="get" action="$Link" id="filter-form">
+                        <!-- Price Range Slider -->
+                        <div class="filter-group">
+                            <label class="filter-group-label">Harga</label>
+                            <div class="price-range-display">
+                                <span class="price-min-display">Rp <span id="min-price-display">$MinPriceRange</span></span>
+                                <span class="price-max-display">Rp <span id="max-price-display">$MaxPriceRange</span></span>
+                            </div>
+                            <div class="price-slider-container">
+                                <input type="range" 
+                                       name="min_price" 
+                                       id="min-price-slider"
+                                       class="price-slider"
+                                       min="0" 
+                                       max="$MaxPriceRange"
+                                       value="$CurrentMinPrice"
+                                       step="10000">
+                                <input type="range" 
+                                       name="max_price" 
+                                       id="max-price-slider"
+                                       class="price-slider"
+                                       min="0" 
+                                       max="$MaxPriceRange"
+                                       value="<% if $CurrentMaxPrice %>$CurrentMaxPrice<% else %>$MaxPriceRange<% end_if %>"
+                                       step="10000">
                             </div>
                         </div>
-                        <div class="col-6">
-                            <div class="filter-group">
-                                <label class="filter-group-label">Kota</label>
-                                <select name="city" id="city-filter" class="filter-select-sidebar"
-                                        <% if not $CurrentProvince %>disabled<% end_if %>>
-                                    <option value=""></option>
-                                    <% loop $CityList %>
-                                        <option value="$ID" <% if $Selected %>selected<% end_if %>>$Name</option>
-                                    <% end_loop %>
-                                </select>
+
+                        <!-- Province & City -->
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="filter-group">
+                                    <label class="filter-group-label">Provinsi</label>
+                                    <select name="province" id="province-filter" class="filter-select-sidebar">
+                                        <option value=""></option>
+                                        <% loop $ProvinceList %>
+                                            <option value="$ID" <% if $Selected %>selected<% end_if %>>$Name</option>
+                                        <% end_loop %>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="filter-group">
+                                    <label class="filter-group-label">Kota</label>
+                                    <select name="city" id="city-filter" class="filter-select-sidebar"
+                                            <% if not $CurrentProvince %>disabled<% end_if %>>
+                                        <option value=""></option>
+                                        <% loop $CityList %>
+                                            <option value="$ID" <% if $Selected %>selected<% end_if %>>$Name</option>
+                                        <% end_loop %>
+                                    </select>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Month & Year -->
-                    <div class="row">
-                        <div class="col-6">
-                            <div class="filter-group">
-                                <label class="filter-group-label">Bulan</label>
-                                <select name="month" class="filter-select-sidebar">
-                                    <option value=""></option>
-                                    <% loop $MonthList %>
-                                        <option value="$Value" <% if $Selected %>selected<% end_if %>>$Label</option>
-                                    <% end_loop %>
-                                </select>
+                        <!-- Month & Year -->
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="filter-group">
+                                    <label class="filter-group-label">Bulan</label>
+                                    <select name="month" class="filter-select-sidebar">
+                                        <option value=""></option>
+                                        <% loop $MonthList %>
+                                            <option value="$Value" <% if $Selected %>selected<% end_if %>>$Label</option>
+                                        <% end_loop %>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="filter-group">
+                                    <label class="filter-group-label">Tahun</label>
+                                    <select name="year" class="filter-select-sidebar">
+                                        <option value=""></option>
+                                        <% loop $YearList %>
+                                            <option value="$Value" <% if $Selected %>selected<% end_if %>>$Label</option>
+                                        <% end_loop %>
+                                    </select>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-6">
-                            <div class="filter-group">
-                                <label class="filter-group-label">Tahun</label>
-                                <select name="year" class="filter-select-sidebar">
-                                    <option value=""></option>
-                                    <% loop $YearList %>
-                                        <option value="$Value" <% if $Selected %>selected<% end_if %>>$Label</option>
-                                    <% end_loop %>
-                                </select>
-                            </div>
+
+                        <!-- Sort -->
+                        <div class="filter-group">
+                            <label class="filter-group-label">Urutkan</label>
+                            <select name="sort" class="filter-select-sidebar">
+                                <option value="date_asc" <% if $CurrentSort == 'date_asc' %>selected<% end_if %>>Tanggal (Terlama)</option>
+                                <option value="date_desc" <% if $CurrentSort == 'date_desc' %>selected<% end_if %>>Tanggal (Terbaru)</option>
+                                <option value="name_asc" <% if $CurrentSort == 'name_asc' %>selected<% end_if %>>Nama (A-Z)</option>
+                                <option value="name_desc" <% if $CurrentSort == 'name_desc' %>selected<% end_if %>>Nama (Z-A)</option>
+                                <option value="price_asc" <% if $CurrentSort == 'price_asc' %>selected<% end_if %>>Harga (Termurah)</option>
+                                <option value="price_desc" <% if $CurrentSort == 'price_desc' %>selected<% end_if %>>Harga (Termahal)</option>
+                            </select>
                         </div>
-                    </div>
 
-                    <!-- Sort -->
-                    <div class="filter-group">
-                        <label class="filter-group-label">Urutkan</label>
-                        <select name="sort" class="filter-select-sidebar">
-                            <option value="date_asc" <% if $CurrentSort == 'date_asc' %>selected<% end_if %>>Tanggal (Terlama)</option>
-                            <option value="date_desc" <% if $CurrentSort == 'date_desc' %>selected<% end_if %>>Tanggal (Terbaru)</option>
-                            <option value="name_asc" <% if $CurrentSort == 'name_asc' %>selected<% end_if %>>Nama (A-Z)</option>
-                            <option value="name_desc" <% if $CurrentSort == 'name_desc' %>selected<% end_if %>>Nama (Z-A)</option>
-                            <option value="price_asc" <% if $CurrentSort == 'price_asc' %>selected<% end_if %>>Harga (Termurah)</option>
-                            <option value="price_desc" <% if $CurrentSort == 'price_desc' %>selected<% end_if %>>Harga (Termahal)</option>
-                        </select>
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="filter-actions-sidebar">
-                        <button type="submit" class="btn-filter-sidebar">
-                            <i class="bi bi-funnel"></i> Filter
-                        </button>
-                        <a href="$Link" class="btn-reset-sidebar">
-                            <i class="bi bi-arrow-clockwise"></i> Reset
-                        </a>
-                    </div>
-                </form>
+                        <!-- Action Buttons -->
+                        <div class="filter-actions-sidebar">
+                            <button type="submit" class="btn-filter-sidebar">
+                                <i class="bi bi-funnel"></i> Terapkan
+                            </button>
+                            <a href="$Link" class="btn-reset-sidebar">
+                                <i class="bi bi-arrow-clockwise"></i> Reset
+                            </a>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
 
@@ -177,7 +191,6 @@
                                             <span class="ticket-status-badge expired">
                                                 <i class="bi bi-x-circle"></i> BERAKHIR
                                             </span>
-                                       
                                         <% end_if %>
                                     </div>
                                 </a>
@@ -251,6 +264,33 @@
 <script>
 // Dynamic city dropdown
 document.addEventListener('DOMContentLoaded', function() {
+    // Mobile Filter Toggle
+    const mobileFilterTrigger = document.getElementById('mobileFilterTrigger');
+    const filterContent = document.getElementById('filterContent');
+    
+    if (mobileFilterTrigger && filterContent) {
+        mobileFilterTrigger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const isActive = filterContent.classList.contains('active');
+            
+            if (isActive) {
+                filterContent.classList.remove('active');
+                mobileFilterTrigger.classList.remove('active');
+            } else {
+                filterContent.classList.add('active');
+                mobileFilterTrigger.classList.add('active');
+            }
+        });
+        
+        // Close filter when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!filterContent.contains(e.target) && !mobileFilterTrigger.contains(e.target)) {
+                filterContent.classList.remove('active');
+                mobileFilterTrigger.classList.remove('active');
+            }
+        });
+    }
+
     const provinceFilter = document.getElementById('province-filter');
     const cityFilter = document.getElementById('city-filter');
     
@@ -319,13 +359,17 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <style>
-/* Sidebar Filter Styles */
+/* ===== DESKTOP FILTER SIDEBAR ===== */
 .filter-sidebar {
     background: linear-gradient(135deg, #e3d5ff 0%, #d4c5f9 80%);
     border-radius: 20px;
     padding: 24px;
     position: sticky;
     top: 20px;
+}
+
+.mobile-filter-wrapper {
+    display: none;
 }
 
 .filter-sidebar-title {
@@ -541,7 +585,6 @@ document.addEventListener('DOMContentLoaded', function() {
     box-shadow: 0 8px 16px rgba(0,0,0,0.12);
 }
 
-/* Expired Ticket Styling */
 .ticket-card-sidebar.ticket-expired {
     opacity: 0.75;
 }
@@ -708,11 +751,144 @@ document.addEventListener('DOMContentLoaded', function() {
     text-decoration: underline;
 }
 
-/* Responsive */
+/* ==================== RESPONSIVE MOBILE/TABLET ==================== */
 @media (max-width: 991px) {
     .filter-sidebar {
         position: static;
-        margin-bottom: 20px;
+        margin-bottom: 16px;
+        padding: 0;
+        background: transparent;
+    }
+    
+    /* SHOW Mobile Trigger - COMPACT */
+    .mobile-filter-wrapper {
+        display: block;
+        margin-bottom: 16px;
+    }
+    
+    .mobile-filter-trigger {
+        width: 100%;
+        background: linear-gradient(135deg, #9a88ffff 0%, #9a88ffff 100%);
+        border: none;
+        border-radius: 12px;
+        padding: 14px 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 4px 12px rgba(123, 104, 238, 0.25);
+    }
+    
+    .mobile-filter-trigger:active {
+        transform: scale(0.98);
+    }
+    
+    .mobile-filter-trigger.active {
+        box-shadow: 0 6px 16px rgba(123, 104, 238, 0.35);
+    }
+    
+    .trigger-content {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #fff;
+        font-weight: 600;
+        font-size: 15px;
+    }
+    
+    .trigger-content i {
+        font-size: 1.2rem;
+    }
+    
+    .trigger-arrow {
+        color: #fff;
+        font-size: 1.2rem;
+        transition: transform 0.3s;
+    }
+    
+    .mobile-filter-trigger.active .trigger-arrow {
+        transform: rotate(180deg);
+    }
+    
+    /* HIDE Filter Content by Default */
+    .filter-content {
+        display: none;
+        background: linear-gradient(135deg, #e3d5ff 0%, #d4c5f9 80%);
+        border-radius: 16px;
+        padding: 20px;
+        margin-top: 12px;
+        animation: slideDown 0.3s ease;
+    }
+    
+    .filter-content.active {
+        display: block;
+    }
+    
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .filter-sidebar-title {
+        font-size: 16px;
+        margin-bottom: 16px;
+    }
+    
+    .filter-group {
+        margin-bottom: 16px;
+    }
+    
+    .filter-group-label {
+        font-size: 12px;
+    }
+    
+    .filter-select-sidebar {
+        padding: 9px 10px;
+        font-size: 13px;
+    }
+    
+    .price-range-display {
+        font-size: 12px;
+    }
+    
+    .btn-filter-sidebar,
+    .btn-reset-sidebar {
+        padding: 10px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 576px) {
+    .mobile-filter-trigger {
+        padding: 12px 16px;
+    }
+    
+    .trigger-content {
+        font-size: 14px;
+    }
+    
+    .filter-content {
+        padding: 16px;
+    }
+    
+    .active-filters-inline {
+        padding: 10px 12px;
+    }
+    
+    .active-filter-tag-inline {
+        font-size: 12px;
+        padding: 5px 10px;
+    }
+    
+    .results-count {
+        font-size: 13px;
     }
 }
 </style>

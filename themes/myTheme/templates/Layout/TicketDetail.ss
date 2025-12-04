@@ -34,7 +34,6 @@
         align-items: center;
         gap: 8px;
         box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
-        z-index: 10;
         backdrop-filter: blur(8px);
     }
     
@@ -489,8 +488,7 @@
         </div>
 
         <!-- Kolom Kanan -->
-        <div class="col-lg-4">
-            <div class="sticky-top" style="top: 20px;">
+        <div class="col-lg-4" style="top: 20px;">
                 <% with $Ticket %>
                     <!-- Event Info Card -->
                     <div class="event-info-card mb-3">

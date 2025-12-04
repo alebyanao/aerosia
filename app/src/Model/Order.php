@@ -388,15 +388,7 @@ class Order extends DataObject
         }
         return new ArrayList($result);
     }
-
-    // ========================================
-    // TAMBAHKAN METHOD INI DI BAGIAN AKHIR CLASS ORDER
-    // ========================================
-
-    /**
-     * Get total tickets purchased by member for specific ticket type
-     * Only count completed & paid orders
-     */
+    
     public static function getTotalPurchasedByMember($memberID, $ticketTypeID)
     {
         $orders = self::get()->filter([

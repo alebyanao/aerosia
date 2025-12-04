@@ -99,27 +99,6 @@ class TicketType extends DataObject
         return $result;
     }
     
-    /**
-     * Automatically truncate description to 20 words before saving
-     * Uncomment this if you want auto-truncate instead of validation error
-     */
-    /*
-    public function onBeforeWrite()
-    {
-        parent::onBeforeWrite();
-        
-        if ($this->Description) {
-            $words = preg_split('/\s+/', trim($this->Description));
-            if (count($words) > 20) {
-                $this->Description = implode(' ', array_slice($words, 0, 20));
-            }
-        }
-    }
-    */
-    
-    /**
-     * Get purchase info for member
-     */
     public function getPurchaseInfo($memberID)
     {
         $totalPurchased = Order::getTotalPurchasedByMember($memberID, $this->ID);

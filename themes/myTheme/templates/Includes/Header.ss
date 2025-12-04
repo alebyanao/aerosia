@@ -1,3 +1,4 @@
+<!-- File: header.ss -->
 <header class="event-navbar py-3 position-sticky top-0 w-100 z-3" role="banner" style="background: transparent;">
 <div class="container">
   <div class="event-nav-container d-flex align-items-center justify-content-between">
@@ -10,7 +11,8 @@
           <% end_if %>
       </a>
 
-       <form role="search" action="$BaseHref/event" method="GET" class="search-form-modern">
+      <!-- Desktop Search Form -->
+      <form role="search" action="$BaseHref/event" method="GET" class="search-form-modern d-none d-lg-block">
             <div class="search-wrapper-modern">
                 <div class="search-input-group-modern">
                     <i class="bi bi-search search-icon-modern"></i>
@@ -34,13 +36,13 @@
             </div>
         </form>
 
-      <!-- Navigation -->
-      <nav class="main-nav d-flex align-items-center">
+      <!-- Desktop Navigation -->
+      <nav class="main-nav d-none d-lg-flex align-items-center">
           <% include Navigation %>
       </nav>
     
-        <%-- WISHLIST --%>
-        <div class="d-flex align-items-center gap-3 text-dark">
+      <!-- Desktop Wishlist & User -->
+      <div class="d-none d-lg-flex align-items-center gap-3 text-dark">
         <% if $IsLoggedIn %>
             <a href="$BaseHref/wishlist" class="position-relative text-decoration-none">
                 <i class="bi bi-heart" style="cursor: pointer; font-size: 1.5rem; color: #000000;"></i>
@@ -57,50 +59,140 @@
             </a>
         <% end_if %>
 
-      <!-- User dropdown -->
-      <div class="dropdown">
-          <button class="btn account-btn dropdown-toggle d-flex align-items-center gap-2"
-                  id="userDropdown" data-bs-toggle="dropdown">
-              <i class="bi bi-person"></i>
-              <% if $IsLoggedIn %>
-                  <span>$CurrentUser.FirstName</span>
-              <% else %>
-                  <span>Akun</span>
-              <% end_if %>
-          </button>
+        <!-- User dropdown -->
+        <div class="dropdown">
+            <button class="btn account-btn dropdown-toggle d-flex align-items-center gap-2"
+                    id="userDropdown" data-bs-toggle="dropdown">
+                <i class="bi bi-person"></i>
+                <% if $IsLoggedIn %>
+                    <span>$CurrentUser.FirstName</span>
+                <% else %>
+                    <span>Akun</span>
+                <% end_if %>
+            </button>
 
-          <ul class="dropdown-menu dropdown-menu-end">
-              <% if $IsLoggedIn %>
-                  <li><a class="dropdown-item" href="$BaseHref/profile">Profil</a></li>
-                  <li><a class="dropdown-item" href="$BaseHref/order">Pesanan</a></li>
-                  <li><hr class="dropdown-divider"></li>
-                  <li><a class="dropdown-item text-danger" href="$BaseHref/auth/logout">Keluar</a></li>
-              <% else %>
-                  <li><a class="dropdown-item" href="$BaseHref/auth/login">Masuk</a></li>
-                  <li><a class="dropdown-item" href="$BaseHref/auth/register">Daftar</a></li>
-              <% end_if %>
-          </ul>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <% if $IsLoggedIn %>
+                    <li><a class="dropdown-item" href="$BaseHref/profile">Profil</a></li>
+                    <li><a class="dropdown-item" href="$BaseHref/order">Pesanan</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="$BaseHref/auth/logout">Keluar</a></li>
+                <% else %>
+                    <li><a class="dropdown-item" href="$BaseHref/auth/login">Masuk</a></li>
+                    <li><a class="dropdown-item" href="$BaseHref/auth/register">Daftar</a></li>
+                <% end_if %>
+            </ul>
+        </div>
       </div>
 
+      <!-- Mobile Hamburger Menu -->
+      <button class="mobile-menu-toggle d-lg-none" id="mobileMenuToggle" aria-label="Toggle menu">
+          <span></span>
+          <span></span>
+          <span></span>
+      </button>
+
+  </div>
+
+  <!-- Mobile Menu Dropdown -->
+  <div class="mobile-menu" id="mobileMenu">
+      <!-- Mobile Search -->
+      <form role="search" action="$BaseHref/event" method="GET" class="mobile-search-form">
+            <div class="search-wrapper-modern">
+                <div class="search-input-group-modern">
+                    <i class="bi bi-search search-icon-modern"></i>
+                    <input
+                        type="text"
+                        name="search"
+                        class="search-input-modern"
+                        placeholder="Cari event"
+                        aria-label="Search"
+                        value="$SearchQuery"
+                    />
+                    <% if $SearchQuery %>
+                    <a href="$Link" class="search-clear-modern" title="Clear search">
+                        <i class="bi bi-x-circle-fill"></i>
+                    </a>
+                    <% end_if %>
+                </div>
+                <button class="search-btn-modern" type="submit">
+                    Cari
+                </button>
+            </div>
+        </form>
+
+      <!-- Mobile Navigation Links -->
+      <div class="mobile-nav-links">
+          <a href="$BaseHref/home" class="mobile-nav-link">
+              <i class="bi bi-house-door"></i>
+              <span>Home</span>
+          </a>
+          <a href="$BaseHref/event" class="mobile-nav-link">
+              <i class="bi bi-calendar-event"></i>
+              <span>Event</span>
+          </a>
+          <a href="<% if $IsLoggedIn %>$BaseHref/wishlist<% else %>$BaseHref/auth/login<% end_if %>" class="mobile-nav-link">
+              <i class="bi bi-heart"></i>
+              <span>Wishlist</span>
+              <% if $IsLoggedIn && $WishlistCount %>
+              <span class="badge rounded-pill ms-auto" style="background-color: #8c52ff;">$WishlistCount</span>
+              <% end_if %>
+          </a>
+      </div>
+
+      <!-- Mobile Account Section -->
+      <div class="mobile-account-section">
+          <% if $IsLoggedIn %>
+              <div class="mobile-user-info">
+                  <i class="bi bi-person-circle"></i>
+                  <span>$CurrentUser.FirstName</span>
+              </div>
+              <a href="$BaseHref/profile" class="mobile-nav-link">
+                  <i class="bi bi-person"></i>
+                  <span>Profil</span>
+              </a>
+              <a href="$BaseHref/order" class="mobile-nav-link">
+                  <i class="bi bi-bag"></i>
+                  <span>Pesanan</span>
+              </a>
+              <a href="$BaseHref/auth/logout" class="mobile-nav-link text-danger">
+                  <i class="bi bi-box-arrow-right"></i>
+                  <span>Keluar</span>
+              </a>
+          <% else %>
+              <a href="$BaseHref/auth/login" class="mobile-nav-link">
+                  <i class="bi bi-box-arrow-in-right"></i>
+                  <span>Masuk</span>
+              </a>
+              <a href="$BaseHref/auth/register" class="mobile-nav-link">
+                  <i class="bi bi-person-plus"></i>
+                  <span>Daftar</span>
+              </a>
+          <% end_if %>
+      </div>
   </div>
 </div>
 </header>
 
 <style>
-  body {
+body {
   margin: 0;
   padding: 0;
 }
 
-
-/* --- SEARCH SECTION --- */
-.search-section-modern {
-    background: #fff;
-    border-radius: 16px;
-    padding: 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+/* Capsule background */
+.event-nav-container {
+    background: linear-gradient(180deg, #d4d4d4ff 0%, #e9e9e9ff 100%);
+    border-radius: 50px;
+    padding: 10px 25px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    white-space: nowrap;
+    position: relative;
 }
 
+/* --- SEARCH SECTION --- */
 .search-form-modern {
     margin-bottom: 0;
 }
@@ -185,75 +277,13 @@
     transform: translateY(0);
 }
 
-/* Search Results Info */
-.search-results-info {
-    margin-top: 16px;
-    padding: 12px 16px;
-    background: #f3f4f6;
-    border-radius: 8px;
-    color: #4b5563;
-    font-size: 14px;
-}
-
-.search-results-info strong {
-    color: #1f2937;
-}
-
-/* --- EMPTY STATE --- */
-.empty-state-modern {
-    text-align: center;
-    padding: 60px 20px;
-    background: #fff;
-    border-radius: 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-}
-
-.empty-state-icon {
-    font-size: 64px;
-    color: #d1d5db;
-    margin-bottom: 20px;
-}
-
-.empty-state-title {
-    font-size: 22px;
-    font-weight: 600;
-    color: #1f2937;
-    margin-bottom: 12px;
-}
-
-.empty-state-text {
-    font-size: 15px;
-    color: #6b7280;
-    margin-bottom: 0;
-}
-
-.empty-state-text a {
-    color: #7b2ddf;
-    text-decoration: none;
-    font-weight: 600;
-}
-
-.empty-state-text a:hover {
-    text-decoration: underline;
-}
-
- /* Capsule background */
-.event-nav-container {
-    background: linear-gradient(180deg, #d4d4d4ff 0%, #e9e9e9ff 100%);
-    border-radius: 50px;
-    padding: 10px 25px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    white-space: nowrap;        
-}
-
-/* Navigation d-flex horizontal */
+/* Navigation horizontal */
 .main-nav ul {
     display: flex !important;
-    gap: 25px;                 
+    gap: 25px;
     margin: 0;
     padding: 0;
+    list-style: none;
 }
 
 /* Link */
@@ -261,9 +291,9 @@
     color: #2b2b2b !important;
     font-weight: 600;
     padding: 6px 10px !important;
+    text-decoration: none;
 }
 
-/* Hover */
 .nav-link:hover {
     color: #6a2cbf !important;
 }
@@ -275,18 +305,196 @@
     padding: 6px 14px;
     font-weight: 600;
     color: #2b2b2b;
+    background: transparent;
 }
 
-/* Jangan turun di layar kecil kecuali sangat kecil */
-@media (max-width: 768px) {
-    .event-nav-container {
-        flex-wrap: wrap;  
-        justify-content: center;
-        gap: 15px;
+.account-btn:hover {
+    background: rgba(106, 44, 191, 0.1);
+    border-color: #6a2cbf;
+}
+
+/* --- MOBILE HAMBURGER MENU --- */
+.mobile-menu-toggle {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background: transparent;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    z-index: 1001;
+}
+
+.mobile-menu-toggle span {
+    display: block;
+    width: 25px;
+    height: 3px;
+    background: #2b2b2b;
+    border-radius: 3px;
+    transition: all 0.3s ease;
+}
+
+.mobile-menu-toggle.active span:nth-child(1) {
+    transform: rotate(45deg) translate(8px, 8px);
+}
+
+.mobile-menu-toggle.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.mobile-menu-toggle.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -7px);
+}
+
+/* Mobile Menu Dropdown */
+.mobile-menu {
+    display: none;
+    background: linear-gradient(180deg, #e9e9e9ff 0%, #f5f5f5ff 100%);
+    border-radius: 20px;
+    margin-top: 15px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.mobile-menu.active {
+    display: block;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.mobile-search-form {
+    margin-bottom: 20px;
+}
+
+.mobile-nav-links {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #d4d4d4;
+}
+
+.mobile-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    color: #2b2b2b;
+    text-decoration: none;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.mobile-nav-link i {
+    font-size: 20px;
+    width: 24px;
+}
+
+.mobile-nav-link:hover {
+    background: rgba(123, 45, 223, 0.1);
+    color: #6a2cbf;
+}
+
+.mobile-account-section {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.mobile-user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    background: rgba(123, 45, 223, 0.1);
+    border-radius: 12px;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #2b2b2b;
+}
+
+.mobile-user-info i {
+    font-size: 24px;
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 991px) {
+    .mobile-menu-toggle {
+        display: flex;
     }
 
-    .main-nav ul {
-        gap: 15px;
+    .event-nav-container {
+        padding: 12px 20px;
+    }
+
+    .navbar-brand img {
+        max-height: 45px !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .event-nav-container {
+        padding: 10px 15px;
+        border-radius: 25px;
+    }
+
+    .navbar-brand img {
+        max-height: 40px !important;
+    }
+
+    .mobile-menu {
+        padding: 15px;
+        border-radius: 15px;
+    }
+
+    .search-input-modern {
+        padding: 12px 40px 12px 45px;
+        font-size: 14px;
+    }
+
+    .search-btn-modern {
+        padding: 12px 20px;
+        font-size: 14px;
+    }
+
+    .mobile-nav-link {
+        padding: 10px 12px;
+        font-size: 15px;
     }
 }
 </style>
+
+<script>
+// Toggle mobile menu
+document.addEventListener('DOMContentLoaded', function() {
+    const menuToggle = document.getElementById('mobileMenuToggle');
+    const mobileMenu = document.getElementById('mobileMenu');
+    
+    if (menuToggle && mobileMenu) {
+        menuToggle.addEventListener('click', function() {
+            this.classList.toggle('active');
+            mobileMenu.classList.toggle('active');
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!menuToggle.contains(event.target) && !mobileMenu.contains(event.target)) {
+                menuToggle.classList.remove('active');
+                mobileMenu.classList.remove('active');
+            }
+        });
+    }
+});
+</script>

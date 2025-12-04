@@ -97,13 +97,7 @@
           <!-- Password -->
           <label class="form-label small mb-1">Sandi</label>
           <input type="password" class="form-control mb-3" name="login_password" required>
-
-          <!-- Remember -->
-          <div class="form-check mb-3">
-            <input type="checkbox" class="form-check-input" id="login_remember" name="login_remember" value="1">
-            <label class="form-check-label" for="login_remember">Ingat saya</label>
-          </div>
-
+          
           <button type="submit" class="btn btn-purple w-100 mb-3">
             Masuk
           </button>
