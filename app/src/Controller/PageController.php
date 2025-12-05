@@ -159,30 +159,110 @@ namespace {
                 $tickets = $tickets->filter('ID', $ticketIds);
             }
             
-            // Apply sorting
+            // Apply sorting with expired events at bottom
+            return $this->sortTicketsWithExpiredAtBottom($tickets, $sort);
+        }
+
+        /**
+         * Sort tickets with expired events always at the bottom
+         * 
+         * @param \SilverStripe\ORM\DataList $tickets
+         * @param string $sort Sort option
+         * @return \SilverStripe\ORM\ArrayList
+         */
+        protected function sortTicketsWithExpiredAtBottom($tickets, $sort)
+        {
+            $ticketArray = $tickets->toArray();
+            $today = date('Y-m-d');
+            
+            // Separate expired and active tickets
+            $activeTickets = [];
+            $expiredTickets = [];
+            
+            foreach ($ticketArray as $ticket) {
+                if ($ticket->EventDate < $today) {
+                    $expiredTickets[] = $ticket;
+                } else {
+                    $activeTickets[] = $ticket;
+                }
+            }
+            
+            // Sort active tickets
+            $activeTickets = $this->sortTicketArray($activeTickets, $sort);
+            
+            // Sort expired tickets (same logic)
+            $expiredTickets = $this->sortTicketArray($expiredTickets, $sort);
+            
+            // Merge: active first, expired last
+            $sortedTickets = array_merge($activeTickets, $expiredTickets);
+            
+            return ArrayList::create($sortedTickets);
+        }
+
+        /**
+         * Sort ticket array by specified criteria
+         * 
+         * @param array $ticketArray
+         * @param string $sort
+         * @return array
+         */
+        protected function sortTicketArray($ticketArray, $sort)
+        {
             switch ($sort) {
                 case 'date_desc':
-                    $tickets = $tickets->sort('EventDate DESC');
+                    usort($ticketArray, function($a, $b) {
+                        return strcmp($b->EventDate, $a->EventDate);
+                    });
                     break;
+                    
                 case 'name_asc':
-                    $tickets = $tickets->sort('Title ASC');
+                    usort($ticketArray, function($a, $b) {
+                        return strcmp($a->Title, $b->Title);
+                    });
                     break;
+                    
                 case 'name_desc':
-                    $tickets = $tickets->sort('Title DESC');
+                    usort($ticketArray, function($a, $b) {
+                        return strcmp($b->Title, $a->Title);
+                    });
                     break;
+                    
                 case 'price_asc':
+                    usort($ticketArray, function($a, $b) {
+                        $priceA = $a->getMinPrice();
+                        $priceB = $b->getMinPrice();
+                        
+                        if ($priceA === 0 || $priceA === null) $priceA = PHP_INT_MAX;
+                        if ($priceB === 0 || $priceB === null) $priceB = PHP_INT_MAX;
+                        
+                        return $priceA <=> $priceB;
+                    });
+                    break;
+                    
                 case 'price_desc':
-                    // For price sorting, we need custom logic
-                    return $this->sortTicketsByPrice($tickets, $sort);
+                    usort($ticketArray, function($a, $b) {
+                        $priceA = $a->getMinPrice();
+                        $priceB = $b->getMinPrice();
+                        
+                        if ($priceA === 0 || $priceA === null) $priceA = -1;
+                        if ($priceB === 0 || $priceB === null) $priceB = -1;
+                        
+                        return $priceB <=> $priceA;
+                    });
+                    break;
+                    
                 default: // date_asc
-                    $tickets = $tickets->sort('EventDate ASC');
+                    usort($ticketArray, function($a, $b) {
+                        return strcmp($a->EventDate, $b->EventDate);
+                    });
             }
-
-            return $tickets;
+            
+            return $ticketArray;
         }
 
         /**
          * Sort tickets by price (min price)
+         * DEPRECATED: Use sortTicketsWithExpiredAtBottom instead
          * 
          * @param \SilverStripe\ORM\DataList $tickets
          * @param string $direction 'price_asc' or 'price_desc'
@@ -190,24 +270,7 @@ namespace {
          */
         protected function sortTicketsByPrice($tickets, $direction)
         {
-            $ticketArray = $tickets->toArray();
-            
-            usort($ticketArray, function($a, $b) use ($direction) {
-                $priceA = $a->getMinPrice();
-                $priceB = $b->getMinPrice();
-                
-                // Handle null/zero prices - push to end
-                if ($priceA === 0 || $priceA === null) $priceA = PHP_INT_MAX;
-                if ($priceB === 0 || $priceB === null) $priceB = PHP_INT_MAX;
-                
-                if ($direction === 'price_asc') {
-                    return $priceA <=> $priceB;
-                } else {
-                    return $priceB <=> $priceA;
-                }
-            });
-            
-            return ArrayList::create($ticketArray);
+            return $this->sortTicketsWithExpiredAtBottom($tickets, $direction);
         }
     }
 }
