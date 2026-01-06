@@ -1,15 +1,15 @@
 <style>
   body {
-  margin: 0;
-  padding: 0;
-}
+    margin: 0;
+    padding: 0;
+  }
 
   .auth-bg {
     min-height: 100vh;
     background:
         linear-gradient(135deg, rgba(68, 0, 139, 0.55), rgba(121, 0, 182, 0.55)),
         url('$SiteConfig.BackgroundPage.URL') center/cover no-repeat;
-    padding-top: 140px; /* ini tinggi navbar + sedikit offset */
+    padding-top: 140px;
   }
 
   .auth-form {
@@ -58,6 +58,42 @@
       max-width: 500px;
   }
 
+  /* Custom Alert Styling */
+  .custom-alert {
+    border-radius: 20px;
+    padding: 20px 25px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    animation: slideDown 0.5s ease-out;
+    border: none;
+  }
+
+  .custom-alert.alert-success {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border-left: 5px solid #047857;
+  }
+
+  .custom-alert.alert-danger {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    border-left: 5px solid #b91c1c;
+  }
+
+  .custom-alert .btn-close {
+    filter: brightness(0) invert(1);
+  }
+
+  @keyframes slideDown {
+    from {
+      transform: translateY(-100px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
   @media(max-width: 992px){
     .hero-text {
         text-align: center;
@@ -72,6 +108,58 @@
 
 <main class="auth-bg">
   <div class="container">
+
+    <% if $FlashMessage %>
+    <div class="row">
+      <div class="col-12 mb-3">
+        <div class="alert custom-alert alert-{$FlashMessage.Type} alert-dismissible fade show" role="alert" id="flashAlert">
+          <strong>
+            <% if $FlashMessage.Type == 'success' %>
+              <i class="bi bi-check-circle-fill me-2"></i>
+            <% else_if $FlashMessage.Type == 'danger' %>
+              <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <% end_if %>
+          </strong>
+          $FlashMessage.Message
+          <% if $FlashMessage.Type == 'success' %>
+            <div class="mt-2 small">
+              <i class="bi bi-clock me-1"></i>Mengalihkan ke halaman login dalam <span id="countdown">3</span> detik...
+            </div>
+          <% end_if %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      </div>
+    </div>
+    
+    <% if $FlashMessage.Type == 'success' %>
+    <script>
+      // Auto redirect setelah 5 detik untuk success message
+      let countdown = 5;
+      const countdownEl = document.getElementById('countdown');
+      
+      const timer = setInterval(function() {
+        countdown--;
+        if (countdownEl) {
+          countdownEl.textContent = countdown;
+        }
+        
+        if (countdown <= 0) {
+          clearInterval(timer);
+          window.location.href = '$BaseHref/auth/login';
+        }
+      }, 1000);
+      
+      // Jika user close alert, cancel redirect
+      const alertEl = document.getElementById('flashAlert');
+      if (alertEl) {
+        alertEl.addEventListener('closed.bs.alert', function() {
+          clearInterval(timer);
+        });
+      }
+    </script>
+    <% end_if %>
+    <% end_if %>
+    
     <div class="row align-items-center">
 
       <!-- LEFT TEXT -->

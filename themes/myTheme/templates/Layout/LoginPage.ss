@@ -10,8 +10,6 @@
         linear-gradient(135deg, rgba(68, 0, 139, 0.55), rgba(121, 0, 182, 0.55)),
         url('$SiteConfig.BackgroundPage.URL') center/cover no-repeat;
     padding-top: 140px;
-    display: flex;
-    align-items: center;
   }
 
   .auth-form {
@@ -60,6 +58,42 @@
       max-width: 500px;
   }
 
+  /* Custom Alert Styling */
+  .custom-alert {
+    border-radius: 20px;
+    padding: 20px 25px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    animation: slideDown 0.5s ease-out;
+    border: none;
+  }
+
+  .custom-alert.alert-success {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border-left: 5px solid #047857;
+  }
+
+  .custom-alert.alert-danger {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    border-left: 5px solid #b91c1c;
+  }
+
+  .custom-alert .btn-close {
+    filter: brightness(0) invert(1);
+  }
+
+  @keyframes slideDown {
+    from {
+      transform: translateY(-100px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
   @media(max-width: 992px){
     .hero-text {
         text-align: center;
@@ -74,6 +108,25 @@
 
 <main class="auth-bg">
   <div class="container">
+
+    <% if $FlashMessage %>
+    <div class="row">
+      <div class="col-12 mb-3">
+        <div class="alert custom-alert alert-{$FlashMessage.Type} alert-dismissible fade show" role="alert" id="flashAlert">
+          <strong>
+            <% if $FlashMessage.Type == 'success' %>
+              <i class="bi bi-check-circle-fill me-2"></i>
+            <% else_if $FlashMessage.Type == 'danger' %>
+              <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <% end_if %>
+          </strong>
+          $FlashMessage.Message
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      </div>
+    </div>
+    <% end_if %>
+
     <div class="row align-items-center">
 
       <!-- LEFT TEXT -->
@@ -90,11 +143,9 @@
 
           <h4>MASUK</h4>
 
-          <!-- Email -->
           <label class="form-label small mb-1">Email</label>
           <input type="email" class="form-control mb-3" name="login_email" required>
 
-          <!-- Password -->
           <label class="form-label small mb-1">Sandi</label>
           <input type="password" class="form-control mb-3" name="login_password" required>
           
@@ -102,7 +153,6 @@
             Masuk
           </button>
 
-          <!-- Google -->
           <a href="$BaseHref/auth/google-login" class="btn btn-google w-100 mb-3 d-flex align-items-center justify-content-center">
               <img src="https://www.svgrepo.com/show/475656/google-color.svg" width="20" class="me-2">
               Masuk dengan Google
