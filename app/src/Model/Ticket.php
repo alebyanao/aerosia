@@ -12,6 +12,7 @@ use SilverStripe\Forms\TextField;
 use SilverStripe\Forms\DropdownField;
 use SilverStripe\Forms\LiteralField;
 use SilverStripe\Forms\CheckboxField;
+use SilverStripe\Forms\CheckboxSetField;
 
 class Ticket extends DataObject
 {
@@ -33,13 +34,14 @@ class Ticket extends DataObject
         'IsExpired'   => 'Boolean', // Field baru untuk status expired
     ];
 
-    private static $has_one = [
-        'Image' => Image::class
-    ];
-
     private static $has_many = [
         'TicketTypes' => TicketType::class,
         'Wishlist' => Wishlist::class
+    ];
+
+    private static $has_one = [
+        'Image' => Image::class,
+        'Category' => Category::class
     ];
 
     private static $owns = [
@@ -49,6 +51,7 @@ class Ticket extends DataObject
     private static $summary_fields = [
         'Title'              => 'Judul Event',
         'EventDate'          => 'Tanggal Event',
+        'Category.Name'      => 'Kategori',
         'ProvinceName'       => 'Provinsi',
         'CityName'           => 'Kota', 
         'Location'           => 'Lokasi',
@@ -56,14 +59,11 @@ class Ticket extends DataObject
         'StatusBadge'        => 'Status',
     ];
 
-    private static $defaults = [
-        'IsExpired' => false
-    ];
 
     public function getCMSFields()
     {
         $fields = parent::getCMSFields();
-        $fields->removeByName(['TicketTypes', 'ProvinceID', 'ProvinceName', 'CityID', 'CityName', 'IsExpired']);
+        $fields->removeByName(['TicketTypes', 'ProvinceID', 'ProvinceName', 'CityID', 'CityName', 'IsExpired', 'CategoryID']);
 
         // Get provinces from API
         $provinces = IndonesiaRegionAPI::getProvinces();
@@ -84,8 +84,18 @@ class Ticket extends DataObject
             ->setSource($citySource)
             ->setEmptyString($this->ProvinceID ? '-- Pilih Kota/Kabupaten --' : '-- Pilih Provinsi Terlebih Dahulu --')
             ->setAttribute('data-dynamic-city', 'true');
+
+        // Category Dropdown
+        $categoryField = DropdownField::create(
+            'CategoryID',
+            'Kategori Event',
+            Category::get()->map('ID', 'Name')
+        )
+        ->setEmptyString('-- Pilih Kategori --')
+        ->setDescription('Pilih kategori untuk event ini');
         
         $fields->addFieldsToTab('Root.Main', [
+            $categoryField,
             $provinceField,
             $cityField,
             
