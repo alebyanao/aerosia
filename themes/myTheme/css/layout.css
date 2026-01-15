@@ -37,12 +37,12 @@
 */
 
 .line, /* line - Groups units on one horizontal line. Note: for mobile layout units may be stacked to avoid horizontal scrolling. */
-.lastUnit {
+/* .lastUnit {
 	overflow:hidden;
 	*overflow:visible;
 	*zoom:1;
 	padding:0 10px;
-}
+} */
 .unit { /* unit - Base class which divides a line into sections (columns). */
 	float:left;
 	padding:0 10px;
