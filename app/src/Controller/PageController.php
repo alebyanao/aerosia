@@ -8,6 +8,7 @@ namespace {
     use SilverStripe\View\ArrayData;
     use SilverStripe\ORM\ArrayList;
     use SilverStripe\ORM\DB;
+    use SilverStripe\Control\HTTPRequest;
 
     class PageController extends ContentController
     {
@@ -25,6 +26,20 @@ namespace {
                 "ProvinceFilter" => $this->getRequest()->getVar('province'),
                 "CityFilter" => $this->getRequest()->getVar('city'),
             ];
+        }
+
+        public function index(HTTPRequest $request)
+        {
+            $carouselImages = CarouselImage::get();
+            $categories = Category::get();
+
+        
+            $data = array_merge($this->getCommonData(), [
+                "CarouselImage" => $carouselImages,
+                "Category" => $categories,
+            ]);
+
+            return $this->customise($data)->renderWith('Page');
         }
 
         /**
@@ -75,21 +90,6 @@ namespace {
             }
             return 0;
         }
-
-        /**
-         * Get filtered tickets dengan enhanced filters
-         * Method ini bisa di-override di child controller kalau perlu
-         * 
-         * @param string|null $searchQuery Search term
-         * @param string|null $provinceId Province ID
-         * @param string|null $cityId City ID
-         * @param string|null $month Month (1-12)
-         * @param string|null $year Year (YYYY)
-         * @param string|null $minPrice Minimum price
-         * @param string|null $maxPrice Maximum price
-         * @param string $sort Sort option (date_asc, date_desc, name_asc, name_desc, price_asc, price_desc)
-         * @return \SilverStripe\ORM\DataList|\SilverStripe\ORM\ArrayList
-         */
         public function getFilteredTickets(
             $searchQuery = null, 
             $provinceId = null, 
@@ -162,14 +162,6 @@ namespace {
             // Apply sorting with expired events at bottom
             return $this->sortTicketsWithExpiredAtBottom($tickets, $sort);
         }
-
-        /**
-         * Sort tickets with expired events always at the bottom
-         * 
-         * @param \SilverStripe\ORM\DataList $tickets
-         * @param string $sort Sort option
-         * @return \SilverStripe\ORM\ArrayList
-         */
         protected function sortTicketsWithExpiredAtBottom($tickets, $sort)
         {
             $ticketArray = $tickets->toArray();
@@ -198,14 +190,6 @@ namespace {
             
             return ArrayList::create($sortedTickets);
         }
-
-        /**
-         * Sort ticket array by specified criteria
-         * 
-         * @param array $ticketArray
-         * @param string $sort
-         * @return array
-         */
         protected function sortTicketArray($ticketArray, $sort)
         {
             switch ($sort) {
@@ -251,7 +235,7 @@ namespace {
                     });
                     break;
                     
-                default: // date_asc
+                default: 
                     usort($ticketArray, function($a, $b) {
                         return strcmp($a->EventDate, $b->EventDate);
                     });
@@ -259,15 +243,6 @@ namespace {
             
             return $ticketArray;
         }
-
-        /**
-         * Sort tickets by price (min price)
-         * DEPRECATED: Use sortTicketsWithExpiredAtBottom instead
-         * 
-         * @param \SilverStripe\ORM\DataList $tickets
-         * @param string $direction 'price_asc' or 'price_desc'
-         * @return \SilverStripe\ORM\ArrayList
-         */
         protected function sortTicketsByPrice($tickets, $direction)
         {
             return $this->sortTicketsWithExpiredAtBottom($tickets, $direction);
