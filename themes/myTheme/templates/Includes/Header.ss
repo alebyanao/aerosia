@@ -1,5 +1,4 @@
-<!-- File: header.ss -->
-<header class="event-navbar py-3 position-sticky top-0 w-100 z-3" role="banner" style="background: transparent;">
+<header class="event-navbar py-3 position-fixed top-0 start-0 w-100 z-3">
 <div class="container">
   <div class="event-nav-container d-flex align-items-center justify-content-between">
 
@@ -185,12 +184,15 @@ body {
     background: linear-gradient(180deg, #d4d4d4ff 0%, #e9e9e9ff 100%);
     border-radius: 50px;
     padding: 10px 25px;
-    display: flex;
     align-items: center;
     justify-content: space-between;
-    white-space: nowrap;
-    position: relative;
 }
+
+.event-navbar {
+    background: transparent !important;
+    pointer-events: auto;
+}
+
 
 /* --- SEARCH SECTION --- */
 .search-form-modern {
