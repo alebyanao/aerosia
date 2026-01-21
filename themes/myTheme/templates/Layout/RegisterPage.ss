@@ -9,7 +9,7 @@
     background:
         linear-gradient(135deg, rgba(68, 0, 139, 0.55), rgba(121, 0, 182, 0.55)),
         url('$SiteConfig.BackgroundPage.URL') center/cover no-repeat;
-    padding-top: 140px;
+    padding-top: 230px;
   }
 
   .auth-form {

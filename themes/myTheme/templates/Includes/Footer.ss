@@ -55,12 +55,7 @@
 <style>
 /* Bagian atas putih, bawah gradient ungu */
 .footer-gradient {
-    background: linear-gradient(to bottom, 
-        #ffffff 0%, 
-        #ffffff 15%, 
-        #f3d7ff 55%, 
-        #d37dff 150%
-    );
+    background: #f3d7ff;
     color: #000;
 }
 
