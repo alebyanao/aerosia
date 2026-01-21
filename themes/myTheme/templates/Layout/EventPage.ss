@@ -28,22 +28,23 @@
                                 <span class="price-max-display">Rp <span id="max-price-display">$MaxPriceRange</span></span>
                             </div>
                             <div class="price-slider-container">
+                                <div class="price-slider-track"></div>
+
                                 <input type="range" 
-                                       name="min_price" 
-                                       id="min-price-slider"
-                                       class="price-slider"
-                                       min="0" 
-                                       max="$MaxPriceRange"
-                                       value="$CurrentMinPrice"
-                                       step="10000">
+                                    name="min_price" 
+                                    id="min-price-slider"
+                                    min="0" 
+                                    max="$MaxPriceRange"
+                                    value="$CurrentMinPrice"
+                                    step="10000">
+
                                 <input type="range" 
-                                       name="max_price" 
-                                       id="max-price-slider"
-                                       class="price-slider"
-                                       min="0" 
-                                       max="$MaxPriceRange"
-                                       value="<% if $CurrentMaxPrice %>$CurrentMaxPrice<% else %>$MaxPriceRange<% end_if %>"
-                                       step="10000">
+                                    name="max_price" 
+                                    id="max-price-slider"
+                                    min="0" 
+                                    max="$MaxPriceRange"
+                                    value="<% if $CurrentMaxPrice %>$CurrentMaxPrice<% else %>$MaxPriceRange<% end_if %>"
+                                    step="10000">
                             </div>
                         </div>
 
@@ -332,6 +333,28 @@ document.addEventListener('DOMContentLoaded', function() {
     const maxSlider = document.getElementById('max-price-slider');
     const minDisplay = document.getElementById('min-price-display');
     const maxDisplay = document.getElementById('max-price-display');
+    const track = document.querySelector('.price-slider-track');
+
+    function updateTrack() {
+    const min = parseInt(minSlider.value);
+    const max = parseInt(maxSlider.value);
+    const range = minSlider.max;
+
+    track.style.setProperty('--min', `${(min / range) * 100}%`);
+    track.style.setProperty('--max', `${(max / range) * 100}%`);
+    }
+
+    minSlider.addEventListener('input', () => {
+        updatePriceDisplay();
+        updateTrack();
+    });
+
+    maxSlider.addEventListener('input', () => {
+        updatePriceDisplay();
+        updateTrack();
+    });
+
+    updateTrack();
     
     if (minSlider && maxSlider) {
         function formatPrice(price) {
@@ -370,7 +393,6 @@ document.addEventListener('DOMContentLoaded', function() {
     background: linear-gradient(135deg, #e3d5ff 0%, #d4c5f9 80%);
     border-radius: 20px;
     padding: 24px;
-    position: sticky;
     top: 20px;
 }
 
@@ -430,56 +452,79 @@ document.addEventListener('DOMContentLoaded', function() {
     color: #333;
 }
 
+/* ===== PRICE RANGE SLIDER (CLEAN & MODERN) ===== */
 .price-slider-container {
     position: relative;
-    height: 40px;
+    height: 36px;
+    margin-top: 8px;
 }
 
-.price-slider {
+/* Base track */
+.price-slider-track {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 6px;
+    background: #e5e7eb;
+    border-radius: 6px;
+    transform: translateY(-50%);
+    overflow: hidden;
+}
+
+/* Active range */
+.price-slider-track::before {
+    content: "";
+    position: absolute;
+    height: 100%;
+    background: linear-gradient(90deg, #7c3aed, #a78bfa);
+    border-radius: 6px;
+    left: var(--min);
+    right: calc(100% - var(--max));
+}
+
+/* Range input */
+.price-slider-container input[type="range"] {
     position: absolute;
     width: 100%;
     height: 6px;
-    -webkit-appearance: none;
-    background: transparent;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
     pointer-events: none;
+    appearance: none;
 }
 
-.price-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
+/* Thumb */
+.price-slider-container input[type="range"]::-webkit-slider-thumb {
     appearance: none;
     width: 18px;
     height: 18px;
-    border-radius: 50%;
     background: #7c3aed;
+    border-radius: 50%;
     cursor: pointer;
     pointer-events: all;
     border: 3px solid #fff;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
 }
 
-.price-slider::-moz-range-thumb {
+.price-slider-container input[type="range"]::-moz-range-thumb {
     width: 18px;
     height: 18px;
-    border-radius: 50%;
     background: #7c3aed;
+    border-radius: 50%;
     cursor: pointer;
     pointer-events: all;
     border: 3px solid #fff;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
 }
 
-.price-slider::-webkit-slider-runnable-track {
-    width: 100%;
-    height: 6px;
-    background: #fff;
-    border-radius: 3px;
+/* Hide default track */
+.price-slider-container input[type="range"]::-webkit-slider-runnable-track {
+    background: transparent;
 }
-
-.price-slider::-moz-range-track {
-    width: 100%;
-    height: 6px;
-    background: #fff;
-    border-radius: 3px;
+.price-slider-container input[type="range"]::-moz-range-track {
+    background: transparent;
 }
 
 /* Action Buttons */

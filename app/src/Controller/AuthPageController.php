@@ -35,33 +35,36 @@ class AuthPageController extends PageController
         'google-login' => 'googleLogin',
         'google-callback' => 'googleCallback'
     ];
-
+    
     public function login(HTTPRequest $request)
     {
         $validationResult = null;
+        $flashMessage = null;
 
         if ($request->isPOST()) {
             $validationResult = $this->processLogin($request);
-
             if ($validationResult->isValid()) {
                 $this->getRequest()->getSession()->set('FlashMessage', [
                     'Message' => 'Masuk berhasil! Selamat datang.',
-                    'Type' => 'primary'
+                    'Type' => 'success'
                 ]);
                 return $this->redirect(Director::absoluteBaseURL());
             }
-        }
-
-        if ($validationResult && !$validationResult->isValid()) {
-            $this->flashMessages = ArrayData::create([
+            $flashMessage = ArrayData::create([
                 'Message' => 'Masuk gagal. Periksa email dan password Anda.',
                 'Type' => 'danger'
             ]);
         }
+        $session = $this->getRequest()->getSession();
+        if ($session->get('FlashMessage')) {
+            $flashMessage = ArrayData::create($session->get('FlashMessage'));
+            $session->clear('FlashMessage');
+        }
 
         $data = array_merge($this->getCommonData(), [
             'Title' => 'Login',
-            'ValidationResult' => $validationResult
+            'ValidationResult' => $validationResult,
+            'FlashMessage' => $flashMessage
         ]);
 
         return $this->customise($data)->renderWith(['LoginPage', 'Page']);
