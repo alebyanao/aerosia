@@ -1,4 +1,5 @@
-<main class="checkout-page py-5">
+
+<div class="checkout-page">
   <div class="container my-4">
     <!-- Alert Error -->
     <% if $ErrorMessage %>
@@ -210,7 +211,7 @@
       </div>
     </div>
   </div>
-</main>
+</div>
 
 <style>
 * {
@@ -223,6 +224,10 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   background-color: #ffffffff;
   color: #333;
+}
+
+.checkout-page {
+    padding-top: 100px; /* sesuaikan tinggi header */
 }
 
 .modern-card {

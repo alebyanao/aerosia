@@ -1,4 +1,5 @@
-<div class="container">
+<div class="page-event">
+<div class="container pt-5">
     <div class="row">
         <!-- Sidebar Filter -->
         <div class="col-lg-3 mb-4">
@@ -260,6 +261,7 @@
         </div>
     </div>
 </div>
+</div>
 
 <script>
 // Dynamic city dropdown
@@ -359,6 +361,10 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <style>
+.page-event {
+    padding-top: 100px; /* sesuaikan tinggi header */
+}
+
 /* ===== DESKTOP FILTER SIDEBAR ===== */
 .filter-sidebar {
     background: linear-gradient(135deg, #e3d5ff 0%, #d4c5f9 80%);

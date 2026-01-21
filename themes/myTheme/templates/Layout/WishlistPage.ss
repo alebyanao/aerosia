@@ -1,3 +1,4 @@
+<div class="page-wishlist">
 <div class="container my-5">
     <% if $Wishlists.Count > 0 %>
         <!-- Ticket Grid - Same as EventPage -->
@@ -96,8 +97,13 @@
         </div>
     <% end_if %>
 </div>
+</div>
 
 <style>
+.page-wishlist {
+    padding-top: 100px; /* sesuaikan tinggi header */
+}
+
 /* ===== TICKET CARD STYLE (SAMA DENGAN EVENTPAGE) ===== */
 .ticket-card-sidebar {
     background: #fff;

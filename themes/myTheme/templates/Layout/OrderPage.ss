@@ -163,6 +163,7 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   background-color: #ffffffff;
   color: #333;
+  padding-top: 100px;
 }
 
 /* Page Header */
