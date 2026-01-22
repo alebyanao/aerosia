@@ -467,6 +467,54 @@
                 font-size: 1.8rem;
             }
         }
+.featured-event {
+    padding: 4rem 0;
+    background: #fff;
+}
+
+.event-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    margin-bottom: 1.5rem;
+}
+
+.event-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #111827;
+}
+
+.event-subtitle {
+    font-size: 0.95rem;
+    color: #6b7280;
+    margin-top: 4px;
+}
+
+
+.swiper-button-next,
+.swiper-button-prev {
+    position: static;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #f3f4f6;
+    color: #374151;
+    box-shadow: 0 4px 12px rgba(0,0,0,.1);
+}
+
+.swiper-button-next:hover,
+.swiper-button-prev:hover {
+    background: #7c3aed;
+    color: #fff;
+}
+
+.swiper-button-next::after,
+.swiper-button-prev::after {
+    font-size: 14px;
+    font-weight: bold;
+}
+
     </style>
     <!-- HERO -->
     <section class="hero-section">
@@ -543,6 +591,30 @@
         </div>
     </section>
 
+<section class="page-event">
+    <div class="container pt-5">
+        <h3 class="mb-4">Event Terdekat</h3>
+
+        <div class="row g-3">
+            <% loop $UpcomingTickets %>
+                <% include TicketCard %>
+            <% end_loop %>
+        </div>
+    </div>
+</section>
+
+<section class="page-event">
+    <div class="container pt-5">
+        <h3 class="mb-4">Event Berakhir</h3>
+
+        <div class="row g-3">
+            <% loop $ExpiredTickets %>
+                <% include TicketCard %>
+            <% end_loop %>
+        </div>
+    </div>
+</section>
+
     <!-- WHITE SECTION -->
     <section class="cards-section">
         <div class="cards-container">
@@ -583,3 +655,43 @@
             </div>
         </div>
     </section>
+
+<%-- <script>
+document.addEventListener("DOMContentLoaded", function () {
+    new Swiper(".upcoming-swiper", {
+        slidesPerView: 1,
+        spaceBetween: 16,
+        loop: false,
+
+        navigation: {
+            nextEl: ".upcoming-next",
+            prevEl: ".upcoming-prev",
+        },
+
+        breakpoints: {
+            576: {
+                slidesPerView: 2,
+            },
+            992: {
+                slidesPerView: 3,
+            },
+        },
+    });
+});
+
+new Swiper(".expired-swiper", {
+    slidesPerView: 1,
+    spaceBetween: 16,
+
+    navigation: {
+        nextEl: ".expired-next",
+        prevEl: ".expired-prev",
+    },
+
+    breakpoints: {
+        576: { slidesPerView: 2 },
+        992: { slidesPerView: 3 },
+    },
+});
+
+</script> --%>

@@ -247,5 +247,28 @@ namespace {
         {
             return $this->sortTicketsWithExpiredAtBottom($tickets, $direction);
         }
+
+    public function UpcomingTickets()
+    {
+        return Ticket::get()
+            ->filter([
+                'IsExpired' => false,
+            ])
+            ->filter('EventDate:GreaterThanOrEqual', date('Y-m-d'))
+            ->sort('EventDate', 'ASC')
+            ->limit(6);
+    }
+
+    /**
+     * Event berakhir
+     */
+    public function ExpiredTickets()
+    {
+        return Ticket::get()
+            ->filter('IsExpired', true)
+            ->sort('EventDate', 'DESC')
+            ->limit(6);
+    }
+
     }
 }
