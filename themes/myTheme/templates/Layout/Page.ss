@@ -704,29 +704,43 @@
 document.addEventListener("DOMContentLoaded", function () {
 
     new Swiper(".upcoming-swiper", {
-        slidesPerView: 1,
-        spaceBetween: 16,
-        navigation: {
-            nextEl: ".upcoming-next",
-            prevEl: ".upcoming-prev",
+    slidesPerView: 2,
+    spaceBetween: 16,
+    navigation: {
+        nextEl: ".upcoming-next",
+        prevEl: ".upcoming-prev",
+    },
+    breakpoints: {
+        576: {
+            slidesPerView: 2,
         },
-        breakpoints: {
-            576: { slidesPerView: 2 },
-            992: { slidesPerView: 3 },
+        768: {
+            slidesPerView: 3,
         },
-    });
+        1200: {
+            slidesPerView: 4,
+        },
+    },
+});
 
     new Swiper(".expired-swiper", {
-        slidesPerView: 1,
+        slidesPerView: 2,
         spaceBetween: 16,
         navigation: {
             nextEl: ".expired-next",
             prevEl: ".expired-prev",
         },
-        breakpoints: {
-            576: { slidesPerView: 2 },
-            992: { slidesPerView: 3 },
+       breakpoints: {
+        576: {
+            slidesPerView: 2,
         },
+        768: {
+            slidesPerView: 3,
+        },
+        1200: {
+            slidesPerView: 4,
+        },
+    },
     });
 
 

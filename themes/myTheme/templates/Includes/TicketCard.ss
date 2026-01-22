@@ -1,4 +1,4 @@
-    <div class="ticket-card-sidebar <% if $IsExpired %>ticket-expired<% end_if %>">
+<div class="ticket-card-sidebar ticket-small<% if $IsExpired %> ticket-expired<% end_if %>">
         <a href="$Link" class="ticket-img-link">
             <div class="ticket-img-wrapper">
                 <img src="$Image.URL" class="ticket-img-sidebar" alt="$Title">
@@ -80,6 +80,17 @@
 
 .ticket-card-sidebar.ticket-expired {
     opacity: 0.75;
+}
+
+.ticket-price-sidebar {
+    min-height: 24px;
+    display: inline-flex;
+    align-items: center;
+}
+
+
+.ticket-card-sidebar.ticket-expired .ticket-price-sidebar {
+    color: #ef4444;
 }
 
 .ticket-card-sidebar.ticket-expired:hover {
@@ -185,7 +196,6 @@
 
 .ticket-price-sidebar.expired-price {
     color: #ef4444;
-    font-size: 14px;
 }
 
 .wishlist-icon-sidebar {
@@ -209,4 +219,28 @@
     cursor: not-allowed;
     pointer-events: none;
 }
+
+/* SEMUA ticket-small (upcoming & expired) */
+.ticket-small .ticket-img-sidebar {
+    height: 150px;
+}
+
+.ticket-small .ticket-body-sidebar {
+    padding: 16px;
+}
+
+.ticket-small .ticket-title-sidebar {
+    font-size: 16px;
+}
+
+.ticket-small .ticket-date-sidebar,
+.ticket-small .ticket-location-sidebar {
+    font-size: 13px;
+}
+
+.ticket-small .ticket-price-sidebar {
+    font-size: 16px;
+}
+
+
 </style>
