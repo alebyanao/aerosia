@@ -515,6 +515,22 @@
     font-weight: bold;
 }
 
+
+.swiper-slide {
+    height: auto;
+}
+
+.event-nav {
+    display: flex;
+    gap: 10px;
+}
+
+.event-nav .swiper-button-prev,
+.event-nav .swiper-button-next {
+    position: static;
+    margin: 0;
+}
+
     </style>
     <!-- HERO -->
     <section class="hero-section">
@@ -593,24 +609,52 @@
 
 <section class="page-event">
     <div class="container pt-5">
-        <h3 class="mb-4">Event Terdekat</h3>
+        <div class="event-header">
+            <div>
+                <h3 class="event-title">Event Terdekat</h3>
+                <p class="event-subtitle">Jangan lewatkan event yang akan datang</p>
+            </div>
 
-        <div class="row g-3">
-            <% loop $UpcomingTickets %>
-                <% include TicketCard %>
-            <% end_loop %>
+            <div class="event-nav">
+                <div class="swiper-button-prev upcoming-prev"></div>
+                <div class="swiper-button-next upcoming-next"></div>
+            </div>
+        </div>
+
+        <div class="swiper upcoming-swiper">
+            <div class="swiper-wrapper">
+                <% loop $UpcomingTickets %>
+                    <div class="swiper-slide">
+                        <% include TicketCard %>
+                    </div>
+                <% end_loop %>
+            </div>
         </div>
     </div>
 </section>
 
 <section class="page-event">
     <div class="container pt-5">
-        <h3 class="mb-4">Event Berakhir</h3>
+        <div class="event-header">
+            <div>
+                <h3 class="event-title">Event Berakhir</h3>
+                <p class="event-subtitle">Event yang sudah selesai</p>
+            </div>
 
-        <div class="row g-3">
-            <% loop $ExpiredTickets %>
-                <% include TicketCard %>
-            <% end_loop %>
+            <div class="event-nav">
+                <div class="swiper-button-prev expired-prev"></div>
+                <div class="swiper-button-next expired-next"></div>
+            </div>
+        </div>
+
+        <div class="swiper expired-swiper">
+            <div class="swiper-wrapper">
+                <% loop $ExpiredTickets %>
+                    <div class="swiper-slide">
+                        <% include TicketCard %>
+                    </div>
+                <% end_loop %>
+            </div>
         </div>
     </div>
 </section>
@@ -656,42 +700,38 @@
         </div>
     </section>
 
-<%-- <script>
+<script>
 document.addEventListener("DOMContentLoaded", function () {
+
     new Swiper(".upcoming-swiper", {
         slidesPerView: 1,
         spaceBetween: 16,
-        loop: false,
-
         navigation: {
             nextEl: ".upcoming-next",
             prevEl: ".upcoming-prev",
         },
-
         breakpoints: {
-            576: {
-                slidesPerView: 2,
-            },
-            992: {
-                slidesPerView: 3,
-            },
+            576: { slidesPerView: 2 },
+            992: { slidesPerView: 3 },
         },
     });
+
+    new Swiper(".expired-swiper", {
+        slidesPerView: 1,
+        spaceBetween: 16,
+        navigation: {
+            nextEl: ".expired-next",
+            prevEl: ".expired-prev",
+        },
+        breakpoints: {
+            576: { slidesPerView: 2 },
+            992: { slidesPerView: 3 },
+        },
+    });
+
+
 });
 
-new Swiper(".expired-swiper", {
-    slidesPerView: 1,
-    spaceBetween: 16,
 
-    navigation: {
-        nextEl: ".expired-next",
-        prevEl: ".expired-prev",
-    },
+</script>
 
-    breakpoints: {
-        576: { slidesPerView: 2 },
-        992: { slidesPerView: 3 },
-    },
-});
-
-</script> --%>

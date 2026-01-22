@@ -1,4 +1,3 @@
-<div class="col-md-6 col-lg-4">
     <div class="ticket-card-sidebar <% if $IsExpired %>ticket-expired<% end_if %>">
         <a href="$Link" class="ticket-img-link">
             <div class="ticket-img-wrapper">
@@ -60,7 +59,6 @@
             </div>
         </div>
     </div>
-</div>
 
 <style>
 /* Ticket Cards */
