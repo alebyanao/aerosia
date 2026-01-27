@@ -473,20 +473,31 @@
 }
 
 .event-header {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     align-items: end;
     margin-bottom: 1.5rem;
 }
 
+.event-header > div:first-child {
+    grid-column: 2;
+    text-align: center;
+}
+
+.event-nav {
+    grid-column: 3;
+    justify-self: end;
+}
+
+
 .event-title {
-    font-size: 1.8rem;
+    font-size: 2.4rem;
     font-weight: 800;
     color: #111827;
 }
 
 .event-subtitle {
-    font-size: 0.95rem;
+    font-size: 1.1rem;
     color: #6b7280;
     margin-top: 4px;
 }
@@ -611,7 +622,7 @@
     <div class="container pt-5">
         <div class="event-header">
             <div>
-                <h3 class="event-title">Event Terdekat</h3>
+                <h2 class="event-title">Event Terdekat</h2>
                 <p class="event-subtitle">Jangan lewatkan event yang akan datang</p>
             </div>
 
@@ -637,7 +648,7 @@
     <div class="container pt-5">
         <div class="event-header">
             <div>
-                <h3 class="event-title">Event Berakhir</h3>
+                <h2 class="event-title">Event Berakhir</h2>
                 <p class="event-subtitle">Event yang sudah selesai</p>
             </div>
 
@@ -675,7 +686,6 @@
                     </div>
                     <h3>Konser Musik</h3>
                     <p>Nikmati pengalaman live music artis favorit Anda dengan kualitas suara terbaik.</p>
-                    <a href="#" class="card-link">Lihat Event</a>
                 </div>
 
                 <div class="card-item">
@@ -684,7 +694,6 @@
                     </div>
                     <h3>Festival Film</h3>
                     <p>Akses premiere film dan acara eksklusif bersama komunitas pecinta film.</p>
-                    <a href="#" class="card-link">Lihat Event</a>
                 </div>
 
                 <div class="card-item">
@@ -693,7 +702,6 @@
                     </div>
                     <h3>Event Komunitas</h3>
                     <p>Temukan dan ikuti event komunitas terbaik sesuai minat dan passion Anda.</p>
-                    <a href="#" class="card-link">Lihat Event</a>
                 </div>
 
             </div>
@@ -702,47 +710,52 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-
-    new Swiper(".upcoming-swiper", {
+new Swiper(".upcoming-swiper", {
     slidesPerView: 2,
     spaceBetween: 16,
+
+    autoplay: {
+        delay: 3000,
+        disableOnInteraction: false,
+        pauseOnMouseEnter: true,        
+    },
+
+    loop: true, 
+
     navigation: {
         nextEl: ".upcoming-next",
         prevEl: ".upcoming-prev",
     },
+
     breakpoints: {
-        576: {
-            slidesPerView: 2,
-        },
-        768: {
-            slidesPerView: 3,
-        },
-        1200: {
-            slidesPerView: 4,
-        },
+        576: { slidesPerView: 2 },
+        768: { slidesPerView: 3 },
+        1200: { slidesPerView: 4 },
     },
 });
+new Swiper(".expired-swiper", {
+    slidesPerView: 2,
+    spaceBetween: 16,
 
-    new Swiper(".expired-swiper", {
-        slidesPerView: 2,
-        spaceBetween: 16,
-        navigation: {
-            nextEl: ".expired-next",
-            prevEl: ".expired-prev",
-        },
-       breakpoints: {
-        576: {
-            slidesPerView: 2,
-        },
-        768: {
-            slidesPerView: 3,
-        },
-        1200: {
-            slidesPerView: 4,
-        },
+    autoplay: {
+        delay: 4000,
+        disableOnInteraction: false,
+        pauseOnMouseEnter: true,
     },
-    });
 
+    loop: true,
+
+    navigation: {
+        nextEl: ".expired-next",
+        prevEl: ".expired-prev",
+    },
+
+    breakpoints: {
+        576: { slidesPerView: 2 },
+        768: { slidesPerView: 3 },
+        1200: { slidesPerView: 4 },
+    },
+});
 
 });
 

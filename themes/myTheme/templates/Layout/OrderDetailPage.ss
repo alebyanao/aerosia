@@ -233,7 +233,7 @@
 
         <!-- Right Column (Summary) -->
         <div class="col-lg-4">
-          <div class="modern-card summary-card-sticky sticky-top" style="top: 20px;">
+          <div class="modern-card summary-card-sticky">
             <div class="card-header-modern">
               <h5 class="section-title">
                 <i class="bi bi-receipt"></i>

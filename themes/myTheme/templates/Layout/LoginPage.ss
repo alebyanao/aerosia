@@ -147,8 +147,16 @@
           <input type="email" class="form-control mb-3" name="login_email" required>
 
           <label class="form-label small mb-1">Sandi</label>
-          <input type="password" class="form-control mb-3" name="login_password" required>
-          
+            <div class="password-wrapper mb-3">
+              <input 
+                type="password" 
+                class="form-control" 
+                name="login_password" 
+                id="loginPassword"
+                required
+              >
+              <i class="bi bi-eye toggle-password" id="togglePassword"></i>
+            </div>    
           <button type="submit" class="btn btn-purple w-100 mb-3">
             Masuk
           </button>
@@ -174,3 +182,40 @@
     </div>
   </div>
 </main>
+
+<style>
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper .form-control {
+  padding-right: 45px; /* ruang untuk icon */
+}
+
+.toggle-password {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 18px;
+  color: #555;
+}
+
+.toggle-password:hover {
+  color: #7c3aed;
+}
+</style>
+
+<script>
+  const togglePassword = document.getElementById('togglePassword');
+  const passwordInput = document.getElementById('loginPassword');
+
+  togglePassword.addEventListener('click', function () {
+    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+    passwordInput.setAttribute('type', type);
+
+    this.classList.toggle('bi-eye');
+    this.classList.toggle('bi-eye-slash');
+  });
+</script>

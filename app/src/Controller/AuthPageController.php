@@ -83,49 +83,49 @@ class AuthPageController extends PageController
 
     }
 
-public function register(HTTPRequest $request)
-{
-    $validationResult = null;
+    public function register(HTTPRequest $request)
+    {
+        $validationResult = null;
 
-    if ($request->isPOST()) {
-        $validationResult = $this->processRegister($request);
+        if ($request->isPOST()) {
+            $validationResult = $this->processRegister($request);
 
-        if ($validationResult->isValid()) {
-            $this->getRequest()->getSession()->set('FlashMessage', [
-                'Message' => 'Pendaftaran berhasil! Silakan cek email untuk verifikasi akun.',
-                'Type' => 'success'
-            ]);
-          
-        } else {
-            $errorMessages = [];
-            foreach ($validationResult->getMessages() as $message) {
-                $errorMessages[] = $message['message'];
+            if ($validationResult->isValid()) {
+                $this->getRequest()->getSession()->set('FlashMessage', [
+                    'Message' => 'Pendaftaran berhasil! Silakan cek email untuk verifikasi akun.',
+                    'Type' => 'success'
+                ]);
+            
+            } else {
+                $errorMessages = [];
+                foreach ($validationResult->getMessages() as $message) {
+                    $errorMessages[] = $message['message'];
+                }
+                
+                $this->getRequest()->getSession()->set('FlashMessage', [
+                    'Message' => implode('<br>', $errorMessages),
+                    'Type' => 'danger'
+                ]);
+                
+                return $this->redirect($this->Link('register'));
             }
-            
-            $this->getRequest()->getSession()->set('FlashMessage', [
-                'Message' => implode('<br>', $errorMessages),
-                'Type' => 'danger'
-            ]);
-            
-            return $this->redirect($this->Link('register'));
         }
+
+        // CONSUME flash message dan pass ke view
+        $session = $this->getRequest()->getSession();
+        $flashMessage = $session->get('FlashMessage');
+        if ($flashMessage) {
+            $session->clear('FlashMessage'); // Clear setelah dibaca
+        }
+
+        $data = array_merge($this->getCommonData(), [
+            'Title' => 'Register',
+            'ValidationResult' => $validationResult,
+            'FlashMessage' => $flashMessage ? ArrayData::create($flashMessage) : null
+        ]);
+
+        return $this->customise($data)->renderWith(['RegisterPage', 'Page']);
     }
-
-    // CONSUME flash message dan pass ke view
-    $session = $this->getRequest()->getSession();
-    $flashMessage = $session->get('FlashMessage');
-    if ($flashMessage) {
-        $session->clear('FlashMessage'); // Clear setelah dibaca
-    }
-
-    $data = array_merge($this->getCommonData(), [
-        'Title' => 'Register',
-        'ValidationResult' => $validationResult,
-        'FlashMessage' => $flashMessage ? ArrayData::create($flashMessage) : null
-    ]);
-
-    return $this->customise($data)->renderWith(['RegisterPage', 'Page']);
-}
 
     public function forgotPassword(HTTPRequest $request)
     {

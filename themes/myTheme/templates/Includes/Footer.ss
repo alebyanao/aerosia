@@ -22,7 +22,6 @@
                     <ul class="list-unstyled m-0 p-0">
                         <li class="my-2"><a href="$BaseHref/Home" class="footer-link">HOME</a></li>
                         <li class="my-2"><a href="$BaseHref/event" class="footer-link">EVENTS</a></li>
-                        <li class="my-2"><a href="$BaseHref/home" class="footer-link">ABOUT US</a></li>
                         <li class="my-2"><a href="$BaseHref/wishlist" class="footer-link">WISHLIST</a></li>
                     </ul>
                 </nav>

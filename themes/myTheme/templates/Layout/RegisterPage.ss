@@ -190,10 +190,28 @@
           <input type="email" class="form-control mb-3" name="register_email" required>
 
           <label class="form-label small mb-1">Sandi</label>
-          <input type="password" class="form-control mb-3" name="register_password_1" required>
+            <div class="password-wrapper mb-3">
+              <input 
+                type="password" 
+                class="form-control" 
+                name="register_password_1" 
+                id="registerPassword1"
+                required
+              >
+              <i class="bi bi-eye toggle-password" data-target="registerPassword1"></i>
+            </div>
 
-          <label class="form-label small mb-1">Konfirmasi Sandi</label>
-          <input type="password" class="form-control mb-4" name="register_password_2" required>
+            <label class="form-label small mb-1">Konfirmasi Sandi</label>
+            <div class="password-wrapper mb-4">
+              <input 
+                type="password" 
+                class="form-control" 
+                name="register_password_2" 
+                id="registerPassword2"
+                required
+              >
+              <i class="bi bi-eye toggle-password" data-target="registerPassword2"></i>
+            </div>
 
           <button type="submit" class="btn btn-purple w-100 mb-3">
             Daftar
@@ -216,3 +234,43 @@
     </div>
   </div>
 </main>
+
+<style>
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper .form-control {
+  padding-right: 45px; /* ruang icon */
+}
+
+.toggle-password {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 18px;
+  color: #555;
+  transition: 0.2s;
+}
+
+.toggle-password:hover {
+  color: #7c3aed;
+}
+</style>
+
+<script>
+  document.querySelectorAll('.toggle-password').forEach(icon => {
+    icon.addEventListener('click', function () {
+      const targetId = this.getAttribute('data-target');
+      const input = document.getElementById(targetId);
+
+      const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+      input.setAttribute('type', type);
+
+      this.classList.toggle('bi-eye');
+      this.classList.toggle('bi-eye-slash');
+    });
+  });
+</script>
