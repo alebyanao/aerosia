@@ -155,9 +155,6 @@
                 <h3>📋 Ditagih Kepada</h3>
                 <p><strong>Nama:</strong> $BuyerName</p>
                 <p><strong>Email:</strong> $BuyerEmail</p>
-                <% if $BuyerPhone %>
-                    <p><strong>Telepon:</strong> $BuyerPhone</p>
-                <% end_if %>
             </div>
 
             <div class="info-box">

@@ -258,6 +258,69 @@
 .toggle-password:hover {
   color: #7c3aed;
 }
+
+@media (max-width: 576px) {
+
+  /* Naikin posisi + rapetin */
+  .auth-bg {
+    padding-top: 32px !important;
+    padding-bottom: 32px;
+  }
+
+  /* Biar konten nggak kepusat ke tengah */
+  .auth-bg .row.align-items-center {
+    align-items: flex-start !important;
+  }
+
+  /* Hero text diperkecil */
+  .hero-text {
+    font-size: 22px;
+    line-height: 1.3;
+    margin-bottom: 20px;
+  }
+
+  /* Form diperkecil tapi bentuk tetap */
+  .auth-form {
+    max-width: 340px;
+    padding: 22px 20px;
+  }
+
+  .auth-form h4 {
+    font-size: 16px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  /* Input lebih ramping */
+  .form-control {
+    padding: 8px 14px;
+    font-size: 14px;
+  }
+
+  /* Tombol lebih kecil */
+  .btn-purple,
+  .btn-google {
+    padding: 9px;
+    font-size: 14px;
+  }
+
+  /* Icon mata password */
+  .toggle-password {
+    font-size: 16px;
+  }
+
+    .password-wrapper .form-control {
+    padding-right: 52px !important; /* tambah ruang buat icon */
+  }
+
+  .toggle-password {
+    right: 14px; /* pastikan icon nggak terlalu masuk */
+  }
+
+}
+
+
+
 </style>
 
 <script>

@@ -205,6 +205,22 @@
 .toggle-password:hover {
   color: #7c3aed;
 }
+@media (max-width: 576px) {
+
+  .auth-bg {
+    padding-top: 120px; /* lebih naik di HP */
+    padding-bottom: 40px;
+  }
+
+  .hero-text {
+    font-size: 26px;
+    line-height: 1.3;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+}
+
 </style>
 
 <script>

@@ -16,7 +16,7 @@ class DuitkuService
         $this->apiKey = Environment::getEnv('DUITKU_API_KEY');
         $this->baseUrl = Environment::getEnv('DUITKU_BASE_URL');
 
-        $ngrokUrl = Environment::getEnv('NGROK_URL') ?: 'https://549e904c09fc.ngrok-free.app';
+        $ngrokUrl = Environment::getEnv('NGROK_URL') ?: 'https://549e904c09fc.ngrok-free.app/aerosia';
         
         $this->callbackUrl = $ngrokUrl . '/payment/callback';
         $this->returnUrl = $ngrokUrl . '/payment/return';

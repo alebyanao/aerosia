@@ -30,12 +30,10 @@ namespace {
 
         public function index(HTTPRequest $request)
         {
-            $carouselImages = CarouselImage::get();
             $categories = Category::get();
 
         
             $data = array_merge($this->getCommonData(), [
-                "CarouselImage" => $carouselImages,
                 "Category" => $categories,
             ]);
 

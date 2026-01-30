@@ -178,12 +178,6 @@
                   <span class="buyer-label">Email</span>
                   <span class="buyer-value">$Email</span>
                 </div>
-                <% if $Phone %>
-                  <div class="buyer-item">
-                    <span class="buyer-label">Telepon</span>
-                    <span class="buyer-value">$Phone</span>
-                  </div>
-                <% end_if %>
               </div>
             </div>
           </div>

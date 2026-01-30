@@ -197,11 +197,9 @@ class CheckoutPageController extends PageController
         if ($useProfile) {
             $fullName = trim($member->FirstName . ' ' . $member->Surname);
             $email = $member->Email;
-            $phone = $member->Phone ?? '';
         } else {
             $fullName = trim($request->postVar('FullName'));
             $email = $request->postVar('Email');
-            $phone = $request->postVar('Phone');
         }
 
         if (empty($fullName) || empty($email)) {
@@ -233,7 +231,6 @@ class CheckoutPageController extends PageController
             $order->PaymentStatus = $isFreeTicket ? 'paid' : 'unpaid';
             $order->FullName = $fullName;
             $order->Email = $email;
-            $order->Phone = $phone;
             $order->CreatedAt = date('Y-m-d H:i:s');
             $order->UpdatedAt = date('Y-m-d H:i:s');
             

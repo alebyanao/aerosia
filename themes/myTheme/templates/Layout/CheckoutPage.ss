@@ -66,15 +66,6 @@
                        data-profile-value="$CurrentUser.Email"
                        placeholder="Masukkan email" required>
               </div>
-
-              <div class="form-group-modern mb-0">
-                <label class="form-label-modern">No. Telepon</label>
-                <input type="tel" class="form-control-modern" id="Phone" name="Phone"
-                       value="$CurrentUser.Phone"
-                       data-profile-value="$CurrentUser.Phone"
-                       placeholder="08123456789"
-                       pattern="[0-9]{10,15}" required>
-              </div>
             </div>
           </div>
 
@@ -663,45 +654,37 @@ document.addEventListener('DOMContentLoaded', function() {
   const inputs = {
     FullName: document.getElementById('FullName'),
     Email: document.getElementById('Email'),
-    Phone: document.getElementById('Phone')
   };
 
   const profileValues = {
     FullName: inputs.FullName?.getAttribute('data-profile-value') || '',
     Email: inputs.Email?.getAttribute('data-profile-value') || '',
-    Phone: inputs.Phone?.getAttribute('data-profile-value') || ''
   };
 
   let manualValues = {
     FullName: inputs.FullName.value || '',
     Email: inputs.Email.value || '',
-    Phone: inputs.Phone.value || ''
   };
 
   function applyUseProfile(use) {
     if (use) {
       manualValues.FullName = manualValues.FullName || inputs.FullName.value;
       manualValues.Email = manualValues.Email || inputs.Email.value;
-      manualValues.Phone = manualValues.Phone || inputs.Phone.value;
 
       inputs.FullName.value = profileValues.FullName;
       inputs.Email.value = profileValues.Email;
-      inputs.Phone.value = profileValues.Phone;
 
       inputs.FullName.readOnly = true;
       inputs.Email.readOnly = true;
-      inputs.Phone.readOnly = false;
 
       inputs.FullName.classList.add('bg-light');
       inputs.Email.classList.add('bg-light');
     } else {
       inputs.FullName.value = manualValues.FullName || '';
       inputs.Email.value = manualValues.Email || '';
-      inputs.Phone.value = manualValues.Phone || '';
 
       inputs.FullName.readOnly = false;
       inputs.Email.readOnly = false;
-      inputs.Phone.readOnly = false;
 
       inputs.FullName.classList.remove('bg-light');
       inputs.Email.classList.remove('bg-light');
@@ -797,16 +780,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return false;
       }
     }
-
-    const phone = inputs.Phone.value;
-    const phoneRegex = /^[0-9]{10,15}$/;
-    if (!phoneRegex.test(phone)) {
-      e.preventDefault();
-      alert('Nomor telepon tidak valid. Gunakan format: 08xxxxxxxxxx (10-15 digit)');
-      inputs.Phone.focus();
-      return false;
-    }
-
     submitBtn.disabled = true;
     submitBtnText.innerHTML = '<span class="spinner-border-sm"></span>Memproses...';
     
