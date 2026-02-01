@@ -439,4 +439,87 @@ class Order extends DataObject
         
         return max(0, $remaining);
     }
+
+    public function getCMSFields()
+    {
+        $fields = parent::getCMSFields();
+
+        // Pindahkan transaksi ke tab terpisah agar rapi
+        $paymentGrid = $fields->dataFieldByName('PaymentTransaction');
+        $fields->removeByName('PaymentTransaction');
+
+        // Rapikan Tab Main (Info Order)
+        $fields->addFieldsToTab('Root.Main', [
+            // Header Info
+            SilverStripe\Forms\HeaderField::create('InfoHeader', 'Informasi Order', 2),
+            $fields->dataFieldByName('OrderCode')->setReadonly(true),
+            $fields->dataFieldByName('CreatedAt')->setReadonly(true),
+            $fields->dataFieldByName('Status'), // Bisa diedit admin jika perlu manual override
+            $fields->dataFieldByName('PaymentStatus'), // Bisa diedit admin jika perlu manual override
+            
+            // Info Customer
+            SilverStripe\Forms\HeaderField::create('CustomerHeader', 'Data Pemesan', 2),
+            $fields->dataFieldByName('FullName')->setReadonly(true),
+            $fields->dataFieldByName('Email')->setReadonly(true),
+            $fields->dataFieldByName('Phone')->setReadonly(true),
+
+            // Info Pembayaran
+            SilverStripe\Forms\HeaderField::create('PaymentHeader', 'Rincian Biaya', 2),
+            $fields->dataFieldByName('Quantity')->setReadonly(true),
+            $fields->dataFieldByName('TotalPrice')->setTitle('Subtotal Tiket')->setReadonly(true),
+            $fields->dataFieldByName('PaymentFee')->setTitle('Biaya Admin')->setReadonly(true),
+        ]);
+
+        // Buat Tab Khusus Transaksi Pembayaran
+        if ($this->ID) {
+            $fields->addFieldToTab('Root.RiwayatPembayaran', $paymentGrid);
+        }
+
+        // Hapus field yang tidak perlu dilihat admin secara langsung
+        $fields->removeByName(['MemberID', 'TicketTypeID', 'QRCodeData']);
+
+        return $fields;
+    }
+
+   /**
+     * PERMISSION SETTINGS
+     * Izinkan Moderator (yang punya akses CMS_ACCESS_OrderAdmin) untuk melihat data
+     */
+    public function canView($member = null)
+    {
+        // 1. Cek Admin
+        if (SilverStripe\Security\Permission::check('ADMIN')) {
+            return true;
+        }
+
+        // 2. Cek apakah user punya akses ke menu OrderAdmin
+        if (!$member) $member = SilverStripe\Security\Security::getCurrentUser();
+        return SilverStripe\Security\Permission::checkMember($member, 'CMS_ACCESS_OrderAdmin');
+    }
+
+    public function canEdit($member = null)
+    {
+        // Sama seperti canView
+        if (SilverStripe\Security\Permission::check('ADMIN')) {
+            return true;
+        }
+        if (!$member) $member = SilverStripe\Security\Security::getCurrentUser();
+        return SilverStripe\Security\Permission::checkMember($member, 'CMS_ACCESS_OrderAdmin');
+    }
+
+    public function canDelete($member = null)
+    {
+        // Biasanya hanya Super Admin yang boleh hapus order demi integritas data
+        return SilverStripe\Security\Permission::check('ADMIN');
+    }
+
+    public function canCreate($member = null, $context = [])
+    {
+        // Admin biasanya tidak bikin order manual, tapi kalau mau diizinkan:
+        if (SilverStripe\Security\Permission::check('ADMIN')) {
+            return true;
+        }
+        if (!$member) $member = SilverStripe\Security\Security::getCurrentUser();
+        return SilverStripe\Security\Permission::checkMember($member, 'CMS_ACCESS_OrderAdmin');
+    }
 }
