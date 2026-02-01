@@ -9,339 +9,325 @@
             margin: 20mm;
             size: A4 portrait;
         }
-        * {
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 10pt;
+            color: #333;
+            line-height: 1.4;
+            padding: 0;
+            margin: 0;
+        }
+        .invoice-container { 
+            width: 100%; 
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
         }
-        body {
-            font-family: 'DejaVu Sans', sans-serif;
-            font-size: 11pt;
-            color: #333;
-            line-height: 1.6;
-        }
-        .invoice-container {
-            width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
-        }
+
         /* Header */
-        .invoice-header {
-            border-bottom: 3px solid #667eea;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-            display: table;
-            width: 100%;
-        }
-        .company-info {
-            display: table-cell;
-            width: 60%;
-            vertical-align: top;
+        .header-top {
+            text-align: center;
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
         }
         .company-logo {
-            max-width: 180px;
-            max-height: 80px;
+            max-width: 70px;
+            max-height: 70px;
             margin-bottom: 10px;
         }
-       
-        .company-details {
-            font-size: 9pt;
-            color: #666;
-            line-height: 1.5;
-        }
-        .invoice-title-section {
-            display: table-cell;
-            width: 40%;
-            text-align: right;
-            vertical-align: top;
+        .company-name {
+            font-size: 14pt;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
         }
         .invoice-title {
-            font-size: 28pt;
+            font-size: 22pt;
             font-weight: bold;
-            color: #667eea;
-            margin-bottom: 10px;
+            color: #000;
+            margin-bottom: 6px;
+            letter-spacing: 2px;
         }
         .invoice-meta {
-            font-size: 9pt;
+            font-size: 8.5pt;
             color: #666;
+            margin-bottom: 0;
         }
-        .invoice-meta strong {
-            color: #333;
-        }
-        /* Status Badge */
-        .status-badge {
-            display: inline-block;
-            padding: 5px 12px;
-            border-radius: 3px;
-            font-size: 8pt;
-            font-weight: bold;
-            text-transform: uppercase;
-            margin-top: 8px;
-        }
-        .status-paid {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .status-unpaid {
-            background-color: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeaa7;
-        }
-        /* Info Boxes */
-        .info-section {
-            margin-bottom: 25px;
+
+        /* Two Column Layout */
+        .content-wrapper {
             display: table;
             width: 100%;
+            margin-bottom: 15px;
         }
-        .info-box {
+        .left-column {
             display: table-cell;
-            width: 48%;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 5px;
+            width: 50%;
+            padding-right: 20px;
             vertical-align: top;
         }
-        .info-box + .info-box {
-            margin-left: 4%;
+        .right-column {
+            display: table-cell;
+            width: 50%;
+            padding-left: 20px;
+            vertical-align: top;
+            border-left: 1px solid #e0e0e0;
         }
-        .info-box h3 {
-            font-size: 11pt;
-            color: #667eea;
-            margin-bottom: 10px;
-            border-bottom: 2px solid #667eea;
+
+        /* Info Sections */
+        .info-section {
+            margin-bottom: 14px;
+        }
+        .section-title {
+            font-size: 9.5pt;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #e0e0e0;
             padding-bottom: 5px;
         }
-        .info-box p {
-            margin: 5px 0;
-            font-size: 9pt;
+        .info-row {
+            display: table;
+            width: 100%;
+            margin-bottom: 5px;
+            font-size: 8.5pt;
         }
-        .info-box strong {
+        .info-label {
+            display: table-cell;
+            width: 35%;
+            color: #666;
+            vertical-align: top;
+        }
+        .info-value {
+            display: table-cell;
+            width: 65%;
             color: #333;
+            font-weight: 500;
+            word-break: break-word;
         }
-        /* Event Details */
-        .event-section {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 25px;
-        }
-        .event-section h2 {
-            font-size: 16pt;
-            margin-bottom: 12px;
-        }
-        .event-detail {
-            margin: 8px 0;
-            font-size: 10pt;
-        }
-        .event-icon {
-            display: inline-block;
-            width: 20px;
-            font-weight: bold;
-        }
+
         /* Table */
         .items-table {
             width: 100%;
             border-collapse: collapse;
-            margin: 25px 0;
-            font-size: 10pt;
+            margin: 14px 0;
+            font-size: 9pt;
         }
         .items-table thead {
-            background-color: #667eea;
-            color: white;
+            background-color: #f5f5f5;
+            border-top: 1px solid #333;
+            border-bottom: 1px solid #333;
         }
         .items-table th {
-            padding: 12px 10px;
+            padding: 8px 10px;
             text-align: left;
             font-weight: bold;
+            color: #333;
+            border: 1px solid #ccc;
         }
-        .items-table th:last-child,
+        .items-table th:last-child {
+            text-align: right;
+        }
+        .items-table td {
+            padding: 8px 10px;
+            border: 1px solid #ccc;
+        }
         .items-table td:last-child {
             text-align: right;
         }
-        .items-table tbody tr {
-            border-bottom: 1px solid #e0e0e0;
+        .items-table tbody tr:last-child td {
+            border-bottom: 1px solid #333;
         }
-        .items-table tbody tr:last-child {
-            border-bottom: 2px solid #667eea;
-        }
-        .items-table td {
-            padding: 12px 10px;
-        }
-        .items-table .item-description {
-            color: #666;
-            font-size: 8pt;
-            margin-top: 3px;
-        }
+
         /* Totals */
-        .totals-section {
-            width: 50%;
-            margin-left: auto;
-            margin-top: 20px;
+        .totals-wrapper {
+            margin-top: 12px;
+            margin-bottom: 12px;
+            border: 1px solid #ccc;
+        }
+        .totals-content {
+            padding: 12px;
         }
         .total-row {
             display: table;
             width: 100%;
-            padding: 8px 0;
+            margin-bottom: 7px;
+            font-size: 9pt;
+        }
+        .total-row:last-child {
+            margin-bottom: 0;
         }
         .total-label {
             display: table-cell;
-            text-align: left;
-            font-size: 10pt;
+            width: 70%;
+            color: #333;
         }
         .total-value {
             display: table-cell;
+            width: 30%;
             text-align: right;
-            font-size: 10pt;
+            color: #333;
+            font-weight: 500;
         }
-        .total-divider {
-            border-top: 1px solid #e0e0e0;
-            margin: 10px 0;
-        }
-        .grand-total {
-            background-color: #667eea;
-            color: white;
-            padding: 12px;
-            border-radius: 5px;
-            margin-top: 10px;
-        }
-        .grand-total .total-label,
-        .grand-total .total-value {
-            font-size: 13pt;
+        .total-label.bold {
             font-weight: bold;
         }
-        /* Notes */
-        .notes-section {
-            margin-top: 30px;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-left: 4px solid #667eea;
-            border-radius: 3px;
-        }
-        .notes-section h4 {
+        .total-value.bold {
+            font-weight: bold;
             font-size: 10pt;
-            color: #667eea;
-            margin-bottom: 8px;
         }
-        .notes-section ul {
-            margin-left: 20px;
-            font-size: 9pt;
+
+        /* QR Code Section */
+        .qr-section {
+            text-align: center;
+            margin: 12px 0 0 0;
+            padding: 12px;
+            background-color: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 2px;
+        }
+        .qr-section h3 {
+            font-size: 10pt;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .qr-section img {
+            max-width: 110px;
+            max-height: 110px;
+        }
+        .qr-code-text {
+            font-size: 7.5pt;
             color: #666;
+            margin-top: 8px;
+            line-height: 1.4;
         }
-        .notes-section li {
-            margin: 5px 0;
-        }
+
         /* Footer */
         .invoice-footer {
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 2px solid #e0e0e0;
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid #e0e0e0;
             text-align: center;
-            font-size: 8pt;
+            font-size: 7.5pt;
             color: #999;
+            line-height: 1.5;
         }
-        .invoice-footer p {
-            margin: 5px 0;
+
+        /* Divider */
+        .divider {
+            border-top: 1px solid #e0e0e0;
+            margin: 6px 0;
         }
-        /* QR Code or Barcode area (optional) */
-        .barcode-section {
-            text-align: center;
-            margin: 20px 0;
+
+        /* Event Details */
+        .event-section {
+            background-color: #f9f9f9;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            margin-bottom: 12px;
+            font-size: 8.5pt;
         }
     </style>
 </head>
 <body>
     <div class="invoice-container">
         <!-- Header -->
-        <div class="invoice-header">
-            <div class="company-info">
-                <% if $SiteConfig.Logo %>
+        <div class="header-top">
+            <% if $LogoCID %>
+                <img src="$LogoCID" alt="$SiteConfig.Title" class="company-logo">
+            <% else_if $SiteConfig.Logo %>
                 <img src="$SiteConfig.Logo.AbsoluteURL" alt="$SiteConfig.Title" class="company-logo">
-                <% end_if %>
-                <div class="company-details">
-                    <% if $SiteConfig.Email %>Email: $SiteConfig.Email<br><% end_if %>
-                    <% if $SiteConfig.Phone %>Telp: $SiteConfig.Phone<br><% end_if %>
-                    <% if $SiteConfig.Address %>$SiteConfig.Address<% end_if %>
+            <% end_if %>
+            <div class="invoice-title">INVOICE</div>
+            <div class="invoice-meta">
+                No: $InvoiceNumber | Tgl: $InvoiceDate | Order: $Order.OrderCode
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content-wrapper">
+            <!-- Left Column - Billing Info -->
+            <div class="left-column">
+                <div class="info-section">
+                    <div class="section-title">Ditagih Kepada</div>
+                    <div class="info-row">
+                        <div class="info-label">Nama:</div>
+                        <div class="info-value">$BuyerName</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Email:</div>
+                        <div class="info-value">$BuyerEmail</div>
+                    </div>
                 </div>
             </div>
-            <div class="invoice-title-section">
-                <div class="invoice-title">INVOICE</div>
-                <div class="invoice-meta">
-                    <strong>No:</strong> $InvoiceNumber<br>
-                    <strong>Tanggal:</strong> $InvoiceDate<br>
-                    <strong>Order:</strong> $Order.OrderCode
-                </div>
-                <div>
-                    <% if $PaymentStatus == 'paid' %>
-                    <span class="status-badge status-paid">✓ LUNAS</span>
-                    <% else %>
-                    <span class="status-badge status-unpaid">⏳ BELUM BAYAR</span>
-                    <% end_if %>
+
+            <!-- Right Column - Order Details -->
+            <div class="right-column">
+                <div class="info-section">
+                    <div class="section-title">Detail Pesanan</div>
+                    <div class="info-row">
+                        <div class="info-label">Kode:</div>
+                        <div class="info-value">$Order.OrderCode</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Tanggal:</div>
+                        <div class="info-value">$Order.CreatedAt.Nice</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Status:</div>
+                        <div class="info-value">
+                            <% if $PaymentStatus == 'paid' %>
+                                Sudah Dibayar
+                            <% else %>
+                                Belum Dibayar
+                            <% end_if %>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Metode:</div>
+                        <div class="info-value">$PaymentMethod</div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Customer & Invoice Info -->
-        <div class="info-section">
-            <div class="info-box">
-                <h3>📋 Ditagih Kepada</h3>
-                <p><strong>Nama:</strong> $BuyerName</p>
-                <p><strong>Email:</strong> $BuyerEmail</p>
-            </div>
-            <div class="info-box">
-                <h3>📊 Informasi Pembayaran</h3>
-                <p><strong>Metode:</strong> $PaymentMethod</p>
-                <p><strong>Status:</strong> 
-                    <% if $PaymentStatus == 'paid' %>
-                    Sudah Dibayar
-                    <% else %>
-                    Belum Dibayar
-                    <% end_if %>
-                </p>
-                <p><strong>Tanggal Order:</strong> $Order.CreatedAt.Nice</p>
-            </div>
-        </div>
-
-        <!-- Event Details -->
+        <!-- Event Details (if applicable) -->
+        <% if $EventName %>
         <div class="event-section">
-            <h2>🎫 Detail Event</h2>
-            <div class="event-detail">
-                <span class="event-icon">🎉</span>
-                <strong>$EventName</strong>
+            <div class="section-title" style="margin-bottom: 6px; border-bottom: none;">Detail Event</div>
+            <div class="info-row">
+                <div class="info-label">Event:</div>
+                <div class="info-value"><strong>$EventName</strong></div>
             </div>
             <% if $EventDate %>
-            <div class="event-detail">
-                <span class="event-icon">📅</span>
-                $Ticket.EventDate.Nice
+            <div class="info-row">
+                <div class="info-label">Tgl Event:</div>
+                <div class="info-value">$Ticket.EventDate.Nice</div>
             </div>
             <% end_if %>
             <% if $EventLocation %>
-            <div class="event-detail">
-                <span class="event-icon">📌</span>
-                $EventLocation
+            <div class="info-row">
+                <div class="info-label">Lokasi:</div>
+                <div class="info-value">$EventLocation</div>
             </div>
             <% end_if %>
         </div>
+        <% end_if %>
 
         <!-- Items Table -->
         <table class="items-table">
             <thead>
                 <tr>
                     <th style="width: 50%;">Deskripsi</th>
-                    <th style="width: 10%; text-align: center;">Qty</th>
-                    <th style="width: 20%; text-align: right;">Harga Satuan</th>
-                    <th style="width: 20%; text-align: right;">Jumlah</th>
+                    <th style="width: 12%; text-align: center;">Qty</th>
+                    <th style="width: 19%; text-align: right;">Harga</th>
+                    <th style="width: 19%; text-align: right;">Subtotal</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td>
-                        <strong>Tiket: $TicketTypeName</strong>
-                        <div class="item-description">
-                            Event: $EventName
-                        </div>
-                    </td>
+                    <td><strong>$TicketTypeName</strong><br><span style="font-size: 7pt; color: #666;">$EventName</span></td>
                     <td style="text-align: center;">$Quantity</td>
                     <td style="text-align: right;">$FormattedUnitPrice</td>
                     <td style="text-align: right;"><strong>$FormattedTotalPrice</strong></td>
@@ -350,57 +336,38 @@
         </table>
 
         <!-- Totals -->
-        <div class="totals-section">
-            <div class="total-row">
-                <div class="total-label">Subtotal Tiket:</div>
-                <div class="total-value">$FormattedTotalPrice</div>
-            </div>
-            
-            <div class="total-row">
-                <div class="total-label">Biaya Admin ($PaymentMethod):</div>
-                <div class="total-value">$FormattedPaymentFee</div>
-            </div>
-            
-            <div class="total-divider"></div>
-            
-            <div class="grand-total">
+        <div class="totals-wrapper">
+            <div class="totals-content">
                 <div class="total-row">
-                    <div class="total-label">TOTAL PEMBAYARAN:</div>
-                    <div class="total-value">$FormattedGrandTotal</div>
+                    <div class="total-label">Subtotal:</div>
+                    <div class="total-value">$FormattedTotalPrice</div>
+                </div>
+                <div class="total-row">
+                    <div class="total-label">Biaya Admin:</div>
+                    <div class="total-value">$FormattedPaymentFee</div>
+                </div>
+                <div class="divider"></div>
+                <div class="total-row">
+                    <div class="total-label bold">TOTAL:</div>
+                    <div class="total-value bold">$FormattedGrandTotal</div>
                 </div>
             </div>
         </div>
 
-        <!-- Notes -->
-        <div class="notes-section">
-            <h4>📌 Catatan Penting:</h4>
-            <ul>
-                <li>Simpan invoice ini sebagai bukti pembelian yang sah</li>
-                <li>Tunjukkan e-ticket atau QR code saat memasuki venue event</li>
-                <li>Tiket yang sudah dibeli tidak dapat dikembalikan atau diuangkan</li>
-                <li>Untuk pertanyaan lebih lanjut, hubungi customer service kami</li>
-            </ul>
-        </div>
-
-        <!-- QR Code Section -->
-        <div class="barcode-section">
-            <h3 style="color: #667eea; margin-bottom: 15px;">🎫 QR Code Tiket Anda</h3>
-            <% if $QRCodePath %>
-                <img src="$QRCodePath" alt="QR Code" style="width:200px; height:200px;">
-            <% end_if %>
-            <p style="margin-top: 10px; font-size: 9pt; color: #666;">
-                Tunjukkan QR Code ini saat memasuki venue
-            </p>
-            <p style="font-size: 8pt; color: #999; margin-top: 5px;">
+        <!-- QR Code -->
+        <% if $QRCodePath %>
+        <div class="qr-section">
+            <h3>QR Code Pesanan</h3>
+            <img src="$QRCodePath" alt="QR Code">
+            <div class="qr-code-text">
                 Kode: $Order.QRCodeData
-            </p>
+            </div>
         </div>
+        <% end_if %>
 
         <!-- Footer -->
         <div class="invoice-footer">
-            <p><strong>Terima kasih atas pembelian Anda!</strong></p>
-            <p>Dokumen ini digenerate secara otomatis dan sah tanpa tanda tangan</p>
-            <%-- <p>© $Now.Year $SiteConfig.Title. All Rights Reserved.</p> --%>
+            <p style="margin: 0;">© <% if $SiteConfig.Copyright %>$SiteConfig.Copyright<% else %>All Copyright Reserved<% end_if %></p>
         </div>
     </div>
 </body>
