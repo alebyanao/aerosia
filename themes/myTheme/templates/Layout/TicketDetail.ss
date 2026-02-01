@@ -564,13 +564,15 @@
     </div>
 
     <!-- Tombol Kembali -->
-    <div class="row mt-4">
-        <div class="col-12">
-            <a href="$BackLink" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left"></i> Kembali ke Daftar Event
-            </a>
-        </div>
+<div class="container mt-5">
+    <div class="col-12">
+        <a href="$BackLink" class="btn btn-light border d-inline-flex align-items-center gap-2 px-4 py-2 shadow-sm">
+            <i class="bi bi-arrow-left"></i>
+            <span>Kembali ke Daftar Event</span>
+        </a>
     </div>
+</div>
+
 </div>
 
 <script>

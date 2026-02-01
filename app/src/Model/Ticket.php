@@ -13,6 +13,8 @@ use SilverStripe\Forms\DropdownField;
 use SilverStripe\Forms\LiteralField;
 use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\CheckboxSetField;
+use SilverStripe\Security\Permission;
+use SilverStripe\Security\Member;
 
 class Ticket extends DataObject
 {
@@ -31,7 +33,6 @@ class Ticket extends DataObject
         'Instagram' => 'Varchar(50)',
         'InstagramURL' => 'Varchar(50)',
         'Description' => 'HTMLText',
-        'IsExpired'   => 'Boolean', // Field baru untuk status expired
     ];
 
     private static $has_many = [
@@ -41,11 +42,12 @@ class Ticket extends DataObject
 
     private static $has_one = [
         'Image' => Image::class,
-        'Category' => Category::class
+        'Category' => Category::class,
+        'Member' => Member::class,
     ];
 
     private static $owns = [
-        'Image'
+        'Image',
     ];
 
     private static $summary_fields = [
@@ -206,9 +208,6 @@ class Ticket extends DataObject
         return $fields;
     }
 
-    /**
-     * Cek apakah event sudah berakhir berdasarkan tanggal & waktu
-     */
     public function checkIfExpired()
     {
         if (!$this->EventDate) {
@@ -250,10 +249,6 @@ class Ticket extends DataObject
         }
         return 0;
     }
-
-    /**
-     * Format harga termurah
-     */
     public function getMinPriceFormatted()
     {
         if ($this->IsExpired) {
@@ -369,6 +364,10 @@ class Ticket extends DataObject
     {
         parent::onBeforeWrite();
 
+        if (!$this->MemberID && ($member = Security::getCurrentUser())) {
+            $this->MemberID = $member->ID;
+        }
+
         $this->IsExpired = $this->checkIfExpired();
 
         // Jika province berubah, reset city
@@ -390,4 +389,67 @@ class Ticket extends DataObject
             );
         }
     }
+// ... code atas tetap sama ...
+
+    /**
+     * PERMISSION FIX
+     */
+
+    public function canView($member = null)
+    {
+        if (!$member) $member = Security::getCurrentUser();
+        if (!$member) return false;
+
+        // 1. Super Admin Bebas
+        if (Permission::checkMember($member, 'ADMIN')) return true;
+
+        // 2. FIX: Jika tiket BELUM ADA di database (lagi create baru),
+        // izinkan lihat form-nya asalkan dia punya akses CMS
+        if (!$this->exists() && Permission::checkMember($member, 'CMS_ACCESS_EventAdmin')) {
+            return true;
+        }
+
+        // 3. Jika tiket SUDAH ADA, cek kepemilikan
+        return $member->ID == $this->MemberID;
+    }
+
+    public function canEdit($member = null)
+    {
+        if (!$member) $member = Security::getCurrentUser();
+        if (!$member) return false;
+
+        if (Permission::checkMember($member, 'ADMIN')) return true;
+
+        // FIX: Izinkan edit (isi form) untuk tiket baru
+        if (!$this->exists() && Permission::checkMember($member, 'CMS_ACCESS_EventAdmin')) {
+            return true;
+        }
+
+        return $member->ID == $this->MemberID;
+    }
+    
+    // Pastikan canCreate juga tetap ada
+    public function canCreate($member = null, $context = [])
+    {
+        if (!$member) $member = Security::getCurrentUser();
+        if (!$member) return false;
+        
+        return Permission::checkMember($member, 'CMS_ACCESS_EventAdmin') || 
+               Permission::checkMember($member, 'ADMIN');
+    }
+
+    // ... sisa code ...
+
+    /**
+     * Siapa yang boleh menghapus tiket ini?
+     */
+    public function canDelete($member = null)
+    {
+        if (!$member) $member = Security::getCurrentUser();
+        
+        if (Permission::checkMember($member, 'ADMIN')) return true;
+
+        return $member && $member->ID == $this->MemberID;
+    }
+
 }

@@ -3,6 +3,8 @@ use SilverStripe\ORM\DataObject;
 use SilverStripe\Forms\NumericField;
 use SilverStripe\Forms\TextField;
 use SilverStripe\Forms\TextareaField;
+use SilverStripe\Security\Security;
+use SilverStripe\Security\Permission;
 
 class TicketType extends DataObject
 {
@@ -110,5 +112,26 @@ class TicketType extends DataObject
             'Remaining' => max(0, $remaining),
             'HasReachedLimit' => $remaining <= 0
         ];
+    }
+
+    public function canView($member = null)
+    {
+        return $this->Ticket()->exists() ? $this->Ticket()->canView($member) : Permission::check('ADMIN');
+    }
+
+    public function canEdit($member = null)
+    {
+        return $this->Ticket()->exists() ? $this->Ticket()->canEdit($member) : Permission::check('ADMIN');
+    }
+
+    public function canDelete($member = null)
+    {
+        return $this->Ticket()->exists() ? $this->Ticket()->canEdit($member) : Permission::check('ADMIN');
+    }
+
+    public function canCreate($member = null, $context = [])
+    {
+        if (!$member) $member = Security::getCurrentUser();
+        return Permission::checkMember($member, 'CMS_ACCESS_EventAdmin') || Permission::checkMember($member, 'ADMIN');
     }
 }
