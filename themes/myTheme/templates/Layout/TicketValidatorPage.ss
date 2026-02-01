@@ -4,7 +4,7 @@
 <style>
 #ticket-scanner-wrapper {
     max-width: 480px;
-    margin: 20px auto;
+    margin: 120px auto;
     background: #ffffff;
     padding: 25px;
     border-radius: 12px;
