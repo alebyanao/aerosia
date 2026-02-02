@@ -340,16 +340,58 @@
         </div>
 
         <!-- QR Code -->
-        <% if $QRCodePath %>
-        <div class="qr-section">
-            <h3>QR Code Tiket/Pesanan</h3>
-            <img src="$QRCodePath" alt="QR Code">
-            <div class="qr-code-text">
-                Tunjukkan kode ini saat pengambilan pesanan<br>
-                Kode: $Order.QRCodeData
+       <div class="totals-wrapper">
+            <div class="totals-content">
+                <div class="total-row">
+                    <div class="total-label">Subtotal Produk:</div>
+                    <div class="total-value">$FormattedTotalPrice</div>
+                </div>
+                <div class="total-row">
+                    <div class="total-label">Biaya Admin ($PaymentMethod):</div>
+                    <div class="total-value">$FormattedPaymentFee</div>
+                </div>
+                <div class="divider"></div>
+                <div class="total-row">
+                    <div class="total-label bold">TOTAL:</div>
+                    <div class="total-value bold">$FormattedGrandTotal</div>
+                </div>
             </div>
         </div>
-        <% end_if %>
+
+        <div style="margin-top: 30px; text-align: center;">
+            <h3 style="font-size: 11pt; color: #333; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+                QR Code Tiket Masuk ($Quantity Tiket)
+            </h3>
+            
+            <div class="qr-container">
+                <%-- Kita meloop OrderItems agar muncul 5 QR jika beli 5 tiket --%>
+                <% loop $OrderItems %>
+                    <div style="display: inline-block; width: 160px; margin: 10px; padding: 15px; border: 1px solid #e0e0e0; background-color: #f9f9f9; border-radius: 5px; vertical-align: top;">
+                        <div style="font-size: 9pt; font-weight: bold; margin-bottom: 8px;">TIKET #$Pos</div>
+                        
+                        <%-- Generate QR unik per kode tiket --%>
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?data=$TicketCode&size=150x150" 
+                             alt="QR $TicketCode" 
+                             style="width: 120px; height: 120px; display: block; margin: 0 auto;">
+                        
+                        <div style="font-size: 8pt; font-family: monospace; color: #666; margin-top: 8px;">
+                            $TicketCode
+                        </div>
+                    </div>
+                    <%-- Baris baru setiap 3 tiket agar tidak berantakan di PDF --%>
+                    <% if $MultipleOf(3) %><div style="clear: both; height: 0;"></div><% end_if %>
+                <% end_loop %>
+            </div>
+            
+            <p style="font-size: 8pt; color: #999; margin-top: 15px;">
+                * Setiap QR Code di atas hanya berlaku untuk 1 kali scan (1 orang).
+            </p>
+        </div>
+
+        <div class="invoice-footer">
+            <p>Invoice ini digenerate secara otomatis pada $InvoiceDate</p>
+            <p>© <% if $SiteConfig.Copyright %>$SiteConfig.Copyright<% else %>All Copyright Reserved<% end_if %></p>
+        </div>
 
         <!-- Footer -->
         <div class="invoice-footer">

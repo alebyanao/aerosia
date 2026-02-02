@@ -1,9 +1,7 @@
 <?php
 
 use SilverStripe\Control\HTTPRequest;
-use SilverStripe\Control\HTTPResponse;
 use SilverStripe\Security\Security;
-use SilverStripe\ORM\FieldType\DBDatetime;
 use SilverStripe\Security\Permission;
 use SilverStripe\Security\PermissionProvider;
 
@@ -25,7 +23,6 @@ class TicketValidatorPageController extends PageController implements Permission
             'SCAN_TICKET' => [
                 'name' => 'Bisa melakukan Scan Tiket',
                 'category' => 'Akses Event',
-                'help' => 'Izinkan user ini untuk menggunakan scanner tiket'
             ]
         ];
     }
@@ -33,14 +30,8 @@ class TicketValidatorPageController extends PageController implements Permission
     public function init()
     {
         parent::init();
-        $user = Security::getCurrentUser();
-
-        if (!$user) {
-            return Security::permissionFailure($this, 'Silakan login.');
-        }
-
-        if (!Permission::check('SCAN_TICKET')) {
-            return Security::permissionFailure($this, 'Akses ditolak.');
+        if (!Security::getCurrentUser() || !Permission::check('SCAN_TICKET')) {
+            return Security::permissionFailure($this, 'Akses scanner ditolak.');
         }
     }
 
@@ -49,52 +40,73 @@ class TicketValidatorPageController extends PageController implements Permission
         return $this->renderWith(['TicketValidatorPage', 'Page']);
     }
 
+    /**
+     * LOGIC BARU: Mencari berdasarkan kepingan tiket (OrderItem)
+     */
     public function validateTicket(HTTPRequest $request)
     {
         if (!$request->isPOST()) {
             return $this->jsonResponse(['status' => 'error', 'message' => 'Method not allowed'], 405);
         }
 
-        $code = $request->postVar('code');
+        $code = $request->postVar('code'); // Berisi misal: EVT-2026-000058-1
+
         if (!$code) {
             return $this->jsonResponse(['status' => 'error', 'message' => 'Kode tidak terbaca'], 400);
         }
 
-        $order = Order::get()->filterAny([
-            'OrderCode' => $code,
-            'QRCodeData' => $code
-        ])->first();
+        // 1. CARI DI TABEL OrderItem (Bukan tabel Order)
+        $ticketItem = OrderItem::get()->filter(['TicketCode' => $code])->first();
 
-        if (!$order) {
-            return $this->jsonResponse(['status' => 'error', 'message' => 'Tiket TIDAK DITEMUKAN!'], 404);
+        if (!$ticketItem) {
+            return $this->jsonResponse(['status' => 'error', 'message' => 'TIKET TIDAK VALID!'], 404);
         }
 
-        if ($order->PaymentStatus != 'paid') {
-            return $this->jsonResponse(['status' => 'error', 'message' => 'Tiket BELUM LUNAS.'], 400);
+        // 2. Cek status pembayaran dari Order induknya
+        $parentOrder = $ticketItem->Order();
+        if (!$parentOrder || $parentOrder->PaymentStatus != 'paid') {
+            return $this->jsonResponse(['status' => 'error', 'message' => 'ORDER BELUM LUNAS!'], 400);
         }
 
-        if ($order->QRCodeScanned) {
+        // 3. Cek apakah keping tiket spesifik ini sudah pernah digunakan
+        if ($ticketItem->IsScanned) {
+            $scanTime = date('d M Y H:i', strtotime($ticketItem->ScannedAt));
             return $this->jsonResponse([
                 'status' => 'error', 
-                'message' => "Tiket SUDAH DIGUNAKAN!",
-                'detail' => "Check-in pada: " . date('d M Y H:i', strtotime($order->ScannedAt))
+                'message' => "TIKET SUDAH TERPAKAI!",
+                'detail' => "Check-in: $scanTime oleh $ticketItem->ScannedBy"
             ], 400);
         }
 
-        // UPDATE DATA
+        // == LOLOS VALIDASI: UPDATE DATA ITEM ==
         $currentUser = Security::getCurrentUser();
-        $order->QRCodeScanned = true;
-        $order->ScannedAt = DBDatetime::now()->getValue();
-        $order->ScannedBy = $currentUser ? ($currentUser->FirstName . ' ' . $currentUser->Surname) : 'System';
-        $order->write();
+        
+        $ticketItem->IsScanned = true;
+        $ticketItem->ScannedAt = date('Y-m-d H:i:s');
+        $ticketItem->ScannedBy = $currentUser ? $currentUser->FirstName : 'System';
+        $ticketItem->write();
 
         return $this->jsonResponse([
             'status' => 'success',
             'message' => 'Check-in Berhasil!',
             'data' => [
-                'Name' => $order->FullName,
-                'Ticket' => $order->TicketType()->TypeName
+                'Name' => $parentOrder->FullName,
+                'Type' => $ticketItem->TicketType()->TypeName,
+                'Code' => $ticketItem->TicketCode
             ]
         ]);
+    }
+
+    /**
+     * SOLUSI ERROR GAMBAR 1: 
+     * Pastikan visibilitas protected agar kompatibel dengan PageController
+     */
+    protected function jsonResponse($data, $code = 200)
+    {
+        $response = $this->getResponse();
+        $response->setStatusCode($code);
+        $response->addHeader('Content-Type', 'application/json');
+        $response->setBody(json_encode($data));
+        return $response;
     }
 }

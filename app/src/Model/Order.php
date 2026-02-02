@@ -10,34 +10,30 @@ class Order extends DataObject
     
     private static $db = [
         "OrderCode" => "Varchar(255)",
-        "MerchantOrderID" => "Varchar(255)", // Untuk Duitku
-        "Status" => "Enum('pending,pending_payment,completed,cancelled', 'pending')", // Removed 'paid' and 'processing'
+        "MerchantOrderID" => "Varchar(255)",
+        "Status" => "Enum('pending,pending_payment,completed,cancelled', 'pending')",
         "Quantity" => "Int",
-        "TotalPrice" => "Double", // Harga tiket x quantity
-        "PaymentFee" => "Double", // Fee dari payment gateway (Duitku)
-        "PaymentMethod" => "Varchar(255)", // Metode pembayaran yang dipilih
+        "TotalPrice" => "Double",
+        "PaymentFee" => "Double",
+        "PaymentMethod" => "Varchar(255)",
         "PaymentStatus" => "Enum('unpaid,paid,failed,refunded', 'unpaid')",
         
-        // Data Pemesan
         "FullName" => "Varchar(255)",
         "Email" => "Varchar(255)",
         "Phone" => "Varchar(50)",
         
-        // Timestamps
         "CreatedAt" => "Datetime",
         "UpdatedAt" => "Datetime",
         "ExpiresAt" => "Datetime",
-        "CompletedAt" => "Datetime", // Timestamp ketika order completed
+        "CompletedAt" => "Datetime",
         
-        // Flags
-        "CapacityReduced" => "Boolean(0)", // Flag untuk track apakah kapasitas sudah dikurangi
+        "CapacityReduced" => "Boolean(0)",
         "InvoiceSent" => "Boolean(0)",
 
-        //QRCODE
-        "QRCodeData" => "Varchar(255)",  // Unique identifier untuk QR
-        "QRCodeScanned" => "Boolean",    // Status sudah di-scan atau belum
-        "ScannedAt" => "Datetime",        // Kapan di-scan
-        "ScannedBy" => "Varchar(100)",    // Siapa yang scan
+        "QRCodeData" => "Varchar(255)",
+        "QRCodeScanned" => "Boolean",
+        "ScannedAt" => "Datetime",
+        "ScannedBy" => "Varchar(100)",
     ];
     
     private static $has_one = [
@@ -47,6 +43,7 @@ class Order extends DataObject
     
     private static $has_many = [
         "PaymentTransaction" => PaymentTransaction::class,
+        "OrderItems" => OrderItem::class,
     ];
     
     private static $summary_fields = [
@@ -85,8 +82,31 @@ class Order extends DataObject
     }
 
     /**
-     * Get grand total (harga tiket + payment fee)
+     * ✅ IMPROVED: Create OrderItems immediately when Order is created
+     * No need to wait for payment
      */
+    public function onAfterWrite() 
+    {
+        parent::onAfterWrite();
+        
+        // Check jika OrderItems belum ada
+        if ($this->OrderItems()->count() == 0 && $this->Quantity > 0) {
+            error_log('Order::onAfterWrite - Creating ' . $this->Quantity . ' OrderItems for Order: ' . $this->ID);
+            
+            for ($i = 1; $i <= $this->Quantity; $i++) {
+                $item = OrderItem::create();
+                $item->OrderID = $this->ID;
+                $item->TicketTypeID = $this->TicketTypeID;
+                
+                // ✅ Format TicketCode konsisten: EVT-2026-000001-01
+                $item->TicketCode = $this->OrderCode . '-' . str_pad($i, 2, '0', STR_PAD_LEFT);
+                $item->write();
+                
+                error_log('Order::onAfterWrite - OrderItem created: ' . $item->TicketCode);
+            }
+        }
+    }
+
     public function getGrandTotal()
     {
         return $this->TotalPrice + $this->PaymentFee;
@@ -184,7 +204,6 @@ class Order extends DataObject
 
     /**
      * Mark order as paid, reduce capacity, and mark as completed
-     * UPDATED: Langsung mark sebagai completed setelah paid
      */
     public function markAsPaid()
     {
@@ -194,9 +213,9 @@ class Order extends DataObject
             return false;
         }
 
-        $this->Status = 'completed'; // Langsung completed, bukan 'paid'
+        $this->Status = 'completed';
         $this->PaymentStatus = 'paid';
-        $this->CompletedAt = date('Y-m-d H:i:s'); // Set waktu completed
+        $this->CompletedAt = date('Y-m-d H:i:s');
         
         // Kurangi kapasitas tiket jika belum dikurangi
         if (!$this->CapacityReduced) {
@@ -444,62 +463,48 @@ class Order extends DataObject
     {
         $fields = parent::getCMSFields();
 
-        // Pindahkan transaksi ke tab terpisah agar rapi
         $paymentGrid = $fields->dataFieldByName('PaymentTransaction');
         $fields->removeByName('PaymentTransaction');
 
-        // Rapikan Tab Main (Info Order)
         $fields->addFieldsToTab('Root.Main', [
-            // Header Info
             SilverStripe\Forms\HeaderField::create('InfoHeader', 'Informasi Order', 2),
             $fields->dataFieldByName('OrderCode')->setReadonly(true),
             $fields->dataFieldByName('CreatedAt')->setReadonly(true),
-            $fields->dataFieldByName('Status'), // Bisa diedit admin jika perlu manual override
-            $fields->dataFieldByName('PaymentStatus'), // Bisa diedit admin jika perlu manual override
+            $fields->dataFieldByName('Status'),
+            $fields->dataFieldByName('PaymentStatus'),
             
-            // Info Customer
             SilverStripe\Forms\HeaderField::create('CustomerHeader', 'Data Pemesan', 2),
             $fields->dataFieldByName('FullName')->setReadonly(true),
             $fields->dataFieldByName('Email')->setReadonly(true),
             $fields->dataFieldByName('Phone')->setReadonly(true),
 
-            // Info Pembayaran
             SilverStripe\Forms\HeaderField::create('PaymentHeader', 'Rincian Biaya', 2),
             $fields->dataFieldByName('Quantity')->setReadonly(true),
             $fields->dataFieldByName('TotalPrice')->setTitle('Subtotal Tiket')->setReadonly(true),
             $fields->dataFieldByName('PaymentFee')->setTitle('Biaya Admin')->setReadonly(true),
         ]);
 
-        // Buat Tab Khusus Transaksi Pembayaran
         if ($this->ID) {
             $fields->addFieldToTab('Root.RiwayatPembayaran', $paymentGrid);
         }
 
-        // Hapus field yang tidak perlu dilihat admin secara langsung
         $fields->removeByName(['MemberID', 'TicketTypeID', 'QRCodeData']);
 
         return $fields;
     }
 
-   /**
-     * PERMISSION SETTINGS
-     * Izinkan Moderator (yang punya akses CMS_ACCESS_OrderAdmin) untuk melihat data
-     */
     public function canView($member = null)
     {
-        // 1. Cek Admin
         if (SilverStripe\Security\Permission::check('ADMIN')) {
             return true;
         }
 
-        // 2. Cek apakah user punya akses ke menu OrderAdmin
         if (!$member) $member = SilverStripe\Security\Security::getCurrentUser();
         return SilverStripe\Security\Permission::checkMember($member, 'CMS_ACCESS_OrderAdmin');
     }
 
     public function canEdit($member = null)
     {
-        // Sama seperti canView
         if (SilverStripe\Security\Permission::check('ADMIN')) {
             return true;
         }
@@ -509,13 +514,11 @@ class Order extends DataObject
 
     public function canDelete($member = null)
     {
-        // Biasanya hanya Super Admin yang boleh hapus order demi integritas data
         return SilverStripe\Security\Permission::check('ADMIN');
     }
 
     public function canCreate($member = null, $context = [])
     {
-        // Admin biasanya tidak bikin order manual, tapi kalau mau diizinkan:
         if (SilverStripe\Security\Permission::check('ADMIN')) {
             return true;
         }

@@ -107,40 +107,57 @@
           <% end_if %>
 
           <!-- TICKET SCAN STATUS SECTION (BARU - UTAMA) -->
-          <% if $Status == 'completed' && $PaymentStatus == 'paid' %>
-            <div class="ticket-status-section-detail mt-4">
-              <% if $QRCodeScanned %>
-                <div class="ticket-status-card scanned">
-                  <div class="status-icon-large">
-                    <i class="bi bi-check-circle-fill"></i>
-                  </div>
-                  <div class="status-content">
-                    <h5 class="status-title">✓ TIKET SUDAH DIGUNAKAN</h5>
-                    <div class="status-details">
-                      <p class="detail-item">
-                        <strong>Waktu Check-in:</strong><br>
-                        $ScannedAt.Nice
-                      </p>
-                      <% if $ScannedBy %>
-                        <p class="detail-item">
-                          <strong>Di-scan oleh:</strong><br>
-                          $ScannedBy
-                        </p>
-                      <% end_if %>
+          <% if $Status == 'paid' || $Status == 'completed' %>
+              <div class="ticket-scan-grid mt-4">
+              <h5 class="section-title mb-3">
+                <i class="bi bi-qr-code-scan"></i> TIKET MASUK ($Quantity)
+              </h5>
+              
+              <div class="row g-3">
+                <% loop $OrderItems %>
+                  <div class="col-md-6 col-xl-4">
+                    <div class="ticket-status-card <% if $IsScanned %>scanned<% else %>not-scanned<% end_if %> h-100">
+                      <div class="status-content">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                          <h6 class="status-title mb-0">Tiket #$Pos</h6>
+                          <% if $IsScanned %>
+                            <span class="badge bg-success">TERPAKAI</span>
+                          <% else %>
+                            <span class="badge bg-primary">AKTIF</span>
+                          <% end_if %>
+                        </div>
+
+                        <div class="qr-code-container text-center py-3">
+                          <% if $IsScanned %>
+                            <div class="qr-overlay">
+                              <i class="bi bi-check-circle-fill text-success"></i>
+                            </div>
+                          <% end_if %>
+                          <img src="https://api.qrserver.com/v1/create-qr-code/?data=$TicketCode&size=150x150" 
+                              class="img-fluid rounded <% if $IsScanned %>opacity-25<% end_if %>" 
+                              alt="QR Code Tiket $Pos">
+                        </div>
+
+                        <div class="ticket-code-display text-center">
+                          <small class="text-muted d-block">KODE TIKET:</small>
+                          <code class="fw-bold">$TicketCode</code>
+                        </div>
+
+                        <% if $IsScanned %>
+                          <div class="status-details mt-3 pt-2 border-top border-success border-opacity-25">
+                            <p class="detail-item small mb-0">
+                              <strong>Check-in:</strong> $ScannedAt.Nice
+                            </p>
+                            <% if $ScannedBy %>
+                              <p class="detail-item small mb-0"><strong>Oleh:</strong> $ScannedBy</p>
+                            <% end_if %>
+                          </div>
+                        <% end_if %>
+                      </div>
                     </div>
                   </div>
-                </div>
-              <% else %>
-                <div class="ticket-status-card not-scanned">
-                  <div class="status-icon-large">
-                    <i class="bi bi-qrcode"></i>
-                  </div>
-                  <div class="status-content">
-                    <h5 class="status-title">⧓ TIKET BELUM DIGUNAKAN</h5>
-                    <p class="status-message">Tiket ini masih aktif dan belum di-scan pada saat check-in event.</p>
-                  </div>
-                </div>
-              <% end_if %>
+                <% end_loop %>
+              </div>
             </div>
           <% end_if %>
         </div>
@@ -957,6 +974,40 @@ body {
   .status-title {
     font-size: 14px;
   }
+}
+.ticket-scan-grid .ticket-status-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border-left-width: 5px;
+  padding: 15px;
+  transition: transform 0.2s;
+}
+
+.ticket-scan-grid .ticket-status-card:hover {
+  transform: translateY(-3px);
+}
+
+.qr-code-container {
+  position: relative;
+  background: #fff;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.qr-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 3rem;
+  z-index: 2;
+}
+
+.ticket-code-display code {
+  font-size: 14px;
+  color: #333;
+  letter-spacing: 1px;
 }
 </style>
 
