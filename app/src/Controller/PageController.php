@@ -88,6 +88,10 @@ namespace {
             }
             return 0;
         }
+
+        /**
+         * Get filtered tickets dengan support category filter
+         */
         public function getFilteredTickets(
             $searchQuery = null, 
             $provinceId = null, 
@@ -96,7 +100,8 @@ namespace {
             $year = null,
             $minPrice = null,
             $maxPrice = null,
-            $sort = 'date_asc'
+            $sort = 'date_asc',
+            $categoryID = null,
         ) {
             $tickets = Ticket::get();
 
@@ -107,6 +112,11 @@ namespace {
                     'Description:PartialMatch' => $searchQuery,
                     'Location:PartialMatch' => $searchQuery,
                 ]);
+            }
+
+            // Filter by Category - PENTING: pastikan relasi CategoryID benar
+            if ($categoryID) {
+                $tickets = $tickets->filter('CategoryID', $categoryID);
             }
 
             // Filter by Province
@@ -160,6 +170,10 @@ namespace {
             // Apply sorting with expired events at bottom
             return $this->sortTicketsWithExpiredAtBottom($tickets, $sort);
         }
+
+        /**
+         * Sort tickets dengan expired di bawah
+         */
         protected function sortTicketsWithExpiredAtBottom($tickets, $sort)
         {
             $ticketArray = $tickets->toArray();
@@ -188,6 +202,10 @@ namespace {
             
             return ArrayList::create($sortedTickets);
         }
+
+        /**
+         * Sort array of tickets
+         */
         protected function sortTicketArray($ticketArray, $sort)
         {
             switch ($sort) {
@@ -241,32 +259,28 @@ namespace {
             
             return $ticketArray;
         }
-        protected function sortTicketsByPrice($tickets, $direction)
+
+        public function UpcomingTickets()
         {
-            return $this->sortTicketsWithExpiredAtBottom($tickets, $direction);
+            return Ticket::get()
+                ->filter([
+                    'IsExpired' => false,
+                ])
+                ->filter('EventDate:GreaterThanOrEqual', date('Y-m-d'))
+                ->sort('EventDate', 'ASC')
+                ->limit(6);
         }
 
-    public function UpcomingTickets()
-    {
-        return Ticket::get()
-            ->filter([
-                'IsExpired' => false,
-            ])
-            ->filter('EventDate:GreaterThanOrEqual', date('Y-m-d'))
-            ->sort('EventDate', 'ASC')
-            ->limit(6);
-    }
-
-    /**
-     * Event berakhir
-     */
-    public function ExpiredTickets()
-    {
-        return Ticket::get()
-            ->filter('IsExpired', true)
-            ->sort('EventDate', 'DESC')
-            ->limit(6);
-    }
+        /**
+         * Event berakhir
+         */
+        public function ExpiredTickets()
+        {
+            return Ticket::get()
+                ->filter('IsExpired', true)
+                ->sort('EventDate', 'DESC')
+                ->limit(6);
+        }
 
     }
 }

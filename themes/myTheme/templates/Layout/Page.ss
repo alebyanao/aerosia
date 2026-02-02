@@ -692,16 +692,16 @@
                     <div class="card-icon">
                         <i class="fa-solid fa-film"></i>
                     </div>
-                    <h3>Festival Film</h3>
-                    <p>Akses premiere film dan acara eksklusif bersama komunitas pecinta film.</p>
+                    <h3>Acara Hiburan</h3>
+                    <p>Beli tiket acara hiburan pilihan secara cepat dan aman.</p>
                 </div>
 
                 <div class="card-item">
                     <div class="card-icon">
                         <i class="fa-solid fa-users"></i>
                     </div>
-                    <h3>Event Komunitas</h3>
-                    <p>Temukan dan ikuti event komunitas terbaik sesuai minat dan passion Anda.</p>
+                    <h3>Acara Umum</h3>
+                    <p>Pesan tiket berbagai acara umum dengan proses yang mudah.</p>
                 </div>
 
             </div>

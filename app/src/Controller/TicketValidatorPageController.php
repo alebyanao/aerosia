@@ -1,10 +1,10 @@
 <?php
 
-use SilverStripe\Control\Controller;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Control\HTTPResponse;
 use SilverStripe\Security\Security;
 use SilverStripe\ORM\FieldType\DBDatetime;
+use SilverStripe\Security\Permission;
 
 class TicketValidatorPageController extends PageController 
 {
@@ -21,9 +21,21 @@ class TicketValidatorPageController extends PageController
     public function init()
     {
         parent::init();
-        // Cek login admin/staff
+
+        // Harus login
         if (!Security::getCurrentUser()) {
-            return $this->redirect('/Security/login?BackURL=' . urlencode($this->Link()));
+            return Security::permissionFailure(
+                $this,
+                'Silakan login sebagai admin untuk mengakses scanner.'
+            );
+        }
+
+        // Harus punya permission SCAN_TICKET
+        if (!Permission::check('SCAN_TICKET')) {
+            return Security::permissionFailure(
+                $this,
+                'Anda tidak memiliki hak untuk melakukan scan tiket.'
+            );
         }
     }
 
@@ -107,4 +119,6 @@ class TicketValidatorPageController extends PageController
         $response->addHeader('Content-Type', 'application/json');
         return $response;
     }
+
+    
 }

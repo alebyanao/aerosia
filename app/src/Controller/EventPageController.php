@@ -17,12 +17,13 @@ class EventPageController extends PageController
     ];
 
     /**
-     * Index method dengan enhanced filters
+     * Index method dengan enhanced filters including category
      */
     public function index(HTTPRequest $request)
     {
         // Get all filter parameters
         $searchQuery = $request->getVar('search');
+        $categoryId = $request->getVar('category');
         $provinceId = $request->getVar('province');
         $cityId = $request->getVar('city');
         $month = $request->getVar('month');
@@ -31,7 +32,7 @@ class EventPageController extends PageController
         $maxPrice = $request->getVar('max_price');
         $sort = $request->getVar('sort') ?: 'date_asc';
         
-        // Get filtered tickets using parent method
+        // Get filtered tickets menggunakan parent method
         $tickets = $this->getFilteredTickets(
             $searchQuery,
             $provinceId, 
@@ -40,7 +41,8 @@ class EventPageController extends PageController
             $year,
             $minPrice,
             $maxPrice,
-            $sort
+            $sort,
+            $categoryId  // PASTIKAN parameter ini dikirim
         );
 
         // Get price range from database
@@ -48,15 +50,27 @@ class EventPageController extends PageController
 
         $data = array_merge($this->getCommonData(), [
             'Tickets' => $tickets,
+            'CategoryList' => $this->getCategoryList(),
+            'ProvinceList' => $this->getProvinceList(),
+            'CityList' => $this->getCityList(),
+            'MonthList' => $this->getMonthList(),
+            'YearList' => $this->getYearList(),
+            'CurrentCategory' => $categoryId,
+            'CurrentCategoryName' => $this->getCurrentCategoryName(),
             'CurrentProvince' => $provinceId,
+            'CurrentProvinceName' => $this->getCurrentProvinceName(),
             'CurrentCity' => $cityId,
+            'CurrentCityName' => $this->getCurrentCityName(),
             'CurrentMonth' => $month,
+            'CurrentMonthName' => $this->getCurrentMonthName(),
             'CurrentYear' => $year,
             'CurrentMinPrice' => $minPrice ?: 0,
             'CurrentMaxPrice' => $maxPrice,
             'CurrentSort' => $sort,
             'MinPriceRange' => $priceRange['min'],
             'MaxPriceRange' => $priceRange['max'],
+            'HasActiveFilters' => $this->getHasActiveFilters(),
+            'Link' => $this->Link(),
         ]);
 
         return $this->customise($data)->renderWith(['EventPage', 'Page']);
@@ -81,6 +95,38 @@ class EventPageController extends PageController
             'min' => $minPrice,
             'max' => $maxPrice
         ];
+    }
+
+    /**
+     * Get category list untuk dropdown
+     */
+    public function getCategoryList()
+    {
+        $currentCategory = $this->getRequest()->getVar('category');
+        $categories = Category::get();
+        
+        $list = ArrayList::create();
+        foreach ($categories as $category) {
+            $list->push(ArrayData::create([
+                'ID' => $category->ID,
+                'Name' => $category->Name,
+                'Selected' => ((string)$category->ID === (string)$currentCategory)
+            ]));
+        }
+        
+        return $list;
+    }
+
+    /**
+     * Get current category name
+     */
+    public function getCurrentCategoryName()
+    {
+        $id = $this->getRequest()->getVar('category');
+        if (!$id) return null;
+        
+        $cat = Category::get()->byID($id);
+        return $cat ? $cat->Name : null;
     }
 
     /**
@@ -254,7 +300,8 @@ class EventPageController extends PageController
     public function getHasActiveFilters()
     {
         $request = $this->getRequest();
-        return $request->getVar('province') 
+        return $request->getVar('category') 
+            || $request->getVar('province') 
             || $request->getVar('city')
             || $request->getVar('month')
             || $request->getVar('year')
@@ -326,4 +373,5 @@ class EventPageController extends PageController
         }
         return null;
     }
+    
 }

@@ -75,6 +75,16 @@
                             </div>
                         </div>
 
+                        <div class="filter-group">
+                            <label class="filter-group-label">Kategori</label>
+                            <select name="category" class="filter-select-sidebar">
+                                <option value="">Semua Kategori</option>
+                                <% loop $CategoryList %>
+                                    <option value="$ID" <% if $Selected %>selected<% end_if %>>$Name</option>
+                                <% end_loop %>
+                            </select>
+                        </div>
+
                         <!-- Month & Year -->
                         <div class="row">
                             <div class="col-6">
