@@ -105,6 +105,44 @@
               </div>
             </div>
           <% end_if %>
+
+          <!-- TICKET SCAN STATUS SECTION (BARU - UTAMA) -->
+          <% if $Status == 'completed' && $PaymentStatus == 'paid' %>
+            <div class="ticket-status-section-detail mt-4">
+              <% if $QRCodeScanned %>
+                <div class="ticket-status-card scanned">
+                  <div class="status-icon-large">
+                    <i class="bi bi-check-circle-fill"></i>
+                  </div>
+                  <div class="status-content">
+                    <h5 class="status-title">✓ TIKET SUDAH DIGUNAKAN</h5>
+                    <div class="status-details">
+                      <p class="detail-item">
+                        <strong>Waktu Check-in:</strong><br>
+                        $ScannedAt.Nice
+                      </p>
+                      <% if $ScannedBy %>
+                        <p class="detail-item">
+                          <strong>Di-scan oleh:</strong><br>
+                          $ScannedBy
+                        </p>
+                      <% end_if %>
+                    </div>
+                  </div>
+                </div>
+              <% else %>
+                <div class="ticket-status-card not-scanned">
+                  <div class="status-icon-large">
+                    <i class="bi bi-qrcode"></i>
+                  </div>
+                  <div class="status-content">
+                    <h5 class="status-title">⧓ TIKET BELUM DIGUNAKAN</h5>
+                    <p class="status-message">Tiket ini masih aktif dan belum di-scan pada saat check-in event.</p>
+                  </div>
+                </div>
+              <% end_if %>
+            </div>
+          <% end_if %>
         </div>
       </div>
 
@@ -492,6 +530,83 @@ body {
   font-size: 12px;
 }
 
+/* TICKET STATUS SECTION (BARU) */
+.ticket-status-section-detail {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 2px solid #e8e8e8;
+}
+
+.ticket-status-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  border-radius: 10px;
+  border-left: 5px solid;
+}
+
+.ticket-status-card.scanned {
+  background-color: #d4edda;
+  border-left-color: #28a745;
+  color: #155724;
+}
+
+.ticket-status-card.not-scanned {
+  background-color: #e7f5ff;
+  border-left-color: #0c5460;
+  color: #0c5460;
+}
+
+.status-icon-large {
+  font-size: 40px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.ticket-status-card.scanned .status-icon-large {
+  color: #28a745;
+}
+
+.ticket-status-card.not-scanned .status-icon-large {
+  color: #0c5460;
+}
+
+.status-content {
+  flex: 1;
+}
+
+.status-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.detail-item {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.detail-item strong {
+  font-weight: 700;
+}
+
+.status-message {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
 /* Event Detail Image */
 .event-detail-image {
   width: 100%;
@@ -789,6 +904,15 @@ body {
   .event-detail-image {
     height: 200px;
   }
+
+  .ticket-status-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .status-icon-large {
+    font-size: 32px;
+  }
 }
 
 @media (max-width: 576px) {
@@ -819,6 +943,19 @@ body {
   .transaction-table th,
   .transaction-table td {
     padding: 10px 8px;
+  }
+
+  .ticket-status-card {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .status-icon-large {
+    font-size: 28px;
+  }
+
+  .status-title {
+    font-size: 14px;
   }
 }
 </style>

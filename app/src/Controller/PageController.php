@@ -27,17 +27,79 @@ namespace {
                 "CityFilter" => $this->getRequest()->getVar('city'),
             ];
         }
-
         public function index(HTTPRequest $request)
         {
             $categories = Category::get();
 
-        
+            // Get upcoming dan expired tickets
+            $upcomingTickets = $this->UpcomingTickets();
+            $expiredTickets = $this->ExpiredTickets();
+
+            // Add wishlist status ke tickets
+            $upcomingTickets = $this->getTicketsWithWishlistStatus($upcomingTickets);
+            $expiredTickets = $this->getTicketsWithWishlistStatus($expiredTickets);
+
             $data = array_merge($this->getCommonData(), [
                 "Category" => $categories,
+                "UpcomingTickets" => $upcomingTickets,
+                "ExpiredTickets" => $expiredTickets,
             ]);
 
             return $this->customise($data)->renderWith('Page');
+        }
+
+        /**
+         * Check if ticket is in wishlist for current user
+         */
+        public function isTicketInWishlist($ticketID)
+        {
+            if (!$this->isLoggedIn()) {
+                return false;
+            }
+
+            $user = $this->getCurrentUser();
+            if (!$user || !$user->exists()) {
+                return false;
+            }
+
+            $wishlist = Wishlist::get()->filter([
+                'TicketID' => $ticketID,
+                'MemberID' => $user->ID
+            ])->first();
+
+            return $wishlist ? true : false;
+        }
+
+        /**
+         * Get all tickets dengan IsInWishlist flag
+         */
+        public function getTicketsWithWishlistStatus($tickets)
+        {
+            if (!$this->isLoggedIn()) {
+                foreach ($tickets as $ticket) {
+                    $ticket->IsInWishlist = false;
+                }
+                return $tickets;
+            }
+
+            $user = $this->getCurrentUser();
+            $ticketIds = array_map(function ($t) {
+                return $t->ID;
+            }, $tickets->toArray());
+
+            $wishlists = Wishlist::get()
+                ->filter('MemberID', $user->ID)
+                ->filter('TicketID', $ticketIds);
+
+            $wishlistIds = array_map(function ($w) {
+                return $w->TicketID;
+            }, $wishlists->toArray());
+
+            foreach ($tickets as $ticket) {
+                $ticket->IsInWishlist = in_array($ticket->ID, $wishlistIds);
+            }
+
+            return $tickets;
         }
 
         /**
@@ -84,7 +146,7 @@ namespace {
                         error_log("Error getting wishlist count: " . $e->getMessage());
                         return 0;
                     }
-                }   
+                }
             }
             return 0;
         }
@@ -93,8 +155,8 @@ namespace {
          * Get filtered tickets dengan support category filter
          */
         public function getFilteredTickets(
-            $searchQuery = null, 
-            $provinceId = null, 
+            $searchQuery = null,
+            $provinceId = null,
             $cityId = null,
             $month = null,
             $year = null,
@@ -131,42 +193,42 @@ namespace {
 
             // Filter by month
             if ($month) {
-                $tickets = $tickets->where("MONTH(EventDate) = " . (int)$month);
+                $tickets = $tickets->where("MONTH(EventDate) = " . (int) $month);
             }
-            
+
             // Filter by year
             if ($year) {
-                $tickets = $tickets->where("YEAR(EventDate) = " . (int)$year);
+                $tickets = $tickets->where("YEAR(EventDate) = " . (int) $year);
             }
-            
+
             // Filter by price range
             if ($minPrice !== null || $maxPrice !== null) {
                 // Get ticket IDs that match price criteria
                 $sql = "SELECT DISTINCT TicketID FROM TicketType WHERE 1=1";
-                
+
                 if ($minPrice !== null && $minPrice !== '') {
-                    $sql .= " AND Price >= " . (int)$minPrice;
+                    $sql .= " AND Price >= " . (int) $minPrice;
                 }
-                
+
                 if ($maxPrice !== null && $maxPrice !== '') {
-                    $sql .= " AND Price <= " . (int)$maxPrice;
+                    $sql .= " AND Price <= " . (int) $maxPrice;
                 }
-                
+
                 $result = DB::query($sql);
                 $ticketIds = [];
-                
+
                 foreach ($result as $row) {
                     $ticketIds[] = $row['TicketID'];
                 }
-                
+
                 if (empty($ticketIds)) {
                     // No tickets match price criteria
                     return ArrayList::create();
                 }
-                
+
                 $tickets = $tickets->filter('ID', $ticketIds);
             }
-            
+
             // Apply sorting with expired events at bottom
             return $this->sortTicketsWithExpiredAtBottom($tickets, $sort);
         }
@@ -178,11 +240,11 @@ namespace {
         {
             $ticketArray = $tickets->toArray();
             $today = date('Y-m-d');
-            
+
             // Separate expired and active tickets
             $activeTickets = [];
             $expiredTickets = [];
-            
+
             foreach ($ticketArray as $ticket) {
                 if ($ticket->EventDate < $today) {
                     $expiredTickets[] = $ticket;
@@ -190,16 +252,16 @@ namespace {
                     $activeTickets[] = $ticket;
                 }
             }
-            
+
             // Sort active tickets
             $activeTickets = $this->sortTicketArray($activeTickets, $sort);
-            
+
             // Sort expired tickets (same logic)
             $expiredTickets = $this->sortTicketArray($expiredTickets, $sort);
-            
+
             // Merge: active first, expired last
             $sortedTickets = array_merge($activeTickets, $expiredTickets);
-            
+
             return ArrayList::create($sortedTickets);
         }
 
@@ -210,53 +272,57 @@ namespace {
         {
             switch ($sort) {
                 case 'date_desc':
-                    usort($ticketArray, function($a, $b) {
+                    usort($ticketArray, function ($a, $b) {
                         return strcmp($b->EventDate, $a->EventDate);
                     });
                     break;
-                    
+
                 case 'name_asc':
-                    usort($ticketArray, function($a, $b) {
+                    usort($ticketArray, function ($a, $b) {
                         return strcmp($a->Title, $b->Title);
                     });
                     break;
-                    
+
                 case 'name_desc':
-                    usort($ticketArray, function($a, $b) {
+                    usort($ticketArray, function ($a, $b) {
                         return strcmp($b->Title, $a->Title);
                     });
                     break;
-                    
+
                 case 'price_asc':
-                    usort($ticketArray, function($a, $b) {
+                    usort($ticketArray, function ($a, $b) {
                         $priceA = $a->getMinPrice();
                         $priceB = $b->getMinPrice();
-                        
-                        if ($priceA === 0 || $priceA === null) $priceA = PHP_INT_MAX;
-                        if ($priceB === 0 || $priceB === null) $priceB = PHP_INT_MAX;
-                        
+
+                        if ($priceA === 0 || $priceA === null)
+                            $priceA = PHP_INT_MAX;
+                        if ($priceB === 0 || $priceB === null)
+                            $priceB = PHP_INT_MAX;
+
                         return $priceA <=> $priceB;
                     });
                     break;
-                    
+
                 case 'price_desc':
-                    usort($ticketArray, function($a, $b) {
+                    usort($ticketArray, function ($a, $b) {
                         $priceA = $a->getMinPrice();
                         $priceB = $b->getMinPrice();
-                        
-                        if ($priceA === 0 || $priceA === null) $priceA = -1;
-                        if ($priceB === 0 || $priceB === null) $priceB = -1;
-                        
+
+                        if ($priceA === 0 || $priceA === null)
+                            $priceA = -1;
+                        if ($priceB === 0 || $priceB === null)
+                            $priceB = -1;
+
                         return $priceB <=> $priceA;
                     });
                     break;
-                    
-                default: 
-                    usort($ticketArray, function($a, $b) {
+
+                default:
+                    usort($ticketArray, function ($a, $b) {
                         return strcmp($a->EventDate, $b->EventDate);
                     });
             }
-            
+
             return $ticketArray;
         }
 

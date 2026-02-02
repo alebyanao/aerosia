@@ -19,10 +19,6 @@ class TicketValidatorPageController extends PageController implements Permission
         '' => 'index'
     ];
 
-    /**
-     * Mendaftarkan permission SCAN_TICKET ke CMS.
-     * Setelah flush, Anda bisa melihat ini di Security > Groups > Permissions.
-     */
     public function providePermissions()
     {
         return [
@@ -37,28 +33,14 @@ class TicketValidatorPageController extends PageController implements Permission
     public function init()
     {
         parent::init();
-
         $user = Security::getCurrentUser();
 
-        // 1. Harus login
         if (!$user) {
-            return Security::permissionFailure(
-                $this,
-                'Silakan login untuk mengakses scanner.'
-            );
+            return Security::permissionFailure($this, 'Silakan login.');
         }
 
-        /**
-         * 2. Cek Hak Akses
-         * Permission::check otomatis mengembalikan TRUE jika:
-         * - User adalah Superadmin (memiliki akses ADMIN)
-         * - User berada di grup yang sudah kita centang "Bisa melakukan Scan Tiket"
-         */
         if (!Permission::check('SCAN_TICKET')) {
-            return Security::permissionFailure(
-                $this,
-                'Anda tidak memiliki hak untuk melakukan scan tiket.'
-            );
+            return Security::permissionFailure($this, 'Akses ditolak.');
         }
     }
 
@@ -74,46 +56,33 @@ class TicketValidatorPageController extends PageController implements Permission
         }
 
         $code = $request->postVar('code');
-
         if (!$code) {
             return $this->jsonResponse(['status' => 'error', 'message' => 'Kode tidak terbaca'], 400);
         }
 
-        // Cari Order berdasarkan OrderCode atau QRCodeData
         $order = Order::get()->filterAny([
             'OrderCode' => $code,
             'QRCodeData' => $code
         ])->first();
 
-        // Cek 1: Tiket ditemukan?
         if (!$order) {
             return $this->jsonResponse(['status' => 'error', 'message' => 'Tiket TIDAK DITEMUKAN!'], 404);
         }
 
-        // Cek 2: Apakah sudah lunas?
         if ($order->PaymentStatus != 'paid') {
             return $this->jsonResponse(['status' => 'error', 'message' => 'Tiket BELUM LUNAS.'], 400);
         }
 
-        // Cek 3: Apakah sudah pernah discan?
         if ($order->QRCodeScanned) {
-            $scanTime = date('d M Y H:i', strtotime($order->ScannedAt));
-            $scanner = $order->ScannedBy ? " oleh " . $order->ScannedBy : "";
-            
             return $this->jsonResponse([
                 'status' => 'error', 
                 'message' => "Tiket SUDAH DIGUNAKAN!",
-                'detail' => "Check-in pada: $scanTime $scanner",
-                'data' => [
-                    'Name' => $order->FullName,
-                    'Ticket' => $order->TicketType()->TypeName
-                ]
+                'detail' => "Check-in pada: " . date('d M Y H:i', strtotime($order->ScannedAt))
             ], 400);
         }
 
-        // == LOLOS VALIDASI: UPDATE DATA ==
+        // UPDATE DATA
         $currentUser = Security::getCurrentUser();
-        
         $order->QRCodeScanned = true;
         $order->ScannedAt = DBDatetime::now()->getValue();
         $order->ScannedBy = $currentUser ? ($currentUser->FirstName . ' ' . $currentUser->Surname) : 'System';
@@ -124,16 +93,8 @@ class TicketValidatorPageController extends PageController implements Permission
             'message' => 'Check-in Berhasil!',
             'data' => [
                 'Name' => $order->FullName,
-                'Ticket' => $order->TicketType()->TypeName,
-                'Qty' => $order->Quantity
+                'Ticket' => $order->TicketType()->TypeName
             ]
         ]);
-    }
-
-    private function jsonResponse($data, $code = 200)
-    {
-        $response = new HTTPResponse(json_encode($data), $code);
-        $response->addHeader('Content-Type', 'application/json');
-        return $response;
     }
 }

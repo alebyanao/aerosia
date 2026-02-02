@@ -216,7 +216,7 @@
 
 .wishlist-icon-sidebar.disabled {
     color: #e5e7eb;
-    cursor: not-allowed;
+    cursor: not-allowed;zz
     pointer-events: none;
 }
 

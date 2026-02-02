@@ -53,6 +53,26 @@
 
               <div class="divider-line my-3"></div>
 
+              <!-- Ticket Scan Status Badge (BARU) -->
+              <% if $Status == 'completed' && $PaymentStatus == 'paid' %>
+                <div class="ticket-scan-badge-container mb-3">
+                  <% if $QRCodeScanned %>
+                    <div class="ticket-scan-badge scanned">
+                      <i class="bi bi-check-circle-fill"></i>
+                      <span class="scan-text">Tiket Sudah Digunakan</span>
+                      <% if $ScannedAt %>
+                        <span class="scan-detail">($ScannedAt.Nice)</span>
+                      <% end_if %>
+                    </div>
+                  <% else %>
+                    <div class="ticket-scan-badge not-scanned">
+                      <i class="bi bi-qrcode"></i>
+                      <span class="scan-text">Tiket Aktif - Belum Digunakan</span>
+                    </div>
+                  <% end_if %>
+                </div>
+              <% end_if %>
+
               <!-- Order Content -->
               <div class="order-content">
                 <div class="order-info">
@@ -292,6 +312,49 @@ body {
   margin: 16px 0;
 }
 
+/* Ticket Scan Badge Container (BARU) */
+.ticket-scan-badge-container {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.ticket-scan-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.ticket-scan-badge i {
+  font-size: 14px;
+}
+
+.ticket-scan-badge.scanned {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.ticket-scan-badge.not-scanned {
+  background-color: #e7f5ff;
+  color: #0c5460;
+  border: 1px solid #b6e7ff;
+}
+
+.scan-text {
+  font-weight: 600;
+}
+
+.scan-detail {
+  font-size: 11px;
+  opacity: 0.8;
+  margin-left: 4px;
+}
+
 /* Order Content */
 .order-content {
   display: grid;
@@ -524,6 +587,10 @@ body {
     padding: 8px 16px;
     font-size: 13px;
   }
+
+  .ticket-scan-badge {
+    white-space: normal;
+  }
 }
 
 @media (max-width: 576px) {
@@ -558,6 +625,11 @@ body {
     text-align: center;
     padding: 10px 12px;
     font-size: 12px;
+  }
+
+  .ticket-scan-badge {
+    font-size: 11px;
+    padding: 6px 12px;
   }
 }
 </style>

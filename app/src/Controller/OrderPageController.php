@@ -139,12 +139,20 @@ class OrderPageController extends PageController
             }
         }
 
+        // Prepare ticket scan status data
+        $ticketScanStatus = [
+            'IsScanned' => $order->QRCodeScanned,
+            'ScannedAt' => $order->ScannedAt,
+            'ScannedBy' => $order->ScannedBy
+        ];
+
         $data = [
             'Order' => $order,
             'TicketType' => $ticketType,
             'Ticket' => $ticket,
             'Transactions' => $transactions,
             'TimeRemaining' => $timeRemaining,
+            'TicketScanStatus' => $ticketScanStatus,
             'Title' => 'Detail Pesanan ' . $order->OrderCode,
             'CurrentUser' => $currentUser,
             
