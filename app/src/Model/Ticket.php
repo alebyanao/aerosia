@@ -33,6 +33,7 @@ class Ticket extends DataObject
         'Instagram' => 'Varchar(50)',
         'InstagramURL' => 'Varchar(50)',
         'Description' => 'HTMLText',
+        'IsExpired'    => 'Boolean', 
     ];
 
     private static $has_many = [
