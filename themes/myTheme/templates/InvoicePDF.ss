@@ -403,11 +403,6 @@
             </p>
         </div>
 
-        <div class="invoice-footer">
-            <p>Invoice ini digenerate secara otomatis pada $InvoiceDate</p>
-            <p>© <% if $SiteConfig.Copyright %>$SiteConfig.Copyright<% else %>All Copyright Reserved<% end_if %></p>
-        </div>
-
         <!-- Footer -->
         <div class="invoice-footer">
             <p style="margin: 0;">© <% if $SiteConfig.Copyright %>$SiteConfig.Copyright<% else %>All Copyright Reserved<% end_if %></p>
