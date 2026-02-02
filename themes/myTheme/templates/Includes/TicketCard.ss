@@ -31,30 +31,22 @@
                 <% else %>
                     <span class="ticket-price-sidebar">$PriceLabel</span>
                 <% end_if %>
-
-                <% if $Top.IsLoggedIn %>
-                    <% if $canBeOrdered %>
-                        <% if $IsInWishlist %>
-                            <a href="$BaseHref/wishlist/toggle/$ID"
-                               class="wishlist-icon-sidebar active">
-                                <i class="bi bi-heart-fill"></i>
-                            </a>
-                        <% else %>
-                            <a href="$BaseHref/wishlist/toggle/$ID"
-                               class="wishlist-icon-sidebar">
-                                <i class="bi bi-heart"></i>
-                            </a>
-                        <% end_if %>
+                <% if $canBeOrdered %>
+                    <% if $IsInWishlist %>
+                        <a href="$BaseHref/wishlist/toggle/$ID"
+                            class="wishlist-icon-sidebar active">
+                            <i class="bi bi-heart-fill"></i>
+                        </a>
                     <% else %>
-                        <span class="wishlist-icon-sidebar disabled">
+                        <a href="$BaseHref/wishlist/toggle/$ID"
+                            class="wishlist-icon-sidebar">
                             <i class="bi bi-heart"></i>
-                        </span>
+                        </a>
                     <% end_if %>
                 <% else %>
-                    <a href="$BaseHref/auth/login"
-                       class="wishlist-icon-sidebar">
+                    <span class="wishlist-icon-sidebar disabled">
                         <i class="bi bi-heart"></i>
-                    </a>
+                    </span>
                 <% end_if %>
             </div>
         </div>
@@ -241,6 +233,30 @@
 .ticket-small .ticket-price-sidebar {
     font-size: 16px;
 }
-
-
 </style>
+
+<script>
+document.querySelectorAll('.js-wishlist-toggle').forEach(button => {
+    button.addEventListener('click', function(e) {
+        const url = this.getAttribute('data-url');
+        const icon = this.querySelector('i');
+        
+        fetch(url, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(response => {
+            if (response.redirected) {
+                // Jika server mencoba redirect ke login, berarti session habis
+                window.location.href = response.url;
+                return;
+            }
+            return response.json();
+        })
+        .then(data => {
+            this.classList.toggle('active');
+            icon.classList.toggle('bi-heart');
+            icon.classList.toggle('bi-heart-fill');
+        });
+    });
+});
+</script>

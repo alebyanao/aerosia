@@ -17,8 +17,9 @@ namespace {
          */
         protected function getCommonData()
         {
+            $member = Security::getCurrentUser();
             return [
-                "IsLoggedIn" => $this->isLoggedIn(),
+                "IsLoggedIn" => ($member && $member->exists()),
                 "CurrentUser" => $this->getCurrentUser(),
                 "WishlistCount" => $this->getWishlistCount(),
                 "CustomSiteConfig" => SiteConfig::current_site_config(),
