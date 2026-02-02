@@ -5,8 +5,9 @@ use SilverStripe\Control\HTTPResponse;
 use SilverStripe\Security\Security;
 use SilverStripe\ORM\FieldType\DBDatetime;
 use SilverStripe\Security\Permission;
+use SilverStripe\Security\PermissionProvider;
 
-class TicketValidatorPageController extends PageController 
+class TicketValidatorPageController extends PageController implements PermissionProvider
 {
     private static $allowed_actions = [
         'index',
@@ -18,19 +19,41 @@ class TicketValidatorPageController extends PageController
         '' => 'index'
     ];
 
+    /**
+     * Mendaftarkan permission SCAN_TICKET ke CMS.
+     * Setelah flush, Anda bisa melihat ini di Security > Groups > Permissions.
+     */
+    public function providePermissions()
+    {
+        return [
+            'SCAN_TICKET' => [
+                'name' => 'Bisa melakukan Scan Tiket',
+                'category' => 'Akses Event',
+                'help' => 'Izinkan user ini untuk menggunakan scanner tiket'
+            ]
+        ];
+    }
+
     public function init()
     {
         parent::init();
 
-        // Harus login
-        if (!Security::getCurrentUser()) {
+        $user = Security::getCurrentUser();
+
+        // 1. Harus login
+        if (!$user) {
             return Security::permissionFailure(
                 $this,
-                'Silakan login sebagai admin untuk mengakses scanner.'
+                'Silakan login untuk mengakses scanner.'
             );
         }
 
-        // Harus punya permission SCAN_TICKET
+        /**
+         * 2. Cek Hak Akses
+         * Permission::check otomatis mengembalikan TRUE jika:
+         * - User adalah Superadmin (memiliki akses ADMIN)
+         * - User berada di grup yang sudah kita centang "Bisa melakukan Scan Tiket"
+         */
         if (!Permission::check('SCAN_TICKET')) {
             return Security::permissionFailure(
                 $this,
@@ -56,14 +79,11 @@ class TicketValidatorPageController extends PageController
             return $this->jsonResponse(['status' => 'error', 'message' => 'Kode tidak terbaca'], 400);
         }
 
-        // 1. Cari Order berdasarkan OrderCode
-        // Asumsi: QR Code Anda berisi OrderCode (misal: INV-ORD-123)
-        $order = Order::get()->filter(['OrderCode' => $code])->first();
-
-        // Jika tidak ketemu via OrderCode, coba cari via QRCodeData (jika Anda pakai hash unik)
-        if (!$order) {
-            $order = Order::get()->filter(['QRCodeData' => $code])->first();
-        }
+        // Cari Order berdasarkan OrderCode atau QRCodeData
+        $order = Order::get()->filterAny([
+            'OrderCode' => $code,
+            'QRCodeData' => $code
+        ])->first();
 
         // Cek 1: Tiket ditemukan?
         if (!$order) {
@@ -72,10 +92,10 @@ class TicketValidatorPageController extends PageController
 
         // Cek 2: Apakah sudah lunas?
         if ($order->PaymentStatus != 'paid') {
-            return $this->jsonResponse(['status' => 'error', 'message' => 'Tiket BELUM LUNAS. Status: ' . $order->PaymentStatus], 400);
+            return $this->jsonResponse(['status' => 'error', 'message' => 'Tiket BELUM LUNAS.'], 400);
         }
 
-        // Cek 3: Apakah sudah pernah discan? (Logic Hangus)
+        // Cek 3: Apakah sudah pernah discan?
         if ($order->QRCodeScanned) {
             $scanTime = date('d M Y H:i', strtotime($order->ScannedAt));
             $scanner = $order->ScannedBy ? " oleh " . $order->ScannedBy : "";
@@ -92,14 +112,11 @@ class TicketValidatorPageController extends PageController
         }
 
         // == LOLOS VALIDASI: UPDATE DATA ==
-        
-        $order->QRCodeScanned = true; // Tandai sudah dipakai
-        $order->ScannedAt = DBDatetime::now()->getValue();
-        
-        // Catat siapa yang scan (Admin/Staff yang sedang login)
         $currentUser = Security::getCurrentUser();
-        $order->ScannedBy = $currentUser ? $currentUser->FirstName : 'System';
         
+        $order->QRCodeScanned = true;
+        $order->ScannedAt = DBDatetime::now()->getValue();
+        $order->ScannedBy = $currentUser ? ($currentUser->FirstName . ' ' . $currentUser->Surname) : 'System';
         $order->write();
 
         return $this->jsonResponse([
@@ -119,6 +136,4 @@ class TicketValidatorPageController extends PageController
         $response->addHeader('Content-Type', 'application/json');
         return $response;
     }
-
-    
 }
