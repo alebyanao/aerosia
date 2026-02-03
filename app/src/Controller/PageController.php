@@ -88,9 +88,14 @@ namespace {
                 return $t->ID;
             }, $tickets->toArray());
 
-            $wishlists = Wishlist::get()
-                ->filter('MemberID', $user->ID)
-                ->filter('TicketID', $ticketIds);
+            if (!empty($ticketIds)) {
+                $wishlists = Wishlist::get()
+                    ->filter('MemberID', $user->ID)
+                    ->filter('TicketID', $ticketIds);
+            } else {
+                $wishlists = Wishlist::get()
+                    ->filter('MemberID', $user->ID);
+            }
 
             $wishlistIds = array_map(function ($w) {
                 return $w->TicketID;
