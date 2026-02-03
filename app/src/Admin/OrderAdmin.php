@@ -8,52 +8,31 @@ class OrderAdmin extends ModelAdmin
 {
     private static $managed_models = [
         Order::class,
-        PaymentTransaction::class
     ];
 
     private static $url_segment = 'order';
     private static $menu_title = 'Order';
     private static $menu_icon_class = 'font-icon-clipboard-pencil';
 
-    /**
-     * LOGIC UTAMA FILTERING
-     * Membatasi tampilan data agar User hanya melihat order dari tiket buatannya sendiri.
-     */
     public function getList()
     {
         $list = parent::getList();
-        
-        // 1. Ambil User yang sedang login
         $member = Security::getCurrentUser();
-
-        // 2. Jika tidak ada user login, kembalikan list kosong/default
         if (!$member) {
             return $list;
         }
-
-        // 3. Jika user adalah SUPER ADMIN, tampilkan SEMUA data (jangan difilter)
         if (Permission::check('ADMIN')) {
             return $list;
         }
-
-        // 4. Jika user Biasa (Moderator/EO), filter berdasarkan model yang sedang dibuka
-        
-        // A. Jika sedang membuka tab 'Order'
         if ($this->modelClass == Order::class) {
-            // Filter: Order -> TicketType -> Ticket -> MemberID
             $list = $list->filter('TicketType.Ticket.MemberID', $member->ID);
         }
-
-        // B. Jika sedang membuka tab 'PaymentTransaction'
         if ($this->modelClass == PaymentTransaction::class) {
-            // Filter: PaymentTransaction -> Order -> TicketType -> Ticket -> MemberID
             $list = $list->filter('Order.TicketType.Ticket.MemberID', $member->ID);
         }
 
         return $list;
     }
-
-    // Agar kolom export rapi
     public function getExportFields()
     {
         $fields = [
@@ -62,7 +41,7 @@ class OrderAdmin extends ModelAdmin
             'FullName' => 'Nama Pemesan',
             'Email' => 'Email',
             'TicketType.TypeName' => 'Tipe Tiket',
-            'TicketType.Ticket.Title' => 'Nama Event', // Tambahan: Biar tau ini order event apa
+            'TicketType.Ticket.Title' => 'Nama Event', 
             'Quantity' => 'Qty',
             'FormattedGrandTotal' => 'Total Bayar',
             'Status' => 'Status Order',
@@ -76,21 +55,12 @@ class OrderAdmin extends ModelAdmin
     $form = parent::getEditForm($id, $fields);
     $gridField = $form->Fields()->fieldByName($this->sanitiseClassName($this->modelClass));
     
-    // Pastikan kita hanya memproses tab Order
     if ($gridField && $this->modelClass == Order::class) {
         $list = $this->getList();
-
-        // 1. Ambil data yang benar-benar sudah lunas
         $paidList = $list->filter('PaymentStatus', 'paid');
-
-        // 2. Hitung Total (Menggunakan nama kolom asli di DB: TotalPrice & PaymentFee)
         $totalTicketIncome = (double)$paidList->sum('TotalPrice');
         $totalAdminFee     = (double)$paidList->sum('PaymentFee');
         $totalAll = $totalTicketIncome + $totalAdminFee;
-        
-        // Pendapatan bersih adalah TotalPrice saja (karena PaymentFee biasanya lari ke gateway/vendor)
-        // Atau jika pendapatan bersih menurutmu adalah TotalPrice, biarkan saja.
-        
         $form->Fields()->insertBefore(
             $this->sanitiseClassName($this->modelClass),
             \SilverStripe\Forms\LiteralField::create(
@@ -115,7 +85,7 @@ class OrderAdmin extends ModelAdmin
                     </div>',
                     number_format($totalAll,  0, ',', '.'),
                     number_format($totalAdminFee, 0, ',', '.'),
-                    number_format($totalTicketIncome, 0, ',', '.') // Menampilkan TotalPrice sebagai pendapatan bersih
+                    number_format($totalTicketIncome, 0, ',', '.') 
                 )
             )
         );

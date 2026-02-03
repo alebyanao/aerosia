@@ -5,3 +5,5 @@ use SilverStripe\SiteConfig\SiteConfig;
 
 Member::add_extension(MemberExtension::class);
 SiteConfig::add_extension( CustomSiteConfig::class);
+
+date_default_timezone_set('Asia/Jakarta');

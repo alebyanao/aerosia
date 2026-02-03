@@ -164,7 +164,7 @@
       </div>
 
       <div class="row g-4">
-        <!-- Left Column -->
+        <!-- Left Column - Event & Buyer -->
         <div class="col-lg-8">
           <!-- Event Details -->
           <% with $Up.Ticket %>
@@ -236,48 +236,6 @@
               </div>
             </div>
           </div>
-
-          <!-- Payment Transactions -->
-          <% if $Up.Transactions %>
-            <div class="modern-card mb-4">
-              <div class="card-header-modern">
-                <h5 class="section-title">
-                  <i class="bi bi-credit-card"></i>
-                  RIWAYAT TRANSAKSI
-                </h5>
-              </div>
-              <div class="card-body-modern">
-                <div class="table-responsive">
-                  <table class="transaction-table">
-                    <thead>
-                      <tr>
-                        <th>Transaction ID</th>
-                        <th>Tanggal</th>
-                        <th>Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <% loop $Up.Transactions %>
-                        <tr>
-                          <td><code class="transaction-code">$TransactionID</code></td>
-                          <td>$CreatedAt.Nice</td>
-                          <td>
-                            <% if $Status == 'success' %>
-                              <span class="status-badge-small status-success">Success</span>
-                            <% else_if $Status == 'failed' %>
-                              <span class="status-badge-small status-cancelled">Failed</span>
-                            <% else %>
-                              <span class="status-badge-small status-pending">Pending</span>
-                            <% end_if %>
-                          </td>
-                        </tr>
-                      <% end_loop %>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          <% end_if %>
         </div>
 
         <!-- Right Column (Summary) -->
@@ -765,6 +723,8 @@ body {
 /* Summary Detail */
 .summary-card-sticky {
   position: sticky;
+  top: 120px;
+  height: fit-content;
 }
 
 .summary-detail-row {
@@ -975,6 +935,7 @@ body {
     font-size: 14px;
   }
 }
+
 .ticket-scan-grid .ticket-status-card {
   height: 100%;
   display: flex;

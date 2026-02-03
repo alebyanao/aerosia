@@ -355,24 +355,6 @@
         </div>
 
         <!-- QR Code -->
-       <div class="totals-wrapper">
-            <div class="totals-content">
-                <div class="total-row">
-                    <div class="total-label">Subtotal Produk:</div>
-                    <div class="total-value">$FormattedTotalPrice</div>
-                </div>
-                <div class="total-row">
-                    <div class="total-label">Biaya Admin ($PaymentMethod):</div>
-                    <div class="total-value">$FormattedPaymentFee</div>
-                </div>
-                <div class="divider"></div>
-                <div class="total-row">
-                    <div class="total-label bold">TOTAL:</div>
-                    <div class="total-value bold">$FormattedGrandTotal</div>
-                </div>
-            </div>
-        </div>
-
         <div style="margin-top: 30px; text-align: center;">
             <h3 style="font-size: 11pt; color: #333; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
                 QR Code Tiket Masuk ($Quantity Tiket)
