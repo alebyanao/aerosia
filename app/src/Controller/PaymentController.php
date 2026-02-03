@@ -1,5 +1,6 @@
 <?php
 
+use SilverStripe\Control\Director;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Control\HTTPResponse;
 use SilverStripe\Security\Security;
@@ -24,10 +25,12 @@ class PaymentController extends PageController
     public function initiate(HTTPRequest $request)
     {
         $orderID = $request->param('ID');
-        if (!$orderID) return $this->httpError(400, 'Order ID required');
+        if (!$orderID)
+            return $this->httpError(400, 'Order ID required');
 
         $order = Order::get()->byID($orderID);
-        if (!$order) return $this->httpError(404, 'Order not found');
+        if (!$order)
+            return $this->httpError(404, 'Order not found');
 
         $currentUser = Security::getCurrentUser();
         if (!$currentUser || $order->MemberID != $currentUser->ID) {
@@ -37,27 +40,27 @@ class PaymentController extends PageController
         if ($order->getGrandTotal() <= 0) {
             error_log('PaymentController::initiate - Free ticket, redirecting to order detail');
             $request->getSession()->set('PaymentError', 'Tiket gratis tidak memerlukan pembayaran');
-            return $this->redirect('/order/detail/' . $orderID);
+            return $this->redirect(Director::absoluteBaseURL() . '/order/detail/' . $orderID);
         }
 
         // Cek kadaluarsa
         if (method_exists($order, 'isExpired') && $order->isExpired()) {
             $order->cancelOrder();
             $request->getSession()->set('PaymentError', 'Pesanan telah kedaluwarsa');
-            return $this->redirect('/order/detail/' . $orderID);
+            return $this->redirect(Director::absoluteBaseURL() . '/order/detail/' . $orderID);
         }
 
         // Cek kelayakan pembayaran
         if (method_exists($order, 'canBePaid') && !$order->canBePaid()) {
             $request->getSession()->set('PaymentError', 'Pesanan tidak dapat dibayar');
-            return $this->redirect('/order/detail/' . $orderID);
+            return $this->redirect(Director::absoluteBaseURL() . '/order/detail/' . $orderID);
         }
 
         // Cek transaksi pending
         $existing = PaymentTransaction::get()
             ->filter([
                 'OrderID' => $order->ID,
-                'Status'  => 'pending'
+                'Status' => 'pending'
             ])
             ->first();
 
@@ -94,7 +97,7 @@ class PaymentController extends PageController
 
         $errorMessage = $response['error'] ?? 'Gagal membuat transaksi pembayaran';
         $request->getSession()->set('PaymentError', $errorMessage);
-        return $this->redirect('/order/detail/' . $orderID);
+        return $this->redirect(Director::absoluteBaseURL() . '/order/detail/' . $orderID);
     }
 
     /**
@@ -172,7 +175,7 @@ class PaymentController extends PageController
         $resultCode = $request->getVar('resultCode');
 
         if (!$merchantOrderId) {
-            return $this->redirect('/order');
+            return $this->redirect(Director::absoluteBaseURL() . '/order');
         }
 
         $transaction = PaymentTransaction::get()->filter('TransactionID', $merchantOrderId)->first();
@@ -205,7 +208,7 @@ class PaymentController extends PageController
             $request->getSession()->set('PaymentError', 'Pembayaran gagal atau dibatalkan. Pesanan telah dibatalkan.');
         }
 
-        return $this->redirect('/order/detail/' . $order->ID);
+        return $this->redirect(Director::absoluteBaseURL() . '/order/detail/' . $order->ID);
     }
 
     private function sendPaymentSuccessNotification($order)

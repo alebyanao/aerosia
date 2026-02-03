@@ -784,6 +784,9 @@ document.addEventListener('DOMContentLoaded', function() {
     submitBtnText.innerHTML = '<span class="spinner-border-sm"></span>Memproses...';
     
     // PENTING: Jangan preventDefault di sini, biarkan form submit dengan target="_blank"
+    setTimeout(() => {
+      window.location.href = '/aerosia';
+    }, 5000)
   });
 
   // Auto-dismiss Alerts
@@ -796,5 +799,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }, 5000);
     });
   }, 100);
+
+
 });
 </script>
